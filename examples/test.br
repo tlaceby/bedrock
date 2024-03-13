@@ -1,0 +1,20 @@
+struct Person {
+    Age  number;
+    Name string;
+}
+
+struct Foo <T> {
+    Data []T;
+}
+
+fn (p &Person) Hello () string {
+    return format("Hello! My name is {} and I am {} years old. Nice to meet you.!", p.Name, p.Age);
+}
+
+fn main () {
+    println("Hello world");
+
+    let speakers = make([]Speakable[], 10);
+
+    append(speakers, Person{Age: 24, Name: "John Doe"})
+}
