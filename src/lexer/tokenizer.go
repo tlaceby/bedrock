@@ -47,7 +47,6 @@ func (lex *lexer) advanceN(n int) {
 	lex.pos += n
 }
 
-
 func (lex *lexer) remainder() string {
 	return lex.source[lex.pos:]
 }
@@ -82,6 +81,7 @@ func createLexer(source string) *lexer {
 			{regexp.MustCompile(`!=`), defaultHandler(NOT_EQUALS, "!=")},
 			{regexp.MustCompile(`=`), defaultHandler(ASSIGNMENT, "=")},
 			{regexp.MustCompile(`!`), defaultHandler(NOT, "!")},
+			{regexp.MustCompile(`->`), defaultHandler(ARROW, "->")},
 			{regexp.MustCompile(`<=`), defaultHandler(LESS_EQUALS, "<=")},
 			{regexp.MustCompile(`<`), defaultHandler(LESS, "<")},
 			{regexp.MustCompile(`>=`), defaultHandler(GREATER_EQUALS, ">=")},
@@ -91,6 +91,7 @@ func createLexer(source string) *lexer {
 			{regexp.MustCompile(`\.\.`), defaultHandler(DOT_DOT, "..")},
 			{regexp.MustCompile(`\.`), defaultHandler(DOT, ".")},
 			{regexp.MustCompile(`;`), defaultHandler(SEMI_COLON, ";")},
+			{regexp.MustCompile(`::`), defaultHandler(COLON_COLON, "::")},
 			{regexp.MustCompile(`:`), defaultHandler(COLON, ":")},
 			{regexp.MustCompile(`\?\?=`), defaultHandler(NULLISH_ASSIGNMENT, "??=")},
 			{regexp.MustCompile(`\?`), defaultHandler(QUESTION, "?")},
@@ -111,11 +112,11 @@ func createLexer(source string) *lexer {
 
 type regexHandler func(lex *lexer, regex *regexp.Regexp)
 
-func (l *lexer) location () Location {
+func (l *lexer) location() Location {
 	return Location{
-		Line: l.line,
+		Line:  l.line,
 		Start: l.pos,
-		End: -1,
+		End:   -1,
 	}
 }
 
@@ -131,9 +132,9 @@ func defaultHandler(kind TokenKind, value string) regexHandler {
 
 func stringHandler(lex *lexer, regex *regexp.Regexp) {
 	match := regex.FindStringIndex(lex.remainder())
-	stringLiteral := lex.remainder()[match[0]:match[1]]
+	stringLiteral := lex.remainder()[match[0]+1 : match[1]-1]
 	loc := lex.location()
-	lex.advanceN(len(stringLiteral))
+	lex.advanceN(len(stringLiteral) + 2)
 	loc.End = lex.pos - 1
 	lex.push(newUniqueToken(STRING, stringLiteral, loc))
 }

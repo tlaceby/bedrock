@@ -8,7 +8,7 @@ import (
 	"github.com/tlaceby/bedrock/src/lexer"
 )
 
-func parse_expr (p *parser, bp binding_power) ast.Expr {
+func parse_expr(p *parser, bp binding_power) ast.Expr {
 	tokenKind := p.currentTokenKind()
 	nud_fn, exists := nud_lu[tokenKind]
 
@@ -32,28 +32,27 @@ func parse_expr (p *parser, bp binding_power) ast.Expr {
 	return left
 }
 
-func parse_prefix_expr (p *parser) ast.Expr {
+func parse_prefix_expr(p *parser) ast.Expr {
 	operatorToken := p.advance()
 	expr := parse_expr(p, unary)
 
 	return ast.PrefixExpr{
 		Operator: operatorToken,
-		Right: expr,
+		Right:    expr,
 	}
 }
 
-func parse_assignment_expr (p *parser, left ast.Expr, bp binding_power) ast.Expr {
+func parse_assignment_expr(p *parser, left ast.Expr, bp binding_power) ast.Expr {
 	p.advance()
 	rhs := parse_expr(p, bp)
 
 	return ast.AssignmentExpr{
-		Assigne: left,
+		Assigne:       left,
 		AssignedValue: rhs,
 	}
 }
 
-
-func parse_range_expr (p *parser, left ast.Expr, bp binding_power) ast.Expr {
+func parse_range_expr(p *parser, left ast.Expr, bp binding_power) ast.Expr {
 	p.advance()
 
 	return ast.RangeExpr{
@@ -62,58 +61,69 @@ func parse_range_expr (p *parser, left ast.Expr, bp binding_power) ast.Expr {
 	}
 }
 
-func parse_binary_expr (p *parser, left ast.Expr, bp binding_power) ast.Expr {
+func parse_binary_expr(p *parser, left ast.Expr, bp binding_power) ast.Expr {
 	operatorToken := p.advance()
 	right := parse_expr(p, defalt_bp)
 
 	return ast.BinaryExpr{
-		Left: left,
+		Left:     left,
 		Operator: operatorToken,
-		Right: right,
+		Right:    right,
 	}
 }
 
-func parse_primary_expr (p *parser) ast.Expr {
-	switch	p.currentTokenKind() {
-		case lexer.NUMBER:
-			number, _ := strconv.ParseFloat(p.advance().Value, 64)
-			return ast.NumberExpr{
-				Value: number,
-			}
-		case lexer.STRING:
-			return ast.StringExpr{
-				Value: p.advance().Value,
-			}
-		case lexer.IDENTIFIER:
-			return ast.SymbolExpr{
-				Value: p.advance().Value,
-			}
-		default:
-			panic(fmt.Sprintf("Cannot create primary_expr from %s\n", lexer.TokenKindString(p.currentTokenKind())))
+func parse_primary_expr(p *parser) ast.Expr {
+	switch p.currentTokenKind() {
+	case lexer.NUMBER:
+		number, _ := strconv.ParseFloat(p.advance().Value, 64)
+		return ast.NumberExpr{
+			Value: number,
+		}
+	case lexer.STRING:
+		return ast.StringExpr{
+			Value: p.advance().Value,
+		}
+	case lexer.IDENTIFIER:
+		return ast.SymbolExpr{
+			Value: p.advance().Value,
+		}
+	default:
+		panic(fmt.Sprintf("Cannot create primary_expr from %s\n", lexer.TokenKindString(p.currentTokenKind())))
 	}
 }
 
-func parse_member_expr (p *parser, left ast.Expr, bp binding_power) ast.Expr {
+func parse_member_expr(p *parser, left ast.Expr, bp binding_power) ast.Expr {
 	isComputed := p.advance().Kind == lexer.OPEN_BRACKET
 
 	if isComputed {
 		rhs := parse_expr(p, bp)
 		p.expect(lexer.CLOSE_BRACKET)
 		return ast.ComputedExpr{
-			Member: left,
+			Member:   left,
 			Property: rhs,
 		}
 	}
 
 	return ast.MemberExpr{
-		Member: left,
+		Member:   left,
 		Property: p.expect(lexer.IDENTIFIER).Value,
 	}
 }
 
-func parse_array_literal_expr (p* parser) ast.Expr {
+func parse_static_member_expr(p *parser, left ast.Expr, bp binding_power) ast.Expr {
+	p.expect(lexer.COLON_COLON)
+
+	memberName := ast.ExpectExpr[ast.SymbolExpr](left).Value
+
+	return ast.StaticMemberExpr{
+		StructName: memberName,
+		MethodName: p.expect(lexer.IDENTIFIER).Value,
+	}
+}
+
+func parse_array_literal_expr(p *parser) ast.Expr {
 	p.expect(lexer.OPEN_BRACKET)
-	arrayContents := make([]ast.Expr,0)
+	arrayContents := make([]ast.Expr, 0)
 
 	for p.hasTokens() && p.currentTokenKind() != lexer.CLOSE_BRACKET {
 		arrayContents = append(arrayContents, parse_expr(p, logical))
@@ -130,39 +140,77 @@ func parse_array_literal_expr (p* parser) ast.Expr {
 	}
 }
 
-func parse_grouping_expr (p *parser) ast.Expr {
+func parse_grouping_expr(p *parser) ast.Expr {
 	p.expect(lexer.OPEN_PAREN)
 	expr := parse_expr(p, defalt_bp)
 	p.expect(lexer.OPEN_PAREN)
 	return expr
 }
 
-func parse_call_expr (p *parser, left ast.Expr, bp binding_power) ast.Expr {
-	p.advance()
+func parse_call_expr(p *parser, left ast.Expr, bp binding_power) ast.Expr {
+	p.expect(lexer.OPEN_PAREN)
 	arguments := make([]ast.Expr, 0)
 
 	for p.hasTokens() && p.currentTokenKind() != lexer.CLOSE_PAREN {
 		arguments = append(arguments, parse_expr(p, assignment))
 
-		if !p.currentToken().IsOneOfMany(lexer.EOF, lexer.CLOSE_PAREN) {
+		if p.currentTokenKind() != lexer.CLOSE_PAREN {
 			p.expect(lexer.COMMA)
 		}
 	}
 
 	p.expect(lexer.CLOSE_PAREN)
 	return ast.CallExpr{
-		Method: left,
+		Method:    left,
 		Arguments: arguments,
 	}
 }
 
-func parse_fn_expr (p *parser) ast.Expr {
+func parse_fn_expr(p *parser) ast.Expr {
 	p.expect(lexer.FN)
 	functionParams, returnType, functionBody := parse_fn_params_and_body(p)
 
 	return ast.FunctionExpr{
 		Parameters: functionParams,
 		ReturnType: returnType,
-		Body: functionBody,
+		Body:       functionBody,
+	}
+}
+
+func parse_struct_instantiation(p *parser, left ast.Expr, bp binding_power) ast.Expr {
+	p.expect(lexer.OPEN_CURLY)
+	structName := ast.ExpectExpr[ast.SymbolExpr](left).Value
+	objects := make([]ast.ObjectField, 0)
+
+	for p.hasTokens() && p.currentTokenKind() != lexer.CLOSE_CURLY {
+		key := p.expect(lexer.IDENTIFIER).Value
+		var explicitValue ast.Expr
+
+		// this is the last value as we require a ending comma to terminate the struct literal
+		if p.currentTokenKind() == lexer.COMMA {
+			objects = append(objects, ast.ObjectField{
+				PropertyName:  key,
+				PropertyValue: explicitValue,
+			})
+
+			p.advance() // eat the comma
+			continue
+		}
+
+		p.expect(lexer.COLON)
+		explicitValue = parse_expr(p, assignment)
+		objects = append(objects, ast.ObjectField{
+			PropertyName:  key,
+			PropertyValue: explicitValue,
+		})
+
+		p.expect(lexer.COMMA)
+	}
+
+	p.expect(lexer.CLOSE_CURLY)
+
+	return ast.StructInstantiationExpr{
+		StructName: structName,
+		Objects:    objects,
 	}
 }

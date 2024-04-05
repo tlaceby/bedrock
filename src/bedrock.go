@@ -17,5 +17,5 @@ func main() {
 	duration := time.Since(start)
 
 	litter.Dump(ast)
-	fmt.Printf("Duration: %v\n",duration)
+	fmt.Printf("Duration: %v\n", duration)
 }

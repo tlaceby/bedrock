@@ -6,7 +6,6 @@ type TokenKind int
 
 const (
 	EOF TokenKind = iota
-	NULL
 	NUMBER
 	STRING
 	IDENTIFIER
@@ -40,9 +39,11 @@ const (
 	DOT_DOT
 	SEMI_COLON
 	COLON
+	COLON_COLON
 	QUESTION
 	COMMA
 	AMPERSAND
+	ARROW
 
 	// Shorthand
 	PLUS_PLUS
@@ -62,8 +63,9 @@ const (
 	LET
 	CONST
 	STRUCT
-	NEW
 	IMPORT
+	TRAIT
+	AS
 	FROM
 	FN
 	INTERFACE
@@ -72,50 +74,57 @@ const (
 	FOREACH
 	WHILE
 	FOR
-	EXPORT
 	TYPEOF
 	IN
+	RETURN
+	BREAK
+	CONTINUE
+	STATIC
 
 	// Misc
 	NUM_TOKENS
 )
 
 var reserved_lu map[string]TokenKind = map[string]TokenKind{
-	"let":     LET,
-	"const":   CONST,
-	"struct":   STRUCT,
-	"new":     NEW,
-	"import":  IMPORT,
-	"from":    FROM,
+	"let":       LET,
+	"const":     CONST,
+	"struct":    STRUCT,
+	"import":    IMPORT,
+	"from":      FROM,
 	"interface": INTERFACE,
-	"fn":      FN,
-	"if":      IF,
-	"else":    ELSE,
-	"foreach": FOREACH,
-	"while":   WHILE, // not used
-	"for":     FOR, // not used
-	"export":  EXPORT, // not used
-	"typeof":  TYPEOF,
-	"in":  IN,
+	"fn":        FN,
+	"if":        IF,
+	"else":      ELSE,
+	"foreach":   FOREACH,
+	"return":    RETURN,
+	"continue":  CONTINUE,
+	"break":     BREAK,
+	"static":    STATIC,
+	"while":     WHILE, // not used
+	"for":       FOR,   // not used
+	"as":        AS,
+	"trait":     TRAIT,
+	"typeof":    TYPEOF,
+	"in":        IN,
 }
 
 type Location struct {
-	Line int
+	Line  int
 	Start int
-	End int
+	End   int
 }
 
-func (l Location) String () string {
+func (l Location) String() string {
 	return fmt.Sprintf("Line=%d | Start= %d | End=%d", l.Line, l.Start, l.End)
 }
 
 type Token struct {
-	Kind  TokenKind
-	Value string
+	Kind     TokenKind
+	Value    string
 	Location Location
 }
 
-func (tk Token) IsOneOfMany (expectedTokens ...TokenKind) bool {
+func (tk Token) IsOneOfMany(expectedTokens ...TokenKind) bool {
 	for _, expected := range expectedTokens {
 		if expected == tk.Kind {
 			return true
@@ -129,7 +138,7 @@ func (token Token) Debug() {
 	print(token.String())
 }
 
-func (token Token) String () string {
+func (token Token) String() string {
 	locStr := token.Location.String()
 	if token.Kind == IDENTIFIER || token.Kind == NUMBER || token.Kind == STRING {
 		return fmt.Sprintf("%s [%s](%s)\n", locStr, TokenKindString(token.Kind), token.Value)
@@ -142,8 +151,6 @@ func TokenKindString(kind TokenKind) string {
 	switch kind {
 	case EOF:
 		return "eof"
-	case NULL:
-		return "null"
 	case NUMBER:
 		return "number"
 	case STRING:
@@ -186,10 +193,14 @@ func TokenKindString(kind TokenKind) string {
 		return "dot"
 	case DOT_DOT:
 		return "dot_dot"
+	case ARROW:
+		return "arrow"
 	case SEMI_COLON:
 		return "semi_colon"
 	case COLON:
 		return "colon"
+	case COLON_COLON:
+		return "colon_colon"
 	case QUESTION:
 		return "question"
 	case AMPERSAND:
@@ -222,10 +233,12 @@ func TokenKindString(kind TokenKind) string {
 		return "const"
 	case STRUCT:
 		return "struct"
-	case NEW:
-		return "new"
 	case IMPORT:
 		return "import"
+	case AS:
+		return "as"
+	case TRAIT:
+		return "trait"
 	case FROM:
 		return "from"
 	case FN:
@@ -244,6 +257,14 @@ func TokenKindString(kind TokenKind) string {
 		return "in"
 	case INTERFACE:
 		return "interface"
+	case RETURN:
+		return "return"
+	case CONTINUE:
+		return "continue"
+	case STATIC:
+		return "static"
+	case BREAK:
+		return "break"
 	default:
 		return fmt.Sprintf("unknown(%d)", kind)
 	}

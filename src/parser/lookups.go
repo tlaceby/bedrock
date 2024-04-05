@@ -6,6 +6,7 @@ import (
 )
 
 type binding_power int
+
 const (
 	defalt_bp binding_power = iota
 	comma
@@ -20,9 +21,9 @@ const (
 	primary
 )
 
-type stmt_handler func (p *parser) ast.Stmt
-type nud_handler  func (p *parser) ast.Expr
-type led_handler  func (p *parser, left ast.Expr, bp binding_power) ast.Expr
+type stmt_handler func(p *parser) ast.Stmt
+type nud_handler func(p *parser) ast.Expr
+type led_handler func(p *parser, left ast.Expr, bp binding_power) ast.Expr
 
 type stmt_lookup map[lexer.TokenKind]stmt_handler
 type nud_lookup map[lexer.TokenKind]nud_handler
@@ -32,25 +33,22 @@ type bp_lookup map[lexer.TokenKind]binding_power
 var bp_lu = bp_lookup{}
 var nud_lu = nud_lookup{}
 var led_lu = led_lookup{}
-var stmt_lu =stmt_lookup{}
+var stmt_lu = stmt_lookup{}
 
-
-func led (kind lexer.TokenKind, bp binding_power, led_fn led_handler) {
+func led(kind lexer.TokenKind, bp binding_power, led_fn led_handler) {
 	bp_lu[kind] = bp
 	led_lu[kind] = led_fn
 }
 
-func nud (kind lexer.TokenKind, bp binding_power, nud_fn nud_handler) {
-	bp_lu[kind] = primary
+func nud(kind lexer.TokenKind, nud_fn nud_handler) {
 	nud_lu[kind] = nud_fn
 }
 
-func stmt (kind lexer.TokenKind, stmt_fn stmt_handler) {
-	bp_lu[kind] = defalt_bp
+func stmt(kind lexer.TokenKind, stmt_fn stmt_handler) {
 	stmt_lu[kind] = stmt_fn
 }
 
-func createTokenLookups () {
+func createTokenLookups() {
 	// Assignment
 	led(lexer.ASSIGNMENT, assignment, parse_assignment_expr)
 	led(lexer.PLUS_EQUALS, assignment, parse_assignment_expr)
@@ -77,32 +75,26 @@ func createTokenLookups () {
 	led(lexer.PERCENT, multiplicative, parse_binary_expr)
 
 	// Literals & Symbols
-	nud(lexer.NUMBER, primary, parse_primary_expr)
-	nud(lexer.STRING, primary, parse_primary_expr)
-	nud(lexer.IDENTIFIER, primary, parse_primary_expr)
+	nud(lexer.NUMBER, parse_primary_expr)
+	nud(lexer.STRING, parse_primary_expr)
+	nud(lexer.IDENTIFIER, parse_primary_expr)
 
 	// Unary/Prefix
-	nud(lexer.TYPEOF, unary, parse_prefix_expr)
-	nud(lexer.DASH, unary, parse_prefix_expr)
-	nud(lexer.NOT, unary, parse_prefix_expr)
-	nud(lexer.OPEN_BRACKET, primary, parse_array_literal_expr)
+	nud(lexer.TYPEOF, parse_prefix_expr)
+	nud(lexer.DASH, parse_prefix_expr)
+	nud(lexer.NOT, parse_prefix_expr)
+	nud(lexer.OPEN_BRACKET, parse_array_literal_expr)
 
-	// Member / Computed // Call
+	// Member / Computed / Call
 	led(lexer.DOT, member, parse_member_expr)
+	led(lexer.COLON_COLON, member, parse_static_member_expr)
 	led(lexer.OPEN_BRACKET, member, parse_member_expr)
 	led(lexer.OPEN_PAREN, call, parse_call_expr)
+	led(lexer.OPEN_CURLY, call, parse_struct_instantiation)
 
 	// Grouping Expr
-	nud(lexer.OPEN_PAREN, defalt_bp, parse_grouping_expr)
-	nud(lexer.FN, defalt_bp, parse_fn_expr)
-	nud(lexer.NEW, defalt_bp, func(p *parser) ast.Expr {
-		p.advance()
-		classInstantiation := parse_expr(p, defalt_bp)
-
-		return ast.NewExpr{
-			Instantiation: ast.ExpectExpr[ast.CallExpr](classInstantiation),
-		}
-	})
+	nud(lexer.OPEN_PAREN, parse_grouping_expr)
+	nud(lexer.FN, parse_fn_expr)
 
 	stmt(lexer.OPEN_CURLY, parse_block_stmt)
 	stmt(lexer.LET, parse_var_decl_stmt)
@@ -112,4 +104,6 @@ func createTokenLookups () {
 	stmt(lexer.IMPORT, parse_import_stmt)
 	stmt(lexer.FOREACH, parse_foreach_stmt)
 	stmt(lexer.STRUCT, parse_struct_declaration_stmt)
+	stmt(lexer.RETURN, parse_return_stmt)
+	stmt(lexer.TRAIT, parse_trait_stmt)
 }

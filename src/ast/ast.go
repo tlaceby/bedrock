@@ -3,21 +3,25 @@ package ast
 import "github.com/tlaceby/bedrock/src/helpers"
 
 type Stmt interface {
-	stmt ()
+	stmt()
 }
 
 type Expr interface {
-	expr ()
+	expr()
 }
 
 type Type interface {
-	_type ()
+	_type()
 }
 
-func ExpectExpr [T Expr] (expr Expr) T {
+func ExpectExpr[T Expr](expr Expr) T {
 	return helpers.ExpectType[T](expr)
 }
 
-func ExpectStmt [T Stmt] (expr Stmt) T {
+func ExpectStmt[T Stmt](expr Stmt) T {
 	return helpers.ExpectType[T](expr)
+}
+
+func ExpectType[T Type](_type Type) T {
+	return helpers.ExpectType[T](_type)
 }

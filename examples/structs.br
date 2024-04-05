@@ -1,4 +1,3 @@
-// main.br
 import math from "std.math";
 
 fn add (x: number, y: number) -> number {
@@ -47,7 +46,7 @@ fn main () {
         radius: math.pi,
     });
 
-    println("Count: {}", c.count());
+    println("Count: ", c.count(1, 2));
 
     // Output:
     // Count: 24

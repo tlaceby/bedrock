@@ -7,9 +7,8 @@ import (
 	"github.com/tlaceby/bedrock/src/lexer"
 )
 
-
-type type_nud_handler  func (p *parser) ast.Type
-type type_led_handler  func (p *parser, left ast.Type, bp binding_power) ast.Type
+type type_nud_handler func(p *parser) ast.Type
+type type_led_handler func(p *parser, left ast.Type, bp binding_power) ast.Type
 
 type type_nud_lookup map[lexer.TokenKind]type_nud_handler
 type type_led_lookup map[lexer.TokenKind]type_led_handler
@@ -19,38 +18,23 @@ var type_bp_lu = type_bp_lookup{}
 var type_nud_lu = type_nud_lookup{}
 var type_led_lu = type_led_lookup{}
 
-
-func type_led (kind lexer.TokenKind, bp binding_power, led_fn type_led_handler) {
+func type_led(kind lexer.TokenKind, bp binding_power, led_fn type_led_handler) {
 	type_bp_lu[kind] = bp
 	type_led_lu[kind] = led_fn
 }
 
-func type_nud (kind lexer.TokenKind, bp binding_power, nud_fn type_nud_handler) {
+func type_nud(kind lexer.TokenKind, nud_fn type_nud_handler) {
 	type_bp_lu[kind] = primary
 	type_nud_lu[kind] = nud_fn
 }
 
-func createTypeTokenLookups () {
-
-	type_nud(lexer.IDENTIFIER, primary, func(p *parser) ast.Type {
-		return ast.SymbolType{
-			Value: p.advance().Value,
-		}
-	})
-
-	// []number
-	type_nud(lexer.OPEN_BRACKET	, member, func(p *parser) ast.Type {
-		p.advance()
-		p.expect(lexer.CLOSE_BRACKET)
-		insideType := parse_type(p, defalt_bp)
-
-		return ast.ListType{
-			Underlying: insideType,
-		}
-	})
+func createTypeTokenLookups() {
+	type_nud(lexer.IDENTIFIER, parse_symbol_type) // T
+	type_nud(lexer.OPEN_BRACKET, parse_list_type) // []T
+	type_nud(lexer.FN, parse_fn_type)             // fn (...[]Type) -> Type
 }
 
-func parse_type (p *parser, bp binding_power) ast.Type {
+func parse_type(p *parser, bp binding_power) ast.Type {
 	tokenKind := p.currentTokenKind()
 	nud_fn, exists := type_nud_lu[tokenKind]
 
@@ -72,4 +56,44 @@ func parse_type (p *parser, bp binding_power) ast.Type {
 	}
 
 	return left
+}
+
+func parse_symbol_type(p *parser) ast.Type {
+	return ast.SymbolType{
+		Value: p.advance().Value,
+	}
+}
+
+func parse_list_type(p *parser) ast.Type {
+	p.advance()
+	p.expect(lexer.CLOSE_BRACKET)
+	insideType := parse_type(p, defalt_bp)
+
+	return ast.ListType{
+		Underlying: insideType,
+	}
+}
+
+func parse_fn_type(p *parser) ast.Type {
+	var params = []ast.Type{}
+	var returns ast.Type
+
+	p.expect(lexer.FN)
+	p.expect(lexer.OPEN_PAREN)
+	for p.hasTokens() && p.currentTokenKind() != lexer.CLOSE_PAREN {
+		params = append(params, parse_type(p, defalt_bp))
+
+		if p.currentTokenKind() != lexer.CLOSE_PAREN {
+			p.expect(lexer.COMMA)
+		}
+	}
+
+	p.expect(lexer.CLOSE_PAREN)
+	p.expect(lexer.ARROW)
+
+	returns = parse_type(p, defalt_bp)
+	return ast.FnType{
+		Parameters: params,
+		ReturnType: returns,
+	}
 }

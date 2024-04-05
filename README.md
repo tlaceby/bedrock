@@ -1,7 +1,9 @@
 # Bedrock **(.br)**
+
 Bedrock is a statically typed programming language designed to provide a solid foundation for building general-purpose computer programs. With a syntax inspired by Rust, Go, and C#, Bedrock aims to be simple, concise, and easy to use while offering powerful modern features.
 
 ## Key Features
+
 - Tagged Enums: Bedrock supports tagged enums, similar to Rust, allowing you to define custom types with multiple variants. This enables expressive and type-safe coding patterns.
 - Errors as Values: Bedrock treats errors as first-class citizens, using the Result type to explicitly handle and propagate errors. This encourages robust error handling and helps prevent unexpected program behavior.
 - Option Type: Bedrock provides an Option type to represent the presence or absence of a value, eliminating the need for null references and reducing the chances of null pointer exceptions.
@@ -14,20 +16,71 @@ Bedrock is a statically typed programming language designed to provide a solid f
 To get started with Bedrock, follow these steps:
 
 - Install the Bedrock compiler and virtual machine by following the installation guide in the documentation.
-Write your Bedrock code using your favorite text editor or IDE.
+  Write your Bedrock code using your favorite text editor or IDE.
 
 - Compile your Bedrock code using the Bedrock compiler, which will generate bytecode for the virtual machine.
-Run the compiled bytecode on the Bedrock virtual machine to execute your program.
+  Run the compiled bytecode on the Bedrock virtual machine to execute your program.
 
 ## Examples
 
 Here's a simple "Hello, World!" program in Bedrock:
-```br
-# The main function is the entry point to the application.
-fn main() {
-    println("Hello, World!");
+
+```rs
+// main.br
+import math from "std.math";
+
+fn add (x: number, y: number) -> number {
+    return x + y;
 }
 
+trait Countable {
+    count: fn () -> number;
+}
+
+
+struct Circle {
+    radius: number;
+
+    fn count () -> number {
+        return self.radius;
+    }
+}
+
+struct Person {
+    age: number;
+    name: string;
+    friends: []Person;
+
+    fn new (name: string, age: number) -> Person {
+        return Person{
+            name,
+            age,
+        };
+    }
+
+    fn greet () {
+        println("My name is {} and my age is {}", self.name, self.age);
+    }
+
+    fn count () -> number {
+        return self.age;
+    }
+}
+
+fn main () {
+    let countables: []Countable = [];
+
+    countables.push(Person::new("Tyler", 24));
+    countables.push(Circle{
+        radius: math.pi,
+    });
+
+    println("Count: ", c.count());
+
+    // Output:
+    // Count: 24
+    // Count: 10
+}
 ```
 
 Bedrock is open-source software licensed under the MIT License.
