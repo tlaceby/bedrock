@@ -6,16 +6,17 @@ import (
 	"time"
 
 	"github.com/sanity-io/litter"
+	"github.com/tlaceby/bedrock/src/analysis"
 	"github.com/tlaceby/bedrock/src/parser"
 )
 
 func main() {
 	sourceBytes, _ := os.ReadFile("./examples/test.br")
-	source := string(sourceBytes)
 	start := time.Now()
-	ast := parser.Parse(source)
+	ast := parser.Parse(string(sourceBytes))
 	duration := time.Since(start)
 
 	litter.Dump(ast)
-	fmt.Printf("Duration: %v\n", duration)
+	analysis.Typecheck(ast)
+	fmt.Printf("\nDuration: %v\n", duration)
 }
