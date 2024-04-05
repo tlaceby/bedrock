@@ -250,6 +250,12 @@ func parse_struct_declaration_stmt(p *parser) ast.Stmt {
 
 func parse_return_stmt(p *parser) ast.Stmt {
 	p.expect(lexer.RETURN)
+
+	if p.currentTokenKind() == lexer.SEMI_COLON {
+		p.expect(lexer.SEMI_COLON)
+		return ast.ReturnStmt{} // returns void
+	}
+
 	return ast.ReturnStmt{
 		ReturnValue: parse_expression_stmt(p).Expression,
 	}

@@ -3,3 +3,7 @@
 const pi = 3.14;
 let y = pi + 1.2;
 const sum = pi + y * 2.4;
+
+fn add (x: number, y: number) -> number {
+    return x + y;
+}

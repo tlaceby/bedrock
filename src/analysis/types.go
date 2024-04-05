@@ -85,5 +85,20 @@ func CastableToBool(t Type) bool {
 func defineGlobalDefaultTypes(table *SymbolTable) {
 	table.DefinedTypes["string"] = StrType{}
 	table.DefinedTypes["number"] = NumType{}
+	table.DefinedTypes["void"] = VoidType{}
 	table.DefinedTypes["bool"] = BoolType{}
+
+	table.Symbols["true"] = SymbolInfo{
+		Type:            BoolType{},
+		IsConstant:      true,
+		AssignmentCount: 1,
+		AccessedCount:   1,
+	}
+
+	table.Symbols["false"] = SymbolInfo{
+		Type:            BoolType{},
+		IsConstant:      true,
+		AssignmentCount: 1,
+		AccessedCount:   1,
+	}
 }

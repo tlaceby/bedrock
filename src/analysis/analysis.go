@@ -21,13 +21,18 @@ type SymbolInfo struct {
 }
 
 type SymbolTable struct {
-	TableName    string // the chained name of the current environment
-	TableID      int    // ID assigned to table
-	IsGlobal     bool   // whether this table exists in the global scope
-	IsFunction   bool   // whether this table is the body of a function
-	Parent       *SymbolTable
-	DefinedTypes map[string]Type
-	Symbols      map[string]SymbolInfo
+	TableName string // the chained name of the current environment
+	TableID   int    // ID assigned to table
+
+	IsGlobal   bool // whether this table exists in the global scope
+	IsModule   bool // Represents the module which this table exists in
+	IsFunction bool // whether this table is the body of a function
+
+	Parent       *SymbolTable          // Reference to parent environment
+	DefinedTypes map[string]Type       // All Alias/ Defined Types / Traits
+	Symbols      map[string]SymbolInfo // All Variables/Functions/Modlues
+
+	FoundReturnTypes []Type // Inside functions keep track of found return types
 }
 
 func CreateSymbolTable(parent *SymbolTable, fn bool, givenTableName string) *SymbolTable {
@@ -42,6 +47,7 @@ func CreateSymbolTable(parent *SymbolTable, fn bool, givenTableName string) *Sym
 		TableID:      numTables,
 		Parent:       parent,
 		IsGlobal:     isGlobal,
+		IsModule:     isGlobal, // TODO: Fix me when adding module ast node.
 		IsFunction:   fn,
 		Symbols:      map[string]SymbolInfo{},
 		DefinedTypes: map[string]Type{},
@@ -140,9 +146,10 @@ func typecheck_stmt(stmt ast.Stmt, env *SymbolTable) Type {
 		return tc_var_declaration_stmt(s, env)
 	case ast.ExpressionStmt:
 		return typecheck_expr(s.Expression, env)
-	// case ast.FunctionDeclarationStmt:
-	// 	// Handle FunctionDeclarationStmt
-	// 	// ...
+	case ast.FunctionDeclarationStmt:
+		return tc_fn_declaration_stmt(s, env)
+	case ast.ReturnStmt:
+		return tc_return_stmt(s, env)
 	// case ast.IfStmt:
 	// 	// Handle IfStmt
 	// 	// ...
@@ -157,9 +164,6 @@ func typecheck_stmt(stmt ast.Stmt, env *SymbolTable) Type {
 	// 	// ...
 	// case ast.TraitStmt:
 	// 	// Handle TraitStmt
-	// 	// ...
-	// case ast.ReturnStmt:
-	// 	// Handle ReturnStmt
 	// 	// ...
 	default:
 		litter.Dump(stmt)
@@ -176,6 +180,18 @@ func Typecheck(blockStmt ast.BlockStmt) Type {
 // ------------------------
 // Helpers for symbol table
 // ------------------------
+
+func (table *SymbolTable) findNearestFunctionEnv() *SymbolTable {
+	if table.IsFunction {
+		return table
+	}
+
+	if table.Parent != nil {
+		return table.Parent.findNearestFunctionEnv()
+	}
+
+	return nil
+}
 
 func (table *SymbolTable) findNearestSymbolEnv(symbolName string) (*SymbolInfo, *SymbolTable) {
 	t, existsInCurrentTable := table.Symbols[symbolName]
