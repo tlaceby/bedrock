@@ -9,7 +9,7 @@ import (
 
 func tc_block_stmt(s ast.BlockStmt, env *SymbolTable) Type {
 	var last Type
-	env = CreateSymbolTable(env, false)
+	env = CreateSymbolTable(env, false, "block")
 	for _, stmt := range s.Body {
 		last = typecheck_stmt(stmt, env)
 	}

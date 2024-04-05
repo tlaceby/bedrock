@@ -21,15 +21,16 @@ type SymbolInfo struct {
 }
 
 type SymbolTable struct {
-	TableID      int  // ID assigned to table
-	IsGlobal     bool // whether this table exists in the global scope
-	IsFunction   bool // whether this table is the body of a function
+	TableName    string // the chained name of the current environment
+	TableID      int    // ID assigned to table
+	IsGlobal     bool   // whether this table exists in the global scope
+	IsFunction   bool   // whether this table is the body of a function
 	Parent       *SymbolTable
 	DefinedTypes map[string]Type
 	Symbols      map[string]SymbolInfo
 }
 
-func CreateSymbolTable(parent *SymbolTable, fn bool) *SymbolTable {
+func CreateSymbolTable(parent *SymbolTable, fn bool, givenTableName string) *SymbolTable {
 	isGlobal := true
 
 	if parent != nil {
@@ -46,8 +47,16 @@ func CreateSymbolTable(parent *SymbolTable, fn bool) *SymbolTable {
 		DefinedTypes: map[string]Type{},
 	}
 
+	// Generate Table Name
+	if table.Parent != nil {
+		table.TableName = fmt.Sprintf("%s.%s", table.Parent.TableName, givenTableName)
+	} else {
+		table.TableName = givenTableName
+	}
+
 	if table.IsGlobal {
 		defineGlobalDefaultTypes(table)
+		table.TableName = "global"
 	}
 
 	return table
@@ -197,8 +206,12 @@ func (table *SymbolTable) findNearestTypeEnv(typeName string) (Type, *SymbolTabl
 }
 
 func (table *SymbolTable) debugTable(printParent bool) {
-	println(fmt.Sprintf("\n------------ TABLE   [%d] ------------ \n", table.TableID))
 
+	if printParent && table.Parent != nil {
+		table.Parent.debugTable(printParent)
+	}
+
+	println(fmt.Sprintf("\n------------   %s   ------------ \n", table.TableName))
 	println("types:")
 	for typename, typevalue := range table.DefinedTypes {
 		println(fmt.Sprintf(" %s  -> %s", typename, typevalue.str()))
