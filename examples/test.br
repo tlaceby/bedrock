@@ -1,9 +1,16 @@
 // main.br
 
-const pi = 3.14;
-let y = pi + 1.2;
-const sum = pi + y * 2.4;
+struct Circle {
+    radius: number;
+}
 
-fn add (x: number, y: number) -> number {
-    return x + y;
+fn main () {
+
+    let c1 = Circle{
+        radius: 10.2,
+    };
+
+    // TODO: Work on struct instantiation and member expressions for structs.
+    // Verify self.radius works inside the circle struct.
+
 }

@@ -4,6 +4,29 @@ import (
 	"fmt"
 )
 
+type ModuleType struct {
+	ModuleName    string
+	PublicSymbols map[string]SymbolInfo
+	PublicTypes   map[string]Type
+}
+
+func (t ModuleType) str() string {
+	return fmt.Sprintf("module %s", t.ModuleName)
+}
+
+type StructType struct {
+	StructName    string
+	Generics      []string
+	Properties    map[string]Type
+	Methods       map[string]FnType
+	StaticMethods map[string]FnType
+	PublicMembers []string // Names of all public struct properties/methods. // TODO:
+}
+
+func (t StructType) str() string {
+	return fmt.Sprintf("%s {}", t.StructName)
+}
+
 type ErrorType struct {
 	Message string
 }

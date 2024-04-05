@@ -5,6 +5,7 @@ import (
 
 	"github.com/sanity-io/litter"
 	"github.com/tlaceby/bedrock/src/ast"
+	"github.com/tlaceby/bedrock/src/helpers"
 )
 
 var numTables int = 0
@@ -35,7 +36,7 @@ type SymbolTable struct {
 	FoundReturnTypes []Type // Inside functions keep track of found return types
 }
 
-func CreateSymbolTable(parent *SymbolTable, fn bool, givenTableName string) *SymbolTable {
+func CreateSymbolTable(parent *SymbolTable, fn bool, isModule bool, isStruct bool, givenTableName string) *SymbolTable {
 	isGlobal := true
 
 	if parent != nil {
@@ -47,7 +48,7 @@ func CreateSymbolTable(parent *SymbolTable, fn bool, givenTableName string) *Sym
 		TableID:      numTables,
 		Parent:       parent,
 		IsGlobal:     isGlobal,
-		IsModule:     isGlobal, // TODO: Fix me when adding module ast node.
+		IsModule:     isModule,
 		IsFunction:   fn,
 		Symbols:      map[string]SymbolInfo{},
 		DefinedTypes: map[string]Type{},
@@ -140,6 +141,8 @@ func typecheck_type(_type ast.Type, env *SymbolTable) Type {
 
 func typecheck_stmt(stmt ast.Stmt, env *SymbolTable) Type {
 	switch s := stmt.(type) {
+	case ast.ModuleStmt:
+		return tc_module_stmt(s, env)
 	case ast.BlockStmt:
 		return tc_block_stmt(s, env)
 	case ast.VarDeclarationStmt:
@@ -150,6 +153,8 @@ func typecheck_stmt(stmt ast.Stmt, env *SymbolTable) Type {
 		return tc_fn_declaration_stmt(s, env)
 	case ast.ReturnStmt:
 		return tc_return_stmt(s, env)
+	case ast.StructDeclarationStmt:
+		return tc_struct_declaration_stmt(s, env)
 	// case ast.IfStmt:
 	// 	// Handle IfStmt
 	// 	// ...
@@ -158,9 +163,6 @@ func typecheck_stmt(stmt ast.Stmt, env *SymbolTable) Type {
 	// 	// ...
 	// case ast.ForeachStmt:
 	// 	// Handle ForeachStmt
-	// 	// ...
-	// case ast.StructDeclarationStmt:
-	// 	// Handle StructDeclarationStmt
 	// 	// ...
 	// case ast.TraitStmt:
 	// 	// Handle TraitStmt
@@ -171,9 +173,8 @@ func typecheck_stmt(stmt ast.Stmt, env *SymbolTable) Type {
 	}
 }
 
-func Typecheck(blockStmt ast.BlockStmt) Type {
-	t := typecheck_stmt(blockStmt, nil)
-	println("\nFinal Type: " + t.str())
+func Typecheck(module ast.ModuleStmt, globalEnv *SymbolTable) Type {
+	t := typecheck_stmt(module, globalEnv)
 	return t
 }
 
@@ -231,6 +232,35 @@ func (table *SymbolTable) debugTable(printParent bool) {
 	println("types:")
 	for typename, typevalue := range table.DefinedTypes {
 		println(fmt.Sprintf(" %s  -> %s", typename, typevalue.str()))
+	}
+
+	println("\nstructs:")
+	for typename, typevalue := range table.DefinedTypes {
+		if helpers.TypesMatchT[StructType](typevalue) {
+			println(fmt.Sprintf(" %s: ", typename))
+
+			structVal := helpers.ExpectType[StructType](typevalue)
+
+			if len(structVal.Properties) > 0 {
+				for propertyName, propertyType := range structVal.Properties {
+					println(fmt.Sprintf("   %s : %s", propertyName, propertyType.str()))
+				}
+			}
+
+			if len(structVal.Methods) > 0 {
+				println("\n")
+				for propertyName, methodType := range structVal.Methods {
+					println(fmt.Sprintf("   %s : %s", propertyName, methodType.str()))
+				}
+			}
+
+			if len(structVal.StaticMethods) > 0 {
+				println("\n")
+				for propertyName, staticMethod := range structVal.StaticMethods {
+					println(fmt.Sprintf("   %s : %s", propertyName, staticMethod.str()))
+				}
+			}
+		}
 	}
 
 	println("\nsymbols:")

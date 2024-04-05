@@ -1,5 +1,13 @@
 package ast
 
+type ModuleStmt struct {
+	FilePath   string
+	ModuleName string
+	Body       []Stmt
+}
+
+func (s ModuleStmt) stmt() {}
+
 type BlockStmt struct {
 	Body []Stmt
 }

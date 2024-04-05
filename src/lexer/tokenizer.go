@@ -12,6 +12,7 @@ type regexPattern struct {
 }
 
 type lexer struct {
+	filePath string
 	patterns []regexPattern
 	Tokens   []Token
 	source   string
@@ -19,8 +20,8 @@ type lexer struct {
 	line     int
 }
 
-func Tokenize(source string) []Token {
-	lex := createLexer(source)
+func Tokenize(source string, filePath string) []Token {
+	lex := createLexer(source, filePath)
 
 	for !lex.at_eof() {
 		matched := false
@@ -59,12 +60,13 @@ func (lex *lexer) at_eof() bool {
 	return lex.pos >= len(lex.source)
 }
 
-func createLexer(source string) *lexer {
+func createLexer(source string, filePath string) *lexer {
 	return &lexer{
-		pos:    0,
-		line:   1,
-		source: source,
-		Tokens: make([]Token, 0),
+		filePath: filePath,
+		pos:      0,
+		line:     1,
+		source:   source,
+		Tokens:   make([]Token, 0),
 		patterns: []regexPattern{
 			{regexp.MustCompile(`\s+`), skipHandler},
 			{regexp.MustCompile(`\/\/.*`), commentHandler},

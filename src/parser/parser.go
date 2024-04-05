@@ -6,32 +6,34 @@ import (
 )
 
 type parser struct {
-	source string
-	tokens []lexer.Token
-	pos int
+	filePath string
+	source   string
+	tokens   []lexer.Token
+	pos      int
 }
 
-func createParser (tokens []lexer.Token) *parser {
+func createParser(tokens []lexer.Token, filePath string) *parser {
 	createTokenLookups()
 	createTypeTokenLookups()
 
 	p := &parser{
-		source: "",
-		tokens: tokens,
-		pos: 0,
+		filePath: filePath,
+		source:   "",
+		tokens:   tokens,
+		pos:      0,
 	}
 
 	return p
 }
 
-func Parse (source string) ast.BlockStmt {
-	tokens := lexer.Tokenize(source)
+func Parse(source string, filePath string) ast.ModuleStmt {
+	tokens := lexer.Tokenize(source, filePath)
 
 	for _, tk := range tokens {
 		tk.Debug()
 	}
 
-	p := createParser(tokens)
+	p := createParser(tokens, filePath)
 	p.source = source
 	body := make([]ast.Stmt, 0)
 
@@ -39,7 +41,9 @@ func Parse (source string) ast.BlockStmt {
 		body = append(body, parse_stmt(p))
 	}
 
-	return ast.BlockStmt{
-		Body: body,
+	return ast.ModuleStmt{
+		Body:       body,
+		FilePath:   filePath,
+		ModuleName: filePath,
 	}
 }
