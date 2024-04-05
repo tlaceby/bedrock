@@ -1,3 +1,5 @@
 // main.br
 
-let foo = 2.4 * 10;
+const pi = 3.14;
+let y = pi + 1.2;
+const sum = pi + y * 2.4;

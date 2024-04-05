@@ -1,20 +1,32 @@
 package analysis
 
 import (
+	"fmt"
+
 	"github.com/sanity-io/litter"
 	"github.com/tlaceby/bedrock/src/ast"
 )
+
+var numTables int = 0
 
 type Type interface {
 	str() string // string representation of Abstract Type
 }
 
+type SymbolInfo struct {
+	Type            Type // Underlying type of symbol
+	IsConstant      bool // Whether the symbol is defined as a constant or fn/module etc...
+	AssignmentCount int  // Number of times this symbol is assigned/reassigned
+	AccessedCount   int  // Number of times symbol is accessed/referenced
+}
+
 type SymbolTable struct {
+	TableID      int  // ID assigned to table
 	IsGlobal     bool // whether this table exists in the global scope
 	IsFunction   bool // whether this table is the body of a function
 	Parent       *SymbolTable
 	DefinedTypes map[string]Type
-	Symbols      map[string]Type
+	Symbols      map[string]SymbolInfo
 }
 
 func CreateSymbolTable(parent *SymbolTable, fn bool) *SymbolTable {
@@ -24,13 +36,21 @@ func CreateSymbolTable(parent *SymbolTable, fn bool) *SymbolTable {
 		isGlobal = false
 	}
 
-	return &SymbolTable{
+	numTables += 1
+	table := &SymbolTable{
+		TableID:      numTables,
 		Parent:       parent,
 		IsGlobal:     isGlobal,
 		IsFunction:   fn,
-		Symbols:      map[string]Type{},
+		Symbols:      map[string]SymbolInfo{},
 		DefinedTypes: map[string]Type{},
 	}
+
+	if table.IsGlobal {
+		defineGlobalDefaultTypes(table)
+	}
+
+	return table
 }
 
 func typecheck_expr(expr ast.Expr, env *SymbolTable) Type {
@@ -89,13 +109,26 @@ func typecheck_expr(expr ast.Expr, env *SymbolTable) Type {
 	}
 }
 
+func typecheck_type(_type ast.Type, env *SymbolTable) Type {
+	switch t := _type.(type) {
+	case ast.SymbolType:
+		return tc_symbol_type(t, env)
+	case ast.ListType:
+		return tc_list_type(t, env)
+	case ast.FnType:
+		return tc_fn_type(t, env)
+	default:
+		litter.Dump(t)
+		panic("^^^^^^ Unknown ast.Type encountered! ^^^^^^\n")
+	}
+}
+
 func typecheck_stmt(stmt ast.Stmt, env *SymbolTable) Type {
 	switch s := stmt.(type) {
 	case ast.BlockStmt:
 		return tc_block_stmt(s, env)
-	// case ast.VarDeclarationStmt:
-	// 	// Handle VarDeclarationStmt
-	// 	// ...
+	case ast.VarDeclarationStmt:
+		return tc_var_declaration_stmt(s, env)
 	case ast.ExpressionStmt:
 		return typecheck_expr(s.Expression, env)
 	// case ast.FunctionDeclarationStmt:
@@ -129,4 +162,60 @@ func Typecheck(blockStmt ast.BlockStmt) Type {
 	t := typecheck_stmt(blockStmt, nil)
 	println("\nFinal Type: " + t.str())
 	return t
+}
+
+// ------------------------
+// Helpers for symbol table
+// ------------------------
+
+func (table *SymbolTable) findNearestSymbolEnv(symbolName string) (*SymbolInfo, *SymbolTable) {
+	t, existsInCurrentTable := table.Symbols[symbolName]
+
+	if existsInCurrentTable {
+		return &t, table
+	}
+
+	if table.Parent != nil {
+		return table.Parent.findNearestSymbolEnv(symbolName)
+	}
+
+	return nil, nil
+}
+
+func (table *SymbolTable) findNearestTypeEnv(typeName string) (Type, *SymbolTable) {
+	t, existsInCurrentTable := table.DefinedTypes[typeName]
+
+	if existsInCurrentTable {
+		return t, table
+	}
+
+	if table.Parent != nil {
+		return table.Parent.findNearestTypeEnv(typeName)
+	}
+
+	return ErrType(fmt.Sprintf("Type %s does not exist in the current env", typeName)), nil
+}
+
+func (table *SymbolTable) debugTable(printParent bool) {
+	println(fmt.Sprintf("\n------------ TABLE   [%d] ------------ \n", table.TableID))
+
+	println("types:")
+	for typename, typevalue := range table.DefinedTypes {
+		println(fmt.Sprintf(" %s  -> %s", typename, typevalue.str()))
+	}
+
+	println("\nsymbols:")
+	for symbol, symbolInfo := range table.Symbols {
+		println(fmt.Sprintf(" %s: ", symbol))
+		println(fmt.Sprintf("  type     : %s", symbolInfo.Type.str()))
+
+		if symbolInfo.IsConstant {
+			println("  const    : true")
+		} else {
+			println("  const    : false")
+		}
+
+		println(fmt.Sprintf("  accessed : %d", symbolInfo.AccessedCount))
+		println(fmt.Sprintf("  assigned : %d\n", symbolInfo.AssignmentCount))
+	}
 }

@@ -1,6 +1,8 @@
 package analysis
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type ErrorType struct {
 	Message string
@@ -64,4 +66,24 @@ func (t FnType) str() string {
 	}
 
 	return fmt.Sprintf("fn (%s) -> %s", paramsStr, t.ReturnType.str())
+}
+
+func CastableToBool(t Type) bool {
+	switch t.(type) {
+	case BoolType:
+	case NumType:
+	case StrType:
+	case ArrayType:
+		return true
+	default:
+		return false
+	}
+
+	return false
+}
+
+func defineGlobalDefaultTypes(table *SymbolTable) {
+	table.DefinedTypes["string"] = StrType{}
+	table.DefinedTypes["number"] = NumType{}
+	table.DefinedTypes["bool"] = BoolType{}
 }
