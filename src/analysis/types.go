@@ -7,7 +7,7 @@ import (
 type ModuleType struct {
 	ModuleName    string
 	PublicSymbols map[string]SymbolInfo
-	PublicTypes   map[string]Type
+	PublicTypes   map[string]Type // TODO: ....
 }
 
 func (t ModuleType) str() string {

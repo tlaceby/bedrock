@@ -2,15 +2,20 @@
 
 struct Circle {
     radius: number;
+
+    fn radiusPlusTen () -> number {
+        return self.radius + 10;
+    }
+
+    static fn new (r: number) -> Circle {
+        return Circle {
+            radius: r,
+        };
+    }
 }
 
-fn main () {
+const c1: Circle = Circle{
+    radius: 10.2,
+};
 
-    let c1 = Circle{
-        radius: 10.2,
-    };
-
-    // TODO: Work on struct instantiation and member expressions for structs.
-    // Verify self.radius works inside the circle struct.
-
-}
+const c2 = Circle::new;

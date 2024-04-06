@@ -70,3 +70,110 @@ func tc_binary_expr(e ast.BinaryExpr, env *SymbolTable) Type {
 
 	return err
 }
+
+func tc_struct_instantation_expr(e ast.StructInstantiationExpr, env *SymbolTable) Type {
+	structName := e.StructName
+	initialValues := e.Objects
+
+	// verify struct has been defined
+
+	T, definedScope := env.findNearestTypeEnv(structName)
+
+	if definedScope == nil {
+		panic(ErrType(fmt.Sprintf("Cannot instantiate struct %s as it has not yet been defined.", structName)))
+	}
+
+	// Validate struct type is indeed a struct type
+	if !helpers.TypesMatchT[StructType](T) {
+		panic(ErrType(fmt.Sprintf("Cannot perform struct inbstantiation on %s{} as it is not a struct.", structName)))
+	}
+
+	structType := helpers.ExpectType[StructType](T)
+
+	// Validate each field is instantiated which is expected in the struct
+	var errors = []ErrorType{} // array of error messages to display
+
+	for expectedPropertyName, expectedProperty := range structType.Properties {
+		var foundProperty ast.ObjectField
+		var found = false
+
+		for _, val := range initialValues {
+			if expectedPropertyName == val.PropertyName {
+				foundProperty = val
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			errors = append(errors, ErrType(fmt.Sprintf("Missing value for %s in struct instantiation of %s{}", expectedPropertyName, structName)))
+			continue
+		}
+
+		// Validate the given type against the expected one for that propertyname
+		givenType := typecheck_expr(foundProperty.PropertyValue, env)
+		if !helpers.TypesMatch(givenType, expectedProperty) {
+			errors = append(errors, ErrType(fmt.Sprintf("Property %s of struct %s{} expects type %s but was given %s instead.", expectedPropertyName, structName, expectedProperty.str(), givenType.str())))
+		}
+	}
+
+	if len(errors) > 0 {
+		for _, err := range errors {
+			println(err.Message)
+		}
+
+		panic("Typechecking failed at struct instantiation")
+	}
+
+	return structType
+}
+
+func tc_member_expr(e ast.MemberExpr, env *SymbolTable) Type {
+	memberType := typecheck_expr(e.Member, env)
+	propertyName := e.Property
+
+	switch member := memberType.(type) {
+	case StructType:
+		var propertyType Type
+
+		// Check struct.properties for propertyname
+		propertyType, propertyExists := member.Properties[propertyName]
+		if propertyExists {
+			return propertyType
+		}
+
+		// then check struct.methods for propertyname
+		propertyType, propertyExists = member.Methods[propertyName]
+		if propertyExists {
+			return propertyType
+		}
+
+		panic(fmt.Sprintf("Member %s does not contain property %s. Attempted to access %s but it does not exist on object\n", memberType.str(), propertyName, propertyName))
+	}
+
+	panic(fmt.Sprintf("Member expression with %s.%s not handled\n", memberType.str(), propertyName))
+}
+
+func tc_static_member_expr(e ast.StaticMemberExpr, env *SymbolTable) Type {
+	structName := e.StructName
+	propertyName := e.MethodName
+	memberType, memberEnv := env.findNearestTypeEnv(structName)
+
+	if memberEnv == nil {
+		panic(ErrType(fmt.Sprintf("Invalid member access using resolution operator on %s::%s. Type %s Cannot be resolved.", structName, propertyName, structName)).str())
+	}
+
+	switch member := memberType.(type) {
+	case StructType:
+
+		// Check struct.properties for propertyname
+		propertyType, propertyExists := member.StaticMethods[propertyName]
+		if propertyExists {
+			return propertyType
+		}
+
+		panic(fmt.Sprintf("Member %s does not contain static property %s. Attempted to access static member %s but it does not exist on object\n", memberType.str(), propertyName, propertyName))
+	}
+
+	panic(fmt.Sprintf("Static member expression with %s::%s not handled\n", memberType.str(), propertyName))
+}

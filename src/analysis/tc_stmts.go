@@ -246,6 +246,7 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 	}
 
 	// Generate Static Method Types (NO BODY EVAL)
+	// This will just generate the type definitions for each of the static methods.
 	for _, staticNode := range s.StaticMethods {
 		returnType := typecheck_type(staticNode.ReturnType, env)
 		params := []Type{}
@@ -261,6 +262,7 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 	}
 
 	// Generate Instance Method Types (NO BODY EVAL)
+	// This will just generate the type definitions for each of the instance methods.
 	for _, instanceNode := range s.InstanceMethods {
 		returnType := typecheck_type(instanceNode.ReturnType, env)
 		params := []Type{}
@@ -280,26 +282,47 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 			Type:            fnType,
 			IsConstant:      true,
 			AssignmentCount: 1,
-			AccessedCount:   0,
 		}
 	}
 
 	// Eval Body for static/instance methods
-
-	// When evaluating the body make sure self is defined
-	structEnv.Symbols["self"] = SymbolInfo{
-		IsConstant:      true,
-		AssignmentCount: 1,
-		AccessedCount:   0,
-		Type:            structType,
-	}
+	// Now that all of the methods/instace/static/member properties are known we can re run through each
+	// method/static method and make sure they return the proper types and dont access things they are not supposed to.
 
 	for _, instanceMethod := range s.InstanceMethods {
 		methodName := fmt.Sprintf("%s.%s", structName, instanceMethod.Name)
 		methodEnv := CreateSymbolTable(structEnv, true, false, false, methodName)
 
+		methodEnv.Symbols["self"] = SymbolInfo{
+			IsConstant:      true,
+			AssignmentCount: 1,
+			Type:            structType,
+		}
+
+		// foreach parameter populate the simulated env
+		for _, param := range instanceMethod.Parameters {
+			paramName := param.Name
+			paramType := typecheck_type(param.Type, methodEnv)
+
+			methodEnv.Symbols[paramName] = SymbolInfo{
+				Type:            paramType,
+				IsConstant:      true,
+				AssignmentCount: 1,
+			}
+		}
+
 		for _, stmt := range instanceMethod.Body {
 			typecheck_stmt(stmt, methodEnv)
+		}
+
+		// Validate return matches what is needs to for each instance method
+		expectedReturnType := typecheck_type(instanceMethod.ReturnType, structEnv)
+
+		for _, recievedReturnType := range methodEnv.FoundReturnTypes {
+			if !helpers.TypesMatch(expectedReturnType, recievedReturnType) {
+				err := fmt.Sprintf("Mismatch return types for method %s on struct %s. Expected to return %s but recieved %s instead.", instanceMethod.Name, structName, expectedReturnType.str(), recievedReturnType.str())
+				panic(ErrType(err).str())
+			}
 		}
 
 		methodEnv.debugTable(false)
@@ -309,8 +332,51 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 		methodName := fmt.Sprintf("%s::%s", structName, staticMethod.Name)
 		methodEnv := CreateSymbolTable(structEnv, true, false, false, methodName)
 
+		// this will prevent us from accessing non static methods when inside static methods
+		// Check the tc_member_expr() for examples
+		methodEnv.IsStaticMethod = true
+
+		methodEnv.Symbols["self"] = SymbolInfo{
+			IsConstant:      true,
+			AssignmentCount: 1,
+			Type:            structType,
+		}
+
+		// Before evaluating this environment make sure to remove all instance methods so they cannot be called.
+		// This prevents static methods from calling or knowing about properties or instance methods
+		for instanceMethodName := range structType.Methods {
+			delete(methodEnv.Symbols, instanceMethodName)
+		}
+
+		for instanceProperty := range structType.Properties {
+			delete(methodEnv.Symbols, instanceProperty)
+		}
+
+		// foreach parameter populate the simulated env
+		for _, param := range staticMethod.Parameters {
+			paramName := param.Name
+			paramType := typecheck_type(param.Type, methodEnv)
+
+			methodEnv.Symbols[paramName] = SymbolInfo{
+				Type:            paramType,
+				IsConstant:      true,
+				AssignmentCount: 1,
+			}
+
+		}
+
 		for _, stmt := range staticMethod.Body {
 			typecheck_stmt(stmt, methodEnv)
+		}
+
+		// Validate return matches what is needs to for static method
+		expectedReturnType := typecheck_type(staticMethod.ReturnType, structEnv)
+
+		for _, recievedReturnType := range methodEnv.FoundReturnTypes {
+			if !helpers.TypesMatch(expectedReturnType, recievedReturnType) {
+				err := fmt.Sprintf("Mismatch return types for method %s on struct %s. Expected to return %s but recieved %s instead.", staticMethod.Name, structName, expectedReturnType.str(), recievedReturnType.str())
+				panic(ErrType(err))
+			}
 		}
 
 		methodEnv.debugTable(false)

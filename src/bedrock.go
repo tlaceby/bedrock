@@ -17,6 +17,7 @@ func main() {
 	duration := time.Since(start)
 
 	litter.Dump(ast)
+	println()
 	globalEnv := analysis.CreateSymbolTable(nil, false, false, false, "global")
 	analysis.Typecheck(ast, globalEnv)
 	fmt.Printf("\nDuration: %v\n", duration)

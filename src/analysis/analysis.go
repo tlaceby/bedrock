@@ -25,9 +25,10 @@ type SymbolTable struct {
 	TableName string // the chained name of the current environment
 	TableID   int    // ID assigned to table
 
-	IsGlobal   bool // whether this table exists in the global scope
-	IsModule   bool // Represents the module which this table exists in
-	IsFunction bool // whether this table is the body of a function
+	IsGlobal       bool // whether this table exists in the global scope
+	IsModule       bool // Represents the module which this table exists in
+	IsFunction     bool // whether this table is the body of a function
+	IsStaticMethod bool // whether we are inside a static methods scope. Prevents access to instance methods/properties from inside
 
 	Parent       *SymbolTable          // Reference to parent environment
 	DefinedTypes map[string]Type       // All Alias/ Defined Types / Traits
@@ -79,6 +80,10 @@ func typecheck_expr(expr ast.Expr, env *SymbolTable) Type {
 		return tc_symbol_expr(e, env)
 	case ast.BinaryExpr:
 		return tc_binary_expr(e, env)
+	case ast.MemberExpr:
+		return tc_member_expr(e, env)
+	case ast.StaticMemberExpr:
+		return tc_static_member_expr(e, env)
 	// case ast.AssignmentExpr:
 	// 	// Handle AssignmentExpr
 	// 	// ...
@@ -91,9 +96,6 @@ func typecheck_expr(expr ast.Expr, env *SymbolTable) Type {
 	// 	// Handle MemberExpr
 	// 	// ...
 	// 	return VoidType{}
-	// case ast.StaticMemberExpr:
-	// 	// Handle StaticMemberExpr
-	// 	// ...
 	// 	return VoidType{}
 	// case ast.CallExpr:
 	// 	// Handle CallExpr
@@ -115,10 +117,8 @@ func typecheck_expr(expr ast.Expr, env *SymbolTable) Type {
 	// 	// Handle ArrayLiteral
 	// 	// ...
 	// 	return VoidType{}
-	// case ast.StructInstantiationExpr:
-	// 	// Handle StructInstantiationExpr
-	// 	// ...
-	// 	return VoidType{}
+	case ast.StructInstantiationExpr:
+		return tc_struct_instantation_expr(e, env)
 	default:
 		litter.Dump(expr)
 		panic("^^^^^^ Unknown ast.Expr encountered! ^^^^^^\n")
@@ -257,7 +257,7 @@ func (table *SymbolTable) debugTable(printParent bool) {
 			if len(structVal.StaticMethods) > 0 {
 				println("\n")
 				for propertyName, staticMethod := range structVal.StaticMethods {
-					println(fmt.Sprintf("   %s : %s", propertyName, staticMethod.str()))
+					println(fmt.Sprintf("   %s : static %s", propertyName, staticMethod.str()))
 				}
 			}
 		}
