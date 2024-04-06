@@ -73,7 +73,7 @@ func tc_var_declaration_stmt(s ast.VarDeclarationStmt, env *SymbolTable) Type {
 		e = ErrType(fmt.Sprintf("Mismatched types inside variable declaration of %s. Expected %s but recieved %s instead.", s.Identifier, expectedType.str(), rhsValue.str()))
 	}
 
-	return e
+	panic(e.str())
 }
 
 func tc_fn_declaration_stmt(s ast.FunctionDeclarationStmt, env *SymbolTable) Type {

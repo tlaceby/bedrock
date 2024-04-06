@@ -84,39 +84,8 @@ func typecheck_expr(expr ast.Expr, env *SymbolTable) Type {
 		return tc_member_expr(e, env)
 	case ast.StaticMemberExpr:
 		return tc_static_member_expr(e, env)
-	// case ast.AssignmentExpr:
-	// 	// Handle AssignmentExpr
-	// 	// ...
-	// 	return VoidType{}
-	// case ast.PrefixExpr:
-	// 	// Handle PrefixExpr
-	// 	// ...
-	// 	return VoidType{}
-	// case ast.MemberExpr:
-	// 	// Handle MemberExpr
-	// 	// ...
-	// 	return VoidType{}
-	// 	return VoidType{}
-	// case ast.CallExpr:
-	// 	// Handle CallExpr
-	// 	// ...
-	// 	return VoidType{}
-	// case ast.ComputedExpr:
-	// 	// Handle ComputedExpr
-	// 	// ...
-	// 	return VoidType{}
-	// case ast.RangeExpr:
-	// 	// Handle RangeExpr
-	// 	// ...
-	// 	return VoidType{}
-	// case ast.FunctionExpr:
-	// 	// Handle FunctionExpr
-	// 	// ...
-	// 	return VoidType{}
-	// case ast.ArrayLiteral:
-	// 	// Handle ArrayLiteral
-	// 	// ...
-	// 	return VoidType{}
+	case ast.CallExpr:
+		return tc_call_expr(e, env)
 	case ast.StructInstantiationExpr:
 		return tc_struct_instantation_expr(e, env)
 	default:
@@ -155,18 +124,6 @@ func typecheck_stmt(stmt ast.Stmt, env *SymbolTable) Type {
 		return tc_return_stmt(s, env)
 	case ast.StructDeclarationStmt:
 		return tc_struct_declaration_stmt(s, env)
-	// case ast.IfStmt:
-	// 	// Handle IfStmt
-	// 	// ...
-	// case ast.ImportStmt:
-	// 	// Handle ImportStmt
-	// 	// ...
-	// case ast.ForeachStmt:
-	// 	// Handle ForeachStmt
-	// 	// ...
-	// case ast.TraitStmt:
-	// 	// Handle TraitStmt
-	// 	// ...
 	default:
 		litter.Dump(stmt)
 		panic("^^^^^^ Unknown ast.Stmt encountered! ^^^^^^\n")
@@ -248,14 +205,12 @@ func (table *SymbolTable) debugTable(printParent bool) {
 			}
 
 			if len(structVal.Methods) > 0 {
-				println("\n")
 				for propertyName, methodType := range structVal.Methods {
 					println(fmt.Sprintf("   %s : %s", propertyName, methodType.str()))
 				}
 			}
 
 			if len(structVal.StaticMethods) > 0 {
-				println("\n")
 				for propertyName, staticMethod := range structVal.StaticMethods {
 					println(fmt.Sprintf("   %s : static %s", propertyName, staticMethod.str()))
 				}

@@ -3,8 +3,8 @@
 struct Circle {
     radius: number;
 
-    fn radiusPlusTen () -> number {
-        return self.radius + 10;
+    fn radiusPlusN (n: number) -> number {
+        return self.radius + n;
     }
 
     static fn new (r: number) -> Circle {
@@ -18,4 +18,4 @@ const c1: Circle = Circle{
     radius: 10.2,
 };
 
-const c2 = Circle::new;
+const r = Circle::new(10).radiusPlusN(10);

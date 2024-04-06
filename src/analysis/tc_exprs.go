@@ -3,6 +3,7 @@ package analysis
 import (
 	"fmt"
 
+	"github.com/sanity-io/litter"
 	"github.com/tlaceby/bedrock/src/ast"
 	"github.com/tlaceby/bedrock/src/helpers"
 	"github.com/tlaceby/bedrock/src/lexer"
@@ -176,4 +177,47 @@ func tc_static_member_expr(e ast.StaticMemberExpr, env *SymbolTable) Type {
 	}
 
 	panic(fmt.Sprintf("Static member expression with %s::%s not handled\n", memberType.str(), propertyName))
+}
+
+func tc_call_expr(e ast.CallExpr, env *SymbolTable) Type {
+	calle := typecheck_expr(e.Method, env)
+	argTypes := []Type{}
+
+	for _, argType := range e.Arguments {
+		argTypes = append(argTypes, typecheck_expr(argType, env))
+	}
+
+	if !helpers.TypesMatchT[FnType](calle) {
+		litter.Dump(e)
+		panic(ErrType(fmt.Sprintf("Invalid call expression %s is not a function which can be called", calle.str())).str())
+	}
+
+	fn := helpers.ExpectType[FnType](calle)
+	expectedArity := len(fn.ParamTypes)
+	recievedArity := len(argTypes)
+
+	if expectedArity != recievedArity {
+		panic(ErrType(fmt.Sprintf("Invalid call expression for %s. Expected %d arguments but recieved %d instead", fn.str(), expectedArity, recievedArity)).str())
+	}
+
+	invalidArgErrors := []ErrorType{}
+	// Validate each parameter against the supplied arguments
+	for paramIndex, expectedType := range fn.ParamTypes {
+		recievedType := argTypes[paramIndex]
+
+		if !helpers.TypesMatch(recievedType, expectedType) {
+			err := fmt.Sprintf("Expected %s but recieved %s instead call expression index %d", expectedType.str(), recievedType.str(), paramIndex)
+			invalidArgErrors = append(invalidArgErrors, ErrType(err))
+		}
+	}
+
+	if len(invalidArgErrors) > 0 {
+		for _, err := range invalidArgErrors {
+			println(err.str())
+		}
+
+		panic(fmt.Sprintf("Call expression %s failed typechecking due to type mismatches.", fn.str()))
+	}
+
+	return fn.ReturnType
 }
