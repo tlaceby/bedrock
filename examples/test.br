@@ -1,8 +1,6 @@
-
-fn equal <T> (a: T, b: T) -> bool {
-    return a == t;
+fn add <T> (a: T, b: number) -> T {
+    return a + b;
 }
 
-equal <number> (10, 20);              // pass
-// equal <string> ("Hello", "World"); // pass
-// equal <string> ("Hello", 45);      // fail T cannot be both string and number
+let sum = add <number> (10, 20);
+let str = add <string> ("Hello ", 10);

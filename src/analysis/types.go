@@ -2,6 +2,8 @@ package analysis
 
 import (
 	"fmt"
+
+	"github.com/tlaceby/bedrock/src/ast"
 )
 
 type ModuleType struct {
@@ -72,13 +74,32 @@ func (t ArrayType) str() string {
 }
 
 type FnType struct {
-	ReturnType Type
+	// If the fn is generic must hold the ast to evaluate when a call_expr is encountered
+	IsGeneric  bool
+	FnNode     ast.FunctionDeclarationStmt
+	Generics   []string
 	ParamTypes []Type
+	ReturnType Type
 }
 
 func (t FnType) str() string {
 	var paramsStr string = ""
+	var genericStr string = ""
+
 	numParams := len(t.ParamTypes)
+
+	if t.IsGeneric {
+		genericStr += "<"
+		for idx, genericType := range t.Generics {
+			genericStr += genericType
+
+			if idx < numParams-1 {
+				paramsStr += ", "
+			}
+		}
+
+		genericStr += ">"
+	}
 
 	for idx, param := range t.ParamTypes {
 		paramsStr += param.str()
@@ -88,7 +109,29 @@ func (t FnType) str() string {
 		}
 	}
 
-	return fmt.Sprintf("fn (%s) -> %s", paramsStr, t.ReturnType.str())
+	return fmt.Sprintf("fn %s (%s) -> %s", genericStr, paramsStr, t.ReturnType.str())
+}
+
+type GenericFnType struct {
+	FnNode   ast.FunctionDeclarationStmt
+	Generics []string
+}
+
+func (t GenericFnType) str() string {
+	var genericStr string = ""
+
+	genericStr += "<"
+	for idx, genericType := range t.Generics {
+		genericStr += genericType
+
+		if idx < len(t.Generics)-1 {
+			genericStr += ", "
+		}
+	}
+
+	genericStr += ">"
+
+	return fmt.Sprintf("generic.fn%s", genericStr)
 }
 
 func CastableToBool(t Type) bool {

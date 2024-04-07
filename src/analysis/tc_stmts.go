@@ -102,6 +102,24 @@ func tc_fn_declaration_stmt(s ast.FunctionDeclarationStmt, env *SymbolTable) Typ
 		returns = typecheck_type(s.ReturnType, env)
 	}
 
+	// If function is defined with generics then need to evaluate body/params at call time
+	if len(s.Generics) > 0 {
+		fnType := GenericFnType{
+			Generics: s.Generics,
+			FnNode:   s,
+		}
+
+		// Define the function inside the current global scope.
+		env.Symbols[functionName] = SymbolInfo{
+			IsConstant:      true,
+			AssignmentCount: 1,
+			AccessedCount:   0,
+			Type:            fnType,
+		}
+
+		return fnType
+	}
+
 	functionBodyEnv := CreateSymbolTable(env, true, false, false, functionName)
 
 	// Validate each parameter and see what type it is.
