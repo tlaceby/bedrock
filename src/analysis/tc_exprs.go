@@ -18,7 +18,7 @@ func tc_symbol_expr(e ast.SymbolExpr, env *SymbolTable) Type {
 		return typeInfo.Type
 	}
 
-	return ErrType(fmt.Sprintf("Symbol %s does not exist in the current env", e.Value))
+	panic(ErrType(fmt.Sprintf("Symbol %s does not exist in the current env", e.Value)).str())
 }
 
 func tc_binary_expr(e ast.BinaryExpr, env *SymbolTable) Type {
@@ -69,7 +69,7 @@ func tc_binary_expr(e ast.BinaryExpr, env *SymbolTable) Type {
 		}
 	}
 
-	return err
+	panic(err.str())
 }
 
 func tc_struct_instantation_expr(e ast.StructInstantiationExpr, env *SymbolTable) Type {

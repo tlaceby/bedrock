@@ -1,21 +1,8 @@
-// main.br
 
-struct Circle {
-    radius: number;
-
-    fn radiusPlusN (n: number) -> number {
-        return self.radius + n;
-    }
-
-    static fn new (r: number) -> Circle {
-        return Circle {
-            radius: r,
-        };
-    }
+fn equal <T> (a: T, b: T) -> bool {
+    return a == t;
 }
 
-const c1: Circle = Circle{
-    radius: 10.2,
-};
-
-const r = Circle::new(10).radiusPlusN(10);
+equal <number> (10, 20);              // pass
+// equal <string> ("Hello", "World"); // pass
+// equal <string> ("Hello", 45);      // fail T cannot be both string and number

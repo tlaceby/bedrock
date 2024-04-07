@@ -36,6 +36,7 @@ type Parameter struct {
 
 type FunctionDeclarationStmt struct {
 	Parameters []Parameter
+	Generics   []string
 	Name       string
 	Body       []Stmt
 	ReturnType Type

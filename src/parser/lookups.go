@@ -91,6 +91,7 @@ func createTokenLookups() {
 	led(lexer.OPEN_BRACKET, member, parse_member_expr)
 	led(lexer.OPEN_PAREN, call, parse_call_expr)
 	led(lexer.OPEN_CURLY, call, parse_struct_instantiation)
+	led(lexer.LESS, call, parse_generic_list_instantiation)
 
 	// Grouping Expr
 	nud(lexer.OPEN_PAREN, parse_grouping_expr)

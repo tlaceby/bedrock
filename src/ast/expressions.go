@@ -69,6 +69,7 @@ func (n StaticMemberExpr) expr() {}
 type CallExpr struct {
 	Method    Expr
 	Arguments []Expr
+	Generics  []Type
 }
 
 func (n CallExpr) expr() {}
@@ -108,6 +109,7 @@ type ObjectField struct {
 
 type StructInstantiationExpr struct {
 	StructName string
+	Generics   []Type
 	Objects    []ObjectField
 }
 

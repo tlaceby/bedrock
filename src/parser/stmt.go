@@ -110,10 +110,17 @@ func parse_fn_params_and_body(p *parser) ([]ast.Parameter, ast.Type, []ast.Stmt)
 func parse_fn_declaration(p *parser) ast.Stmt {
 	p.expect(lexer.FN)
 	functionName := p.expect(lexer.IDENTIFIER).Value
+	var generics = []string{}
+
+	if p.currentTokenKind() == lexer.LESS {
+		generics = parse_generic_declaration(p)
+	}
+
 	functionParams, returnType, functionBody := parse_fn_params_and_body(p)
 
 	return ast.FunctionDeclarationStmt{
 		Parameters: functionParams,
+		Generics:   generics,
 		ReturnType: returnType,
 		Body:       functionBody,
 		Name:       functionName,

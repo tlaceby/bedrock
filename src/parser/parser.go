@@ -29,9 +29,9 @@ func createParser(tokens []lexer.Token, filePath string) *parser {
 func Parse(source string, filePath string) ast.ModuleStmt {
 	tokens := lexer.Tokenize(source, filePath)
 
-	for _, tk := range tokens {
-		tk.Debug()
-	}
+	// for _, tk := range tokens {
+	// 	tk.Debug()
+	// }
 
 	p := createParser(tokens, filePath)
 	p.source = source

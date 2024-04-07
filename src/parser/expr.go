@@ -26,7 +26,7 @@ func parse_expr(p *parser, bp binding_power) ast.Expr {
 			panic(fmt.Sprintf("LED Handler expected for token %s\n", p.currentToken().String()))
 		}
 
-		left = led_fn(p, left, bp)
+		left = led_fn(p, left, bp_lu[p.currentTokenKind()])
 	}
 
 	return left
@@ -63,7 +63,7 @@ func parse_range_expr(p *parser, left ast.Expr, bp binding_power) ast.Expr {
 
 func parse_binary_expr(p *parser, left ast.Expr, bp binding_power) ast.Expr {
 	operatorToken := p.advance()
-	right := parse_expr(p, defalt_bp)
+	right := parse_expr(p, bp)
 
 	return ast.BinaryExpr{
 		Left:     left,
@@ -213,4 +213,38 @@ func parse_struct_instantiation(p *parser, left ast.Expr, bp binding_power) ast.
 		StructName: structName,
 		Objects:    objects,
 	}
+}
+
+func parse_generic_list_instantiation(p *parser, left ast.Expr, bp binding_power) ast.Expr {
+	var genericLists = []ast.Type{}
+
+	p.expect(lexer.LESS)
+
+	for p.hasTokens() && p.currentTokenKind() != lexer.GREATER {
+		genericLists = append(genericLists, parse_type(p, defalt_bp))
+
+		if p.currentTokenKind() != lexer.GREATER {
+			p.expect(lexer.COMMA)
+		}
+	}
+
+	p.expect(lexer.GREATER)
+
+	// Handle call expression -> method <T, A, ...> ()
+	if p.currentTokenKind() == lexer.OPEN_PAREN {
+		callExprNode := ast.ExpectExpr[ast.CallExpr](parse_call_expr(p, left, call))
+		callExprNode.Generics = genericLists
+
+		return callExprNode
+	}
+
+	// Handle struct instantiation -> Struct <T> {}
+	if p.currentTokenKind() == lexer.OPEN_CURLY {
+		structNode := ast.ExpectExpr[ast.StructInstantiationExpr](parse_call_expr(p, left, call))
+		structNode.Generics = genericLists
+
+		return structNode
+	}
+
+	panic("Unknown symbol after generics list inside parse_generic_list_instantiation()")
 }
