@@ -78,8 +78,9 @@ func tc_var_declaration_stmt(s ast.VarDeclarationStmt, env *SymbolTable) Type {
 
 func tc_fn_declaration_stmt(s ast.FunctionDeclarationStmt, env *SymbolTable) Type {
 	var functionName = s.Name
-	var parameters = []Type{}
-	var returns Type
+	var body = s.Body
+	var generics = s.Generics
+	var isGeneric = len(generics) > 0
 
 	// Make sure inside global/module scope when definining functions
 	// TODO: Create Module AST node which will represent the file.
@@ -95,93 +96,73 @@ func tc_fn_declaration_stmt(s ast.FunctionDeclarationStmt, env *SymbolTable) Typ
 		return ErrType(fmt.Sprintf("Cannot define function %s as a symbol with the same name already exists.", functionName))
 	}
 
-	// Validate return type (given or explicit meaning void)
-	if s.ReturnType == nil {
-		returns = VoidType{}
-	} else {
+	if isGeneric {
+		genericFn := GenericFnType{
+			Body:       body,
+			Generics:   generics,
+			Parameters: s.Parameters,
+			ReturnType: s.ReturnType,
+			Closure:    env,
+		}
+
+		env.Symbols[functionName] = SymbolInfo{
+			Type:            genericFn,
+			IsConstant:      true,
+			AssignmentCount: 1,
+		}
+
+		return genericFn
+	}
+
+	var fnBodyEnv = CreateSymbolTable(env, true, false, false, functionName)
+	var parameters = []Type{}
+	var returns Type = VoidType{}
+
+	if s.ReturnType != nil {
 		returns = typecheck_type(s.ReturnType, env)
 	}
 
-	// If function is defined with generics then need to evaluate body/params at call time
-	if len(s.Generics) > 0 {
-		fnType := GenericFnType{
-			Generics: s.Generics,
-			FnNode:   s,
-		}
-
-		// Define the function inside the current global scope.
-		env.Symbols[functionName] = SymbolInfo{
-			IsConstant:      true,
-			AssignmentCount: 1,
-			AccessedCount:   0,
-			Type:            fnType,
-		}
-
-		return fnType
-	}
-
-	functionBodyEnv := CreateSymbolTable(env, true, false, false, functionName)
-
-	// Validate each parameter and see what type it is.
+	// Install Parameters
 	for _, param := range s.Parameters {
-		paramType := typecheck_type(param.Type, functionBodyEnv)
+		paramName := param.Name
+		paramType := typecheck_type(param.Type, env)
 
-		if helpers.TypesMatchT[ErrorType](paramType) {
-			err := helpers.ExpectType[ErrorType](paramType).str()
-			return ErrType(fmt.Sprintf("Unknown parameter (%s) type found inside function declaration (fn %s) : %s", param.Name, functionName, err))
-		}
-
-		// Make sure we dont re-declare variable in parameter list
-		_, paramExists := functionBodyEnv.Symbols[param.Name]
-		if paramExists {
-			return ErrType(fmt.Sprintf("Duplicate parameter (%s) inside fn declaration of %s", param.Name, functionName))
-		}
-
-		functionBodyEnv.Symbols[param.Name] = SymbolInfo{
-			IsConstant:      true,
+		fnBodyEnv.Symbols[paramName] = SymbolInfo{
 			Type:            paramType,
-			AccessedCount:   0,
+			IsConstant:      true,
 			AssignmentCount: 1,
 		}
 
 		parameters = append(parameters, paramType)
 	}
 
-	fnType := FnType{
+	var fnType = FnType{
 		ParamTypes: parameters,
 		ReturnType: returns,
+		Variadic:   false,
 	}
 
-	// Define the function inside the current global scope.
 	env.Symbols[functionName] = SymbolInfo{
-		IsConstant:      true,
-		AssignmentCount: 1,
-		AccessedCount:   0,
 		Type:            fnType,
+		AssignmentCount: 1,
+		IsConstant:      true,
 	}
 
-	// Validate the body of the function
+	// Verify Function Body
 	for _, stmt := range s.Body {
-		typecheck_stmt(stmt, functionBodyEnv)
+		typecheck_stmt(stmt, fnBodyEnv)
 	}
 
-	// Make sure void function has no returns
-	expectsVoid := helpers.TypesMatchT[VoidType](returns)
-	numReturns := len(functionBodyEnv.FoundReturnTypes)
-
-	if expectsVoid && numReturns == 0 {
-		return fnType
-	}
-
-	if !expectsVoid && numReturns == 0 {
-		return ErrType(fmt.Sprintf("Function %s expected a return type of %s but never returns anything.", functionName, returns.str()))
-	}
-
-	// Make sure each time we may return we return the correct type
-	for _, foundReturnType := range functionBodyEnv.FoundReturnTypes {
-		if !helpers.TypesMatch(returns, foundReturnType) {
-			return ErrType(fmt.Sprintf("Function %s expected return type: %s but recieved %s instead.", functionName, returns.str(), foundReturnType.str()))
+	// Validate Return Types
+	for _, foundReturn := range fnBodyEnv.FoundReturnTypes {
+		if !typesSame(foundReturn, returns) {
+			panic(fmt.Sprintf("In function declaration for %s, Found %s as a return type, however expected to find %s", functionName, foundReturn.str(), returns.str()))
 		}
+	}
+
+	// If function expects a return but none is provided.
+	if len(fnBodyEnv.FoundReturnTypes) == 0 && !typesSame(returns, VoidType{}) {
+		panic(fmt.Sprintf("In function declaration for %s, Expected to find return type of %s but found none.", functionName, returns.str()))
 	}
 
 	return fnType
@@ -306,7 +287,6 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 	// Eval Body for static/instance methods
 	// Now that all of the methods/instace/static/member properties are known we can re run through each
 	// method/static method and make sure they return the proper types and dont access things they are not supposed to.
-
 	for _, instanceMethod := range s.InstanceMethods {
 		methodName := fmt.Sprintf("%s.%s", structName, instanceMethod.Name)
 		methodEnv := CreateSymbolTable(structEnv, true, false, false, methodName)
@@ -353,12 +333,6 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 		// this will prevent us from accessing non static methods when inside static methods
 		// Check the tc_member_expr() for examples
 		methodEnv.IsStaticMethod = true
-
-		methodEnv.Symbols["self"] = SymbolInfo{
-			IsConstant:      true,
-			AssignmentCount: 1,
-			Type:            structType,
-		}
 
 		// Before evaluating this environment make sure to remove all instance methods so they cannot be called.
 		// This prevents static methods from calling or knowing about properties or instance methods

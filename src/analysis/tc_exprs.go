@@ -3,7 +3,6 @@ package analysis
 import (
 	"fmt"
 
-	"github.com/sanity-io/litter"
 	"github.com/tlaceby/bedrock/src/ast"
 	"github.com/tlaceby/bedrock/src/helpers"
 	"github.com/tlaceby/bedrock/src/lexer"
@@ -133,6 +132,8 @@ func tc_member_expr(e ast.MemberExpr, env *SymbolTable) Type {
 	memberType := typecheck_expr(e.Member, env)
 	propertyName := e.Property
 
+	panic("here")
+
 	switch member := memberType.(type) {
 	case StructType:
 		var propertyType Type
@@ -180,125 +181,104 @@ func tc_static_member_expr(e ast.StaticMemberExpr, env *SymbolTable) Type {
 }
 
 func tc_call_expr(e ast.CallExpr, env *SymbolTable) Type {
-	calle := typecheck_expr(e.Method, env)
-	argTypes := []Type{}
+	var method = typecheck_expr(e.Method, env)
 
-	for _, argType := range e.Arguments {
-		argTypes = append(argTypes, typecheck_expr(argType, env))
+	// Verify method is indeed a function
+	if !IsAFnType(method) {
+		panic("Attempted to call function in call expression with non function.")
 	}
 
-	if !helpers.TypesMatchT[FnType](calle) && !helpers.TypesMatchT[GenericFnType](calle) {
-		litter.Dump(e)
-		panic(ErrType(fmt.Sprintf("Invalid call expression %s is not a function which can be called", calle.str())).str())
+	var fnInstanceType FnType
+	var recievedArgs = []Type{}
+
+	// If the method is not generic then simply cast type away
+	if IsNormalFnType(method) {
+		fnInstanceType = helpers.ExpectType[FnType](method)
 	}
 
-	// If the function is generic then handle in seperate fn
-	if len(e.Generics) > 0 {
-		return tc_generic_call_expr(e, helpers.ExpectType[GenericFnType](calle), argTypes, env)
+	// If the function is generic then we need to validate body aswell.
+	if IsGenericFnType(method) {
+		var genericFn = helpers.ExpectType[GenericFnType](method)
+		var fnEnv = CreateSymbolTable(genericFn.Closure, true, false, false, genericFn.str())
+		var expectedReturnType Type = VoidType{}
+		var params = []Type{}
+
+		// Validate Arity of Generic Call
+		expectedGenericArity := len(genericFn.Generics)
+		recievedGenericArity := len(e.Generics)
+
+		if expectedGenericArity != recievedGenericArity {
+			panic(fmt.Sprintf("Expected %d generic args but recieved %d instead. You must suply the explit generic types in a generic fn call.", expectedGenericArity, recievedGenericArity))
+		}
+
+		// Since we know the arity is correct, assign each generic type parameter with the ones recieved
+		for index, genericName := range genericFn.Generics {
+			genericType := typecheck_type(e.Generics[index], env)
+			fnEnv.DefinedTypes[genericName] = genericType
+		}
+
+		// Validate and Install Parameters
+		for _, param := range genericFn.Parameters {
+			paramName := param.Name
+			paramType := typecheck_type(param.Type, fnEnv)
+
+			fnEnv.Symbols[paramName] = SymbolInfo{
+				Type:            paramType,
+				IsConstant:      true,
+				AssignmentCount: 1,
+			}
+
+			params = append(params, paramType)
+		}
+
+		// Return Type
+		if genericFn.ReturnType != nil {
+			expectedReturnType = typecheck_type(genericFn.ReturnType, fnEnv)
+		}
+
+		// Evaluate Body
+		for _, stmt := range genericFn.Body {
+			typecheck_stmt(stmt, fnEnv)
+		}
+
+		// Validate Returns Match
+		for _, foundReturn := range fnEnv.FoundReturnTypes {
+			if !typesSame(foundReturn, expectedReturnType) {
+				panic(fmt.Sprintf("In generic function call %s, found %s as a return type, however expected to find %s", genericFn.str(), foundReturn.str(), expectedReturnType.str()))
+			}
+		}
+
+		// If we expect a return type but recieve none
+		if len(fnEnv.FoundReturnTypes) == 0 && !typesSame(expectedReturnType, VoidType{}) {
+			panic(fmt.Sprintf("In generic function call %s , expected to find return type of %s but found none.", genericFn.str(), expectedReturnType.str()))
+		}
+
+		fnInstanceType = FnType{
+			Variadic:   false,
+			ParamTypes: params,
+			ReturnType: expectedReturnType,
+		}
 	}
 
-	fn := helpers.ExpectType[FnType](calle)
+	// Create Arg Types
+	for _, recievedArg := range e.Arguments {
+		recievedArgs = append(recievedArgs, typecheck_expr(recievedArg, env))
+	}
 
-	expectedArity := len(fn.ParamTypes)
-	recievedArity := len(argTypes)
+	expectedArity := len(fnInstanceType.ParamTypes)
+	recievedArity := len(recievedArgs)
 
+	// TODO: Variadic functions ???
 	if expectedArity != recievedArity {
-		panic(ErrType(fmt.Sprintf("Invalid call expression for %s. Expected %d arguments but recieved %d instead", fn.str(), expectedArity, recievedArity)).str())
+		panic(fmt.Sprintf("Expected arity of call expression %s, is %d but recieved %d instead.", fnInstanceType.str(), expectedArity, recievedArity))
 	}
 
-	invalidArgErrors := []ErrorType{}
-	// Validate each parameter against the supplied arguments
-	for paramIndex, expectedType := range fn.ParamTypes {
-		recievedType := argTypes[paramIndex]
-
-		if !helpers.TypesMatch(recievedType, expectedType) {
-			err := fmt.Sprintf("Expected %s but recieved %s instead call expression index %d", expectedType.str(), recievedType.str(), paramIndex)
-			invalidArgErrors = append(invalidArgErrors, ErrType(err))
+	for argIndx, expectedArg := range fnInstanceType.ParamTypes {
+		recievedArg := recievedArgs[argIndx]
+		if !typesSame(expectedArg, recievedArg) {
+			panic(fmt.Sprintf("In function call %s: Arg at position %d expected to be a type %s but recieved %s instead.", fnInstanceType.str(), argIndx, expectedArg.str(), recievedArg.str()))
 		}
 	}
 
-	if len(invalidArgErrors) > 0 {
-		for _, err := range invalidArgErrors {
-			println(err.str())
-		}
-
-		panic(fmt.Sprintf("Call expression %s failed typechecking due to type mismatches.", fn.str()))
-	}
-
-	return fn.ReturnType
-}
-
-func tc_generic_call_expr(e ast.CallExpr, fn GenericFnType, args []Type, env *SymbolTable) Type {
-	var paramTypes []Type
-	genericNames := fn.Generics
-	node := fn.FnNode
-
-	if len(genericNames) != len(e.Generics) {
-		panic("Arity of generics at defintion and call site dont match")
-	}
-
-	fnEnv := CreateSymbolTable(env, true, false, false, fmt.Sprintf("generic.%s", node.Name))
-
-	for indx, gt := range e.Generics {
-		genericType := typecheck_type(gt, env)
-
-		// Define T as whatever type is was found to be
-		fnEnv.DefinedTypes[genericNames[indx]] = genericType
-	}
-
-	// Install parameters now that all generics should be matched.
-	for _, param := range node.Parameters {
-		paramType := typecheck_type(param.Type, fnEnv)
-		paramTypes = append(paramTypes, paramType)
-
-		fnEnv.Symbols[param.Name] = SymbolInfo{
-			Type:            paramType,
-			IsConstant:      true,
-			AssignmentCount: 1,
-		}
-	}
-
-	// Validate arity of call expr
-	// TODO: Make actual TypeError
-	if len(paramTypes) != len(args) {
-		panic(fmt.Sprintf("Mistach arity in call expression. Expected %d but recieved %d instead", len(paramTypes), len(args)))
-	}
-
-	for indx, recievedArg := range args {
-		if !helpers.TypesMatch(recievedArg, paramTypes[indx]) {
-			panic(fmt.Sprintf("Types dont match. Expected %s but recieved %s instead in call_expr for %s", paramTypes[indx].str(), recievedArg.str(), node.Name))
-		}
-	}
-
-	// Validate return type
-	var expectedReturn Type = VoidType{}
-	if node.ReturnType != nil {
-		expectedReturn = typecheck_type(node.ReturnType, fnEnv)
-	}
-
-	expectsVoid := helpers.TypesMatchT[VoidType](expectedReturn)
-
-	// evaluate the body and replace the generic typenames with their coresponding types
-	for _, stmt := range node.Body {
-		typecheck_stmt(stmt, fnEnv)
-	}
-
-	numReturns := len(fnEnv.FoundReturnTypes)
-
-	if expectsVoid && numReturns == 0 {
-		return VoidType{}
-	}
-
-	if !expectsVoid && numReturns == 0 {
-		return ErrType(fmt.Sprintf("Function %s expected a return type of %s but never returns anything.", node.Name, expectedReturn.str()))
-	}
-
-	// Make sure each time we may return we return the correct type
-	for _, foundReturnType := range fnEnv.FoundReturnTypes {
-		if !helpers.TypesMatch(expectedReturn, foundReturnType) {
-			return ErrType(fmt.Sprintf("Function %s expected return type: %s but recieved %s instead.", node.Name, expectedReturn.str(), foundReturnType.str()))
-		}
-	}
-
-	return expectedReturn
+	return fnInstanceType.ReturnType
 }

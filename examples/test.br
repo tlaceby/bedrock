@@ -1,6 +1,17 @@
-fn add <T> (a: T, b: number) -> T {
-    return a + b;
+// main.br
+
+fn combine <T> (a: T, b: T) -> T {
+  return a + b;
 }
 
-let sum = add <number> (10, 20);
-let str = add <string> ("Hello ", 10);
+struct Circle {
+  radius: number;
+
+  static fn new (r: number) -> Circle {
+    return Circle {
+      radius: r,
+    };
+  }
+}
+
+const message = combine <string>("Hello ", "world");

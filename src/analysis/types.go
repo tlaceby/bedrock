@@ -65,6 +65,12 @@ func (t BoolType) str() string {
 	return "bool"
 }
 
+type AnyType struct{}
+
+func (t AnyType) str() string {
+	return "any"
+}
+
 type ArrayType struct {
 	Underlying Type
 }
@@ -74,47 +80,31 @@ func (t ArrayType) str() string {
 }
 
 type FnType struct {
-	// If the fn is generic must hold the ast to evaluate when a call_expr is encountered
-	IsGeneric  bool
-	FnNode     ast.FunctionDeclarationStmt
-	Generics   []string
+	Variadic   bool
 	ParamTypes []Type
 	ReturnType Type
 }
 
 func (t FnType) str() string {
 	var paramsStr string = ""
-	var genericStr string = ""
-
-	numParams := len(t.ParamTypes)
-
-	if t.IsGeneric {
-		genericStr += "<"
-		for idx, genericType := range t.Generics {
-			genericStr += genericType
-
-			if idx < numParams-1 {
-				paramsStr += ", "
-			}
-		}
-
-		genericStr += ">"
-	}
 
 	for idx, param := range t.ParamTypes {
 		paramsStr += param.str()
 
-		if idx < numParams-1 {
+		if idx < len(t.ParamTypes)-1 {
 			paramsStr += ", "
 		}
 	}
 
-	return fmt.Sprintf("fn %s (%s) -> %s", genericStr, paramsStr, t.ReturnType.str())
+	return fmt.Sprintf("fn (%s) -> %s", paramsStr, t.ReturnType.str())
 }
 
 type GenericFnType struct {
-	FnNode   ast.FunctionDeclarationStmt
-	Generics []string
+	Body       []ast.Stmt
+	Parameters []ast.Parameter
+	Generics   []string
+	ReturnType ast.Type
+	Closure    *SymbolTable
 }
 
 func (t GenericFnType) str() string {
@@ -132,20 +122,6 @@ func (t GenericFnType) str() string {
 	genericStr += ">"
 
 	return fmt.Sprintf("generic.fn%s", genericStr)
-}
-
-func CastableToBool(t Type) bool {
-	switch t.(type) {
-	case BoolType:
-	case NumType:
-	case StrType:
-	case ArrayType:
-		return true
-	default:
-		return false
-	}
-
-	return false
 }
 
 func defineGlobalDefaultTypes(table *SymbolTable) {
