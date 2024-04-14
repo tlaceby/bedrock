@@ -96,6 +96,8 @@ func createLexer(source string, filePath string) *lexer {
 			{regexp.MustCompile(`--`), defaultHandler(MINUS_MINUS, "--")},
 			{regexp.MustCompile(`\+=`), defaultHandler(PLUS_EQUALS, "+=")},
 			{regexp.MustCompile(`-=`), defaultHandler(MINUS_EQUALS, "-=")},
+			{regexp.MustCompile(`/=`), defaultHandler(SLASH_EQUALS, "/=")},
+			{regexp.MustCompile(`\*=`), defaultHandler(STAR_EQUALS, "*=")},
 			{regexp.MustCompile(`\+`), defaultHandler(PLUS, "+")},
 			{regexp.MustCompile(`-`), defaultHandler(DASH, "-")},
 			{regexp.MustCompile(`/`), defaultHandler(SLASH, "/")},

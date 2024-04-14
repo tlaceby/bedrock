@@ -30,6 +30,7 @@ type SymbolTable struct {
 	IsModule       bool // Represents the module which this table exists in
 	IsFunction     bool // whether this table is the body of a function
 	IsStaticMethod bool // whether we are inside a static methods scope. Prevents access to instance methods/properties from inside
+	IsLoop         bool // Whether the current env is a while/for loop
 
 	Parent       *SymbolTable          // Reference to parent environment
 	DefinedTypes map[string]Type       // All Alias/ Defined Types / Traits
@@ -133,6 +134,8 @@ func typecheck_stmt(stmt ast.Stmt, env *SymbolTable) Type {
 		return tc_return_stmt(s, env)
 	case ast.StructDeclarationStmt:
 		return tc_struct_declaration_stmt(s, env)
+	case ast.WhileStmt:
+		return tc_while_stmt(s, env)
 	default:
 		litter.Dump(stmt)
 		panic("^^^^^^ Unknown ast.Stmt encountered! ^^^^^^\n")

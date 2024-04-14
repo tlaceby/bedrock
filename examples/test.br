@@ -1,7 +1,4 @@
 // main.br
-fn combine <T> (a: T, b: T) -> T {
-  return a + b;
-}
 
 struct Combinable<T> {
   data: T;
@@ -36,12 +33,11 @@ fn main () {
 
   const john = names[0];
   const num = numbers[2];
+  
 
-  const sum = combine<number>(numbers[0], numbers[1]);
-  const name = combine<string>(names[0], names[1]);
-
-  let i = 0;
-  while (i lt 10) {
+  let i = 1;
+  while (i gt 10) {
+    println(i);
     i += 1;
   }
 }

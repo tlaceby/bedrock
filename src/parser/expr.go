@@ -43,12 +43,58 @@ func parse_prefix_expr(p *parser) ast.Expr {
 }
 
 func parse_assignment_expr(p *parser, left ast.Expr, bp binding_power) ast.Expr {
-	p.advance()
-	rhs := parse_expr(p, bp)
+	var isComplexAssignment = p.currentTokenKind() != lexer.ASSIGNMENT
+
+	if !isComplexAssignment {
+		p.advance()
+		rhs := parse_expr(p, bp)
+
+		return ast.AssignmentExpr{
+			Assigne:       left,
+			AssignedValue: rhs,
+		}
+	}
+
+	// We will translate Expr1 += Expr2 into Expr1 = Expr1 + Expr2
+	var operatorToken = p.advance()
+	var newBinaryOperatorToken lexer.Token
+	var loc = operatorToken.Location
+
+	if operatorToken.Kind == lexer.PLUS_EQUALS {
+		newBinaryOperatorToken = lexer.Token{
+			Location: loc,
+			Kind:     lexer.PLUS,
+			Value:    "+",
+		}
+
+	} else if operatorToken.Kind == lexer.MINUS_EQUALS {
+		newBinaryOperatorToken = lexer.Token{
+			Location: loc,
+			Kind:     lexer.DASH,
+			Value:    "-",
+		}
+	} else if operatorToken.Kind == lexer.SLASH_EQUALS {
+		newBinaryOperatorToken = lexer.Token{
+			Location: loc,
+			Kind:     lexer.SLASH,
+			Value:    "/",
+		}
+	} else if operatorToken.Kind == lexer.STAR_EQUALS {
+		newBinaryOperatorToken = lexer.Token{
+			Location: loc,
+			Kind:     lexer.STAR,
+			Value:    "*",
+		}
+	}
+
+	var binaryExpr = ast.BinaryExpr{
+		Left: left, Operator: newBinaryOperatorToken,
+		Right: parse_expr(p, assignment),
+	}
 
 	return ast.AssignmentExpr{
 		Assigne:       left,
-		AssignedValue: rhs,
+		AssignedValue: binaryExpr,
 	}
 }
 

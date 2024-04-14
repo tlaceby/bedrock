@@ -330,7 +330,6 @@ func tc_call_expr(e ast.CallExpr, env *SymbolTable) Type {
 func tc_assignment_expr(e ast.AssignmentExpr, env *SymbolTable) Type {
 	assigne := typecheck_expr(e.Assigne, env)
 	value := typecheck_expr(e.AssignedValue, env)
-
 	// Make sure we are assigning valid things.
 	switch lhs := e.Assigne.(type) {
 	case ast.SymbolExpr:

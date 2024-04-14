@@ -177,7 +177,7 @@ func parse_for_stmt(p *parser) ast.Stmt {
 func parse_while_stmt(p *parser) ast.Stmt {
 	p.expect(lexer.WHILE)
 	p.expect(lexer.OPEN_PAREN)
-	var cond = parse_expr(p, logical)
+	var cond = parse_expr(p, assignment)
 	p.expect(lexer.CLOSE_PAREN)
 
 	var body = helpers.ExpectType[ast.BlockStmt](parse_block_stmt(p)).Body

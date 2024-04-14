@@ -53,6 +53,8 @@ const (
 	MINUS_MINUS
 	PLUS_EQUALS
 	MINUS_EQUALS
+	SLASH_EQUALS
+	STAR_EQUALS
 	NULLISH_ASSIGNMENT // ??=
 
 	//Maths
@@ -197,6 +199,10 @@ func TokenKindString(kind TokenKind) string {
 		return "greater"
 	case GREATER_EQUALS:
 		return "greater_equals"
+	case STAR_EQUALS:
+		return "star_equals"
+	case SLASH_EQUALS:
+		return "slash_equals"
 	case OR:
 		return "or"
 	case AND:

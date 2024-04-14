@@ -443,3 +443,20 @@ func validate_struct_body(structEnv *SymbolTable, structName string, Properties 
 
 	return structType
 }
+
+func tc_while_stmt(s ast.WhileStmt, env *SymbolTable) Type {
+	var condition = typecheck_expr(s.Condition, env)
+	var whileEnv = CreateSymbolTable(env, false, false, false, "while-loop")
+	whileEnv.IsLoop = true
+
+	if !typesSame(condition, BoolType{}) {
+		panic(fmt.Sprintf("Expected bool in condition for while loop. Recieved %s instead.", condition.str()))
+	}
+
+	for _, stmt := range s.Body {
+		typecheck_stmt(stmt, whileEnv)
+	}
+
+	whileEnv.debugTable(false)
+	return VoidType{}
+}
