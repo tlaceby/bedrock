@@ -12,6 +12,13 @@ struct Circle {
       radius: r,
     };
   }
+
+  fn setRadius (r: number) -> Circle {
+    self.radius = r;
+  }
 }
 
-const message = combine <string>("Hello ", "world");
+let message = combine <string>("Hello ", "world");
+message = "Hello ";
+
+const foo = message + "world";

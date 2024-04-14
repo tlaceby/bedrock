@@ -82,6 +82,8 @@ func typecheck_expr(expr ast.Expr, env *SymbolTable) Type {
 		return tc_binary_expr(e, env)
 	case ast.MemberExpr:
 		return tc_member_expr(e, env)
+	case ast.AssignmentExpr:
+		return tc_assignment_expr(e, env)
 	case ast.StaticMemberExpr:
 		return tc_static_member_expr(e, env)
 	case ast.CallExpr:

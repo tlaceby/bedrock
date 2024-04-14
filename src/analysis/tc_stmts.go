@@ -204,7 +204,6 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 	var staticMethods = map[string]FnType{}
 	var methods = map[string]FnType{}
 	var properties = map[string]Type{}
-	var publicMembers = []string{}
 
 	// Make sure struct is only defined inside global/module scope
 	if !env.IsGlobal && !env.IsModule {
@@ -225,7 +224,6 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 		StaticMethods: staticMethods,
 		Properties:    properties,
 		Methods:       methods,
-		PublicMembers: publicMembers,
 	}
 
 	env.DefinedTypes[structName] = structType

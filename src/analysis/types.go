@@ -18,11 +18,19 @@ func (t ModuleType) str() string {
 
 type StructType struct {
 	StructName    string
-	Generics      []string
+	Generics      []string // TODO: Remove when creating GenericStructType
 	Properties    map[string]Type
 	Methods       map[string]FnType
 	StaticMethods map[string]FnType
-	PublicMembers []string // Names of all public struct properties/methods. // TODO:
+}
+
+func (t StructType) getPropertyByName(propertyName string) Type {
+	value, exists := t.Properties[propertyName]
+	if exists {
+		return value
+	}
+
+	return nil
 }
 
 func (t StructType) str() string {

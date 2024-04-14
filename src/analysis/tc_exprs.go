@@ -3,6 +3,7 @@ package analysis
 import (
 	"fmt"
 
+	"github.com/sanity-io/litter"
 	"github.com/tlaceby/bedrock/src/ast"
 	"github.com/tlaceby/bedrock/src/helpers"
 	"github.com/tlaceby/bedrock/src/lexer"
@@ -131,8 +132,6 @@ func tc_struct_instantation_expr(e ast.StructInstantiationExpr, env *SymbolTable
 func tc_member_expr(e ast.MemberExpr, env *SymbolTable) Type {
 	memberType := typecheck_expr(e.Member, env)
 	propertyName := e.Property
-
-	panic("here")
 
 	switch member := memberType.(type) {
 	case StructType:
@@ -281,4 +280,59 @@ func tc_call_expr(e ast.CallExpr, env *SymbolTable) Type {
 	}
 
 	return fnInstanceType.ReturnType
+}
+
+func tc_assignment_expr(e ast.AssignmentExpr, env *SymbolTable) Type {
+	assigne := typecheck_expr(e.Assigne, env)
+	value := typecheck_expr(e.AssignedValue, env)
+
+	// Make sure we are assigning valid things.
+	switch lhs := e.Assigne.(type) {
+	case ast.SymbolExpr:
+		varname := lhs.Value
+		// make sure symbol exists and is not constant
+		varInfo, varEnv := env.findNearestSymbolEnv(varname)
+
+		// Make sure variable exists
+		if varInfo == nil || varEnv == nil {
+			panic(fmt.Sprintf("Cannot perform assignment on %s as it does not exist.", varname))
+		}
+
+		// Avoid Constant Assignment
+		if varInfo.IsConstant {
+			panic(fmt.Sprintf("Cannot perform assignment on %s as it declared as constant.", varname))
+		}
+
+		// Make sure types match
+		if !typesSame(varInfo.Type, assigne) {
+			panic(fmt.Sprintf("Invalid assignment of %s with %s = %s\n", varname, varInfo.Type.str(), value.str()))
+		}
+
+		// Update assignment and access count
+		varInfo.AccessedCount-- // When performing the lookup it adds an access. Remove it.
+		varInfo.AssignmentCount++
+
+		varEnv.Symbols[varname] = *varInfo
+
+		return value
+
+	case ast.MemberExpr:
+		memberExpr := typecheck_expr(lhs.Member, env)
+
+		switch member := memberExpr.(type) {
+		case StructType:
+			propertyName := lhs.Property
+			propertyValue := member.getPropertyByName(propertyName)
+
+			// Make sure types match
+			if !typesSame(propertyValue, value) {
+				panic(fmt.Sprintf("Mismatched types. Invalid assignment of %s.%s with %s. Expected type is %s.\n", member.StructName, propertyName, value.str(), propertyValue.str()))
+			}
+
+			return value
+		}
+	}
+
+	litter.Dump(e)
+	panic(fmt.Sprintf("Invalid assignment expression. Cannot assign %s to %s\n", assigne.str(), value.str()))
 }

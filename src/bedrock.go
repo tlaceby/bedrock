@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/sanity-io/litter"
 	"github.com/tlaceby/bedrock/src/analysis"
 	"github.com/tlaceby/bedrock/src/parser"
 )
@@ -16,7 +15,7 @@ func main() {
 	ast := parser.Parse(string(sourceBytes), "test.br")
 	duration := time.Since(start)
 
-	litter.Dump(ast)
+	// litter.Dump(ast)
 	println()
 	globalEnv := analysis.CreateSymbolTable(nil, false, false, false, "global")
 	analysis.Typecheck(ast, globalEnv)
