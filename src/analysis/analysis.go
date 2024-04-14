@@ -190,17 +190,21 @@ func (table *SymbolTable) debugTable(printParent bool) {
 		table.Parent.debugTable(printParent)
 	}
 
-	println(fmt.Sprintf("\n------------   %s   ------------ \n", table.TableName))
-	color.Blue("types:")
-	for typename, typevalue := range table.DefinedTypes {
-		println(fmt.Sprintf(" %s  -> %s", typename, typevalue.str()))
+	println(fmt.Sprintf("\n------------   %s   ------------ ", table.TableName))
+	if len(table.DefinedTypes) > 0 {
+		color.Blue("types:")
+
+		for typename, typevalue := range table.DefinedTypes {
+			println(fmt.Sprintf(" %s  -> %s", typename, typevalue.str()))
+		}
 	}
 
-	color.Blue("\nstructs:")
 	count := 0
 	for typename, typevalue := range table.DefinedTypes {
 		if count != 0 {
 			println()
+		} else {
+			color.Blue("\nstructs:")
 		}
 
 		count++

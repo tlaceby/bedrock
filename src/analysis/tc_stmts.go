@@ -165,6 +165,7 @@ func tc_fn_declaration_stmt(s ast.FunctionDeclarationStmt, env *SymbolTable) Typ
 		panic(fmt.Sprintf("In function declaration for %s, Expected to find return type of %s but found none.", functionName, returns.str()))
 	}
 
+	fnBodyEnv.debugTable(false)
 	return fnType
 }
 
@@ -191,7 +192,7 @@ func tc_module_stmt(s ast.ModuleStmt, env *SymbolTable) Type {
 		typecheck_stmt(stmt, moduleEnv)
 	}
 
-	moduleEnv.debugTable(true)
+	moduleEnv.debugTable(false)
 
 	return ModuleType{
 		ModuleName: s.ModuleName,
@@ -347,8 +348,8 @@ func validate_struct_body(structEnv *SymbolTable, structName string, Properties 
 	// method/static method and make sure they return the proper types and dont access things they are not supposed to.
 
 	for _, instanceMethod := range InstanceMethods {
-		methodName := fmt.Sprintf("%s.%s", structName, instanceMethod.Name)
-		methodEnv := CreateSymbolTable(structEnv, true, false, false, methodName)
+		methodName := instanceMethod.Name
+		methodEnv := CreateSymbolTable(structEnv, true, false, false, methodName+"()")
 
 		methodEnv.Symbols["self"] = SymbolInfo{
 			IsConstant:      true,
@@ -385,13 +386,13 @@ func validate_struct_body(structEnv *SymbolTable, structName string, Properties 
 			}
 		}
 
-		// methodEnv.debugTable(false)
+		methodEnv.debugTable(false)
 	}
 
 	// Eval static methods to verify the integrigity of the body.
 	for _, staticMethod := range StaticMethods {
-		methodName := fmt.Sprintf("%s::%s", structName, staticMethod.Name)
-		methodEnv := CreateSymbolTable(structEnv, true, false, false, methodName)
+		methodName := staticMethod.Name
+		methodEnv := CreateSymbolTable(structEnv, true, false, false, methodName+"()")
 
 		// this will prevent us from accessing non static methods when inside static methods
 		// Check the tc_member_expr() for examples

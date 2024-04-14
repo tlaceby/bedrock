@@ -18,9 +18,6 @@ func createGenericListStr(structName string, generics []string) string {
 
 func typesSame(t Type, expected Type) bool {
 	return t.str() == expected.str()
-
-	// Later support complex and unioin type better.
-	return false
 }
 
 func CastableToBool(t Type) bool {
