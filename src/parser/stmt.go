@@ -271,8 +271,10 @@ func parse_trait_stmt(p *parser) ast.Stmt {
 	p.expect(lexer.OPEN_CURLY)
 
 	for p.hasTokens() && p.currentTokenKind() != lexer.CLOSE_CURLY {
+		p.expect(lexer.FN)
 		methodName := p.expect(lexer.IDENTIFIER).Value
-		p.expect(lexer.COLON)
+		p.pos-- // set a new tmp token for the fn keywors
+		p.tokens[p.pos] = lexer.Token{Kind: lexer.FN}
 		methodType := ast.ExpectType[ast.FnType](parse_type(p, defalt_bp))
 
 		methods = append(methods, ast.TraitMethod{

@@ -1,59 +1,36 @@
 // main.br
 
-trait Any {}
-
-unsafe {
-  type println = fn (String) -> Void;
-  type as_str = fn (Any) -> String;
+trait Error {
+  fn error () -> String;
 }
 
-struct Combinable<T> {
-  data: T;
-
-  fn setData(data: T) -> Void {
-    self.data = data;
+struct FooError {
+  fn error () -> String {
+    return "Error: Foo";
   }
+}
 
-  fn combine(other: T) -> T {
-    self.data = self.data + other;
-    return self.data;
-  }
+struct CustomError {
+  message: String;
 
-  static fn new(init: T) -> Self {
-    return Self {
-      data: init,
+  static fn new(message: String) -> Self {
+    return Self { 
+      message: message,
     };
+  }
+
+  fn error () -> String {
+    return "Error: " + kind;
   }
 }
 
 fn main () {
-  const c1 = Combinable<Number>::new(10);
-  const c2 = Combinable<String>{
-    data: "Hello ",
-  };
 
-  c2.combine("world");
+  const err1 = CustomError::new("Something went wrong");
+  const err2 = FooError{};
 
-  const names = []String{"john", "doe"};
-  const numbers = []Number{1, 2, 3, 4, 2, 3, 4};
-
-  const john = names[0];
-  const num = numbers[2];
+  const errors = []Error{ err1, err2 };
   
-
-  let i = 1;
-  while (i gt 10) {
-    // println(i);
-    i += 1;
-  }
+  const e1 = errors[0];
+  const e2 = errors[1];
 }
-
-
-// TODO:
-// trait Any {}
-// unsafe {
-//   type println = fn (Any) -> Void;
-//   type as_str = fn (Any) -> String;
-// }
-// Unsafe syntax to specify a function does exist in scope.
-// Useful for module maintainers and ffi calls. Nothing else.

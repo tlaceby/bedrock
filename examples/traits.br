@@ -1,0 +1,55 @@
+// main.br
+
+// impl Number {
+//   fn to_string() -> String {
+//     return as_str(self);
+//   }
+// }
+
+// unsafe {
+//   type println = fn (String) -> Void;
+//   type as_str = fn (Any) -> String;
+// }
+
+trait Error {
+  fn error () -> String;
+}
+
+struct FooError {
+  fn error () -> String {
+    return "Error: Foo";
+  }
+}
+
+struct CustomError {
+  message: String;
+
+  static new (message: String) -> Self {
+    return Self{ message: message, };
+  }
+
+  fn error () -> String {
+    return "Error: " + kind;
+  }
+}
+
+fn main () {
+  const err1 = CustomError::new("Something went wrong");
+  const err2 = FooError {};
+
+  let errors: []Error{ err1, err2 };
+}
+
+// unsafe {
+//   type println = fn (String) -> Void;
+//   type as_str = fn (Any) -> String;
+// }
+
+// TODO:
+// trait Any {}
+// unsafe {
+//   type println = fn (Any) -> Void;
+//   type as_str = fn (Any) -> String;
+// }
+// Unsafe syntax to specify a function does exist in scope.
+// Useful for module maintainers and ffi calls. Nothing else.
