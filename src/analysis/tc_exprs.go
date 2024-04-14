@@ -98,6 +98,7 @@ func tc_struct_instantation_expr(e ast.StructInstantiationExpr, env *SymbolTable
 		var expectedGenericArity = len(e.Generics)
 		var recievedGenericArity = len(genericStruct.Generics)
 		var structEnv = CreateSymbolTable(genericStruct.Closure, false, false, true, genericStruct.str())
+		var recievedGenericsTypeStrings = []string{}
 
 		// Verify Generics Arity
 		if expectedGenericArity != recievedGenericArity {
@@ -105,18 +106,18 @@ func tc_struct_instantation_expr(e ast.StructInstantiationExpr, env *SymbolTable
 		}
 
 		// Install Generic Types For Respective Names
-		generics := []Type{}
 		for genericIndex, recievedGenericType := range e.Generics {
 			genericName := genericStruct.Generics[genericIndex]
 			genericType := typecheck_type(recievedGenericType, structEnv)
 
+			recievedGenericsTypeStrings = append(recievedGenericsTypeStrings, genericType.str())
 			structEnv.DefinedTypes[genericName] = genericType
-			generics = append(generics, genericType)
 		}
+		var structSignature = createGenericListStr(structName, recievedGenericsTypeStrings)
 
-		genericStruct.ValidatedGenericLists = append(genericStruct.ValidatedGenericLists, generics)
-		structType = validate_struct_body(env, structEnv, genericStruct.Name, genericStruct.Properties, genericStruct.StaticMethods, genericStruct.InstanceMethods)
+		structType = validate_struct_body(env, structEnv, structSignature, genericStruct.Properties, genericStruct.StaticMethods, genericStruct.InstanceMethods)
 		definedScope.DefinedTypes[structName] = genericStruct
+		definedScope.DefinedTypes[structSignature] = structType
 	}
 
 	// Validate each field is instantiated which is expected in the struct

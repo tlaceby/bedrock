@@ -43,22 +43,10 @@ type GenericStructType struct {
 	Properties      []ast.StructProperty
 	StaticMethods   []ast.FunctionDeclarationStmt
 	InstanceMethods []ast.FunctionDeclarationStmt
-
-	ValidatedGenericLists [][]Type // Contains all verified working subtypes for this generic
 }
 
 func (t GenericStructType) str() string {
-	genericList := ""
-
-	for indx, genericName := range t.Generics {
-		genericList += genericName
-
-		if indx != len(t.Generics)-1 {
-			genericList += ", "
-		}
-	}
-
-	return fmt.Sprintf("%s <%s> {}", t.Name, genericList)
+	return createGenericListStr(t.Name, t.Generics)
 }
 
 type ErrorType struct {

@@ -215,13 +215,12 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 
 	if isGeneric {
 		genericType := GenericStructType{
-			Name:                  s.Name,
-			Properties:            s.Properties,
-			InstanceMethods:       s.InstanceMethods,
-			StaticMethods:         s.StaticMethods,
-			Closure:               env,
-			Generics:              s.Generics,
-			ValidatedGenericLists: make([][]Type, 0),
+			Name:            s.Name,
+			Properties:      s.Properties,
+			InstanceMethods: s.InstanceMethods,
+			StaticMethods:   s.StaticMethods,
+			Closure:         env,
+			Generics:        s.Generics,
 		}
 
 		env.DefinedTypes[structName] = genericType
@@ -268,13 +267,13 @@ func validate_struct_body(env *SymbolTable, structEnv *SymbolTable, structName s
 		var returnType Type = VoidType{}
 
 		if staticNode.ReturnType != nil {
-			returnType = typecheck_type(staticNode.ReturnType, env)
+			returnType = typecheck_type(staticNode.ReturnType, structEnv)
 		}
 
 		params := []Type{}
 
 		for _, param := range staticNode.Parameters {
-			params = append(params, typecheck_type(param.Type, env))
+			params = append(params, typecheck_type(param.Type, structEnv))
 		}
 
 		staticMethods[staticNode.Name] = FnType{
@@ -289,13 +288,14 @@ func validate_struct_body(env *SymbolTable, structEnv *SymbolTable, structName s
 		var returnType Type = VoidType{}
 
 		if instanceNode.ReturnType != nil {
-			returnType = typecheck_type(instanceNode.ReturnType, env)
+			returnType = typecheck_type(instanceNode.ReturnType, structEnv)
 		}
 
 		params := []Type{}
 
 		for _, param := range instanceNode.Parameters {
-			params = append(params, typecheck_type(param.Type, env))
+			paramType := typecheck_type(param.Type, structEnv)
+			params = append(params, paramType)
 		}
 
 		fnType := FnType{
@@ -318,13 +318,13 @@ func validate_struct_body(env *SymbolTable, structEnv *SymbolTable, structName s
 		var returnType Type = VoidType{}
 
 		if instanceNode.ReturnType != nil {
-			returnType = typecheck_type(instanceNode.ReturnType, env)
+			returnType = typecheck_type(instanceNode.ReturnType, structEnv)
 		}
 
 		params := []Type{}
 
 		for _, param := range instanceNode.Parameters {
-			params = append(params, typecheck_type(param.Type, env))
+			params = append(params, typecheck_type(param.Type, structEnv))
 		}
 
 		fnType := FnType{
@@ -358,7 +358,7 @@ func validate_struct_body(env *SymbolTable, structEnv *SymbolTable, structName s
 		// foreach parameter populate the simulated env
 		for _, param := range instanceMethod.Parameters {
 			paramName := param.Name
-			paramType := typecheck_type(param.Type, methodEnv)
+			paramType := typecheck_type(param.Type, structEnv)
 
 			methodEnv.Symbols[paramName] = SymbolInfo{
 				Type:            paramType,

@@ -1,5 +1,19 @@
 package analysis
 
+func createGenericListStr(structName string, generics []string) string {
+	str := structName + "<"
+
+	for indx, name := range generics {
+		str += name
+		if indx != len(generics)-1 {
+			str += ", "
+		}
+	}
+
+	str += ">"
+	return str
+}
+
 func typesSame(t Type, expected Type) bool {
 	return t.str() == expected.str()
 

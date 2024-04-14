@@ -6,6 +6,10 @@ struct Combinable<T> {
   fn setData(data: T) {
     self.data = data;
   }
+
+  fn combine(other: T) {
+    self.data = self.data + other;
+  }
 }
 
 const c1 = Combinable <number> {
@@ -14,3 +18,17 @@ const c1 = Combinable <number> {
 
 
 c1.data = 1;
+
+let c2: Combinable<number>;
+c2 = Combinable<number>{
+  data: 1.2,
+};
+
+c2.data = c1.data;
+
+const c3 = Combinable<string> {
+  data: "Hello",
+};
+
+c3.setData("Hello ");
+c3.combine("world");

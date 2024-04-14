@@ -198,7 +198,7 @@ func (table *SymbolTable) debugTable(printParent bool) {
 	println("\nstructs:")
 	for typename, typevalue := range table.DefinedTypes {
 		if helpers.TypesMatchT[StructType](typevalue) {
-			println(fmt.Sprintf(" %s: ", typename))
+			println(fmt.Sprintf(" %s ", typename))
 
 			structVal := helpers.ExpectType[StructType](typevalue)
 
@@ -219,6 +219,11 @@ func (table *SymbolTable) debugTable(printParent bool) {
 					println(fmt.Sprintf("   %s : static %s", propertyName, staticMethod.str()))
 				}
 			}
+		}
+
+		if helpers.TypesMatchT[GenericStructType](typevalue) {
+			structVal := helpers.ExpectType[GenericStructType](typevalue)
+			fmt.Printf(" %s\n", structVal.str())
 		}
 	}
 
