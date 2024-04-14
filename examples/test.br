@@ -1,5 +1,5 @@
 // main.br
-fn add <T> (a: T, b: T) -> T {
+fn combine <T> (a: T, b: T) -> T {
   return a + b;
 }
 
@@ -19,14 +19,29 @@ struct Combinable<T> {
   static fn new(init: T) -> Self {
     return Self {
       data: init,
-    };    
+    };
   }
 }
 
 fn main () {
-  const names = []string{"john", "sydney"};
+  const c1 = Combinable<number>::new(10);
+  const c2 = Combinable<string>{
+    data: "Hello ",
+  };
+
+  c2.combine("world");
+
+  const names = []string{"john", "doe"};
   const numbers = []number{1, 2, 3, 4, 2, 3, 4};
 
   const john = names[0];
   const num = numbers[2];
+
+  const sum = combine<number>(numbers[0], numbers[1]);
+  const name = combine<string>(names[0], names[1]);
+
+  let i = 0;
+  while (i lt 10) {
+    i += 1;
+  }
 }

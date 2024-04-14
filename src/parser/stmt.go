@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/tlaceby/bedrock/src/ast"
+	"github.com/tlaceby/bedrock/src/helpers"
 	"github.com/tlaceby/bedrock/src/lexer"
 )
 
@@ -112,7 +113,7 @@ func parse_fn_declaration(p *parser) ast.Stmt {
 	functionName := p.expect(lexer.IDENTIFIER).Value
 	var generics = []string{}
 
-	if p.currentTokenKind() == lexer.LESS {
+	if p.currentTokenKind() == lexer.OPEN_GENERIC {
 		generics = parse_generic_declaration(p)
 	}
 
@@ -169,34 +170,28 @@ func parse_import_stmt(p *parser) ast.Stmt {
 	}
 }
 
-func parse_foreach_stmt(p *parser) ast.Stmt {
-	p.advance()
-	valueName := p.expect(lexer.IDENTIFIER).Value
+func parse_for_stmt(p *parser) ast.Stmt {
+	panic("For stmt syntax not implimented")
+}
 
-	var index bool
-	if p.currentTokenKind() == lexer.COMMA {
-		p.expect(lexer.COMMA)
-		p.expect(lexer.IDENTIFIER)
-		index = true
-	}
+func parse_while_stmt(p *parser) ast.Stmt {
+	p.expect(lexer.WHILE)
+	p.expect(lexer.OPEN_PAREN)
+	var cond = parse_expr(p, logical)
+	p.expect(lexer.CLOSE_PAREN)
 
-	p.expect(lexer.IN)
-	iterable := parse_expr(p, defalt_bp)
-	body := ast.ExpectStmt[ast.BlockStmt](parse_block_stmt(p)).Body
-
-	return ast.ForeachStmt{
-		Value:    valueName,
-		Index:    index,
-		Iterable: iterable,
-		Body:     body,
+	var body = helpers.ExpectType[ast.BlockStmt](parse_block_stmt(p)).Body
+	return ast.WhileStmt{
+		Condition: cond,
+		Body:      body,
 	}
 }
 
 func parse_generic_declaration(p *parser) []string {
 	Generics := make([]string, 0)
-	p.expect(lexer.LESS)
+	p.expect(lexer.OPEN_GENERIC)
 
-	for p.hasTokens() && p.currentTokenKind() != lexer.GREATER {
+	for p.hasTokens() && p.currentTokenKind() != lexer.CLOSE_GENERIC {
 		Generics = append(Generics, p.expect(lexer.IDENTIFIER).Value)
 
 		if p.currentTokenKind() == lexer.COMMA {
@@ -204,7 +199,7 @@ func parse_generic_declaration(p *parser) []string {
 		}
 	}
 
-	p.expect(lexer.GREATER)
+	p.expect(lexer.CLOSE_GENERIC)
 
 	return Generics
 }
@@ -217,7 +212,7 @@ func parse_struct_declaration_stmt(p *parser) ast.Stmt {
 	InstanceMethods := make([]ast.FunctionDeclarationStmt, 0)
 	StaticMethods := make([]ast.FunctionDeclarationStmt, 0)
 
-	if p.currentTokenKind() == lexer.LESS {
+	if p.currentTokenKind() == lexer.OPEN_GENERIC {
 		Generics = parse_generic_declaration(p)
 	}
 

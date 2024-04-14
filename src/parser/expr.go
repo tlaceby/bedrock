@@ -237,17 +237,17 @@ func parse_struct_instantiation(p *parser, left ast.Expr, bp binding_power) ast.
 
 func parse_generic_list_instantiation(p *parser, left ast.Expr, bp binding_power) ast.Expr {
 	var genericLists = []ast.Type{}
-	p.expect(lexer.LESS)
+	p.expect(lexer.OPEN_GENERIC)
 
-	for p.hasTokens() && p.currentTokenKind() != lexer.GREATER {
+	for p.hasTokens() && p.currentTokenKind() != lexer.CLOSE_GENERIC {
 		genericLists = append(genericLists, parse_type(p, defalt_bp))
 
-		if p.currentTokenKind() != lexer.GREATER {
+		if p.currentTokenKind() != lexer.CLOSE_GENERIC {
 			p.expect(lexer.COMMA)
 		}
 	}
 
-	p.expect(lexer.GREATER)
+	p.expect(lexer.CLOSE_GENERIC)
 
 	// Handle call expression -> method <T, A, ...> ()
 	if p.currentTokenKind() == lexer.OPEN_PAREN {

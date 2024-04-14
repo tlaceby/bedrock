@@ -45,6 +45,9 @@ const (
 	AMPERSAND
 	ARROW
 
+	OPEN_GENERIC
+	CLOSE_GENERIC
+
 	// Shorthand
 	PLUS_PLUS
 	MINUS_MINUS
@@ -71,7 +74,6 @@ const (
 	INTERFACE
 	IF
 	ELSE
-	FOREACH
 	WHILE
 	FOR
 	TYPEOF
@@ -95,17 +97,27 @@ var reserved_lu map[string]TokenKind = map[string]TokenKind{
 	"fn":        FN,
 	"if":        IF,
 	"else":      ELSE,
-	"foreach":   FOREACH,
 	"return":    RETURN,
 	"continue":  CONTINUE,
 	"break":     BREAK,
 	"static":    STATIC,
 	"while":     WHILE, // not used
-	"for":       FOR,   // not used
+	"for":       FOR,
 	"as":        AS,
 	"trait":     TRAIT,
 	"typeof":    TYPEOF,
 	"in":        IN,
+
+	// Operators as keywords
+	"lt":  LESS,
+	"lte": LESS_EQUALS,
+	"gt":  GREATER,
+	"gte": GREATER_EQUALS,
+	"ne":  NOT_EQUALS,
+	"not": NOT,
+	"eq":  EQUALS,
+	"and": AND,
+	"or":  OR,
 }
 
 type Location struct {
@@ -247,8 +259,6 @@ func TokenKindString(kind TokenKind) string {
 		return "if"
 	case ELSE:
 		return "else"
-	case FOREACH:
-		return "foreach"
 	case FOR:
 		return "for"
 	case WHILE:
@@ -265,6 +275,11 @@ func TokenKindString(kind TokenKind) string {
 		return "static"
 	case BREAK:
 		return "break"
+
+	case OPEN_GENERIC:
+		return "open_generic"
+	case CLOSE_GENERIC:
+		return "close_generic"
 	default:
 		return fmt.Sprintf("unknown(%d)", kind)
 	}

@@ -91,7 +91,7 @@ func createTokenLookups() {
 	led(lexer.OPEN_BRACKET, member, parse_member_expr)
 	led(lexer.OPEN_PAREN, call, parse_call_expr)
 	led(lexer.OPEN_CURLY, call, parse_struct_instantiation)
-	led(lexer.LESS, call, parse_generic_list_instantiation)
+	led(lexer.OPEN_GENERIC, call, parse_generic_list_instantiation)
 
 	// Grouping Expr
 	nud(lexer.OPEN_PAREN, parse_grouping_expr)
@@ -103,7 +103,8 @@ func createTokenLookups() {
 	stmt(lexer.FN, parse_fn_declaration)
 	stmt(lexer.IF, parse_if_stmt)
 	stmt(lexer.IMPORT, parse_import_stmt)
-	stmt(lexer.FOREACH, parse_foreach_stmt)
+	stmt(lexer.FOR, parse_for_stmt)
+	stmt(lexer.WHILE, parse_while_stmt)
 	stmt(lexer.STRUCT, parse_struct_declaration_stmt)
 	stmt(lexer.RETURN, parse_return_stmt)
 	stmt(lexer.TRAIT, parse_trait_stmt)

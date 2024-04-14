@@ -59,14 +59,22 @@ type ImportStmt struct {
 
 func (n ImportStmt) stmt() {}
 
-type ForeachStmt struct {
-	Value    string
-	Index    bool
-	Iterable Expr
-	Body     []Stmt
+// for (let/const varname, index in expr)
+type ForStmt struct {
+	IndexName string
+	VarName   string
+	IsConst   bool
+	Iterable  Expr
 }
 
-func (n ForeachStmt) stmt() {}
+func (n ForStmt) stmt() {}
+
+type WhileStmt struct {
+	Condition Expr
+	Body      []Stmt
+}
+
+func (n WhileStmt) stmt() {}
 
 type StructProperty struct {
 	Name string
