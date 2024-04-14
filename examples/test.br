@@ -1,4 +1,7 @@
 // main.br
+fn add <T> (a: T, b: T) -> T {
+  return a + b;
+}
 
 struct Combinable<T> {
   data: T;
@@ -21,6 +24,9 @@ struct Combinable<T> {
 }
 
 fn main () {
-  const c1 = Combinable<number>::new(10.5).setData(10);
-  const numbers = [1, 2, 3, 4];
+  const names = []string{"john", "sydney"};
+  const numbers = []number{1, 2, 3, 4, 2, 3, 4};
+
+  const john = names[0];
+  const num = numbers[2];
 }

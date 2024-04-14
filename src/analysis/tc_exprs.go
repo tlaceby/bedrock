@@ -381,3 +381,50 @@ func tc_assignment_expr(e ast.AssignmentExpr, env *SymbolTable) Type {
 	litter.Dump(e)
 	panic(fmt.Sprintf("Invalid assignment expression. Cannot assign %s to %s\n", assigne.str(), value.str()))
 }
+
+func tc_computed_expr(e ast.ComputedExpr, env *SymbolTable) Type {
+	var member Type = typecheck_expr(e.Member, env)
+	var computedExpr = typecheck_expr(e.Property, env)
+	var arr ArrayType
+
+	if !helpers.TypesMatchT[ArrayType](member) {
+		panic(fmt.Sprintf("Cannot perform computed expression on %s. Expected an array instead.", member.str()))
+	}
+
+	if !typesSame(computedExpr, NumType{}) {
+		panic(fmt.Sprintf("Computed member must be a number. Recieved %s indtead in computed expression of %s", computedExpr.str(), member.str()))
+	}
+
+	arr = helpers.ExpectType[ArrayType](member)
+	return arr.Underlying
+}
+
+func tc_array_literal_expr(e ast.ArrayLiteral, env *SymbolTable) Type {
+	var expectedUnderlyingType = typecheck_type(e.UnderlyingType, env)
+	var capacity = e.Capacity
+	var initialValues = []Type{}
+
+	// Verify all components have the same type
+	for _, val := range e.Contents {
+		valType := typecheck_expr(val, env)
+
+		if !typesSame(valType, expectedUnderlyingType) {
+			panic(fmt.Sprintf("Expected array of %s but reciveed %s inside array instatiation.", expectedUnderlyingType.str(), valType.str()))
+		}
+
+		initialValues = append(initialValues, valType)
+	}
+
+	if capacity == -1 {
+		capacity = len(initialValues)
+	}
+
+	if capacity < len(initialValues) {
+		panic(fmt.Sprintf("Capacity of %d is smaller then length of array literal (%d).", capacity, len(initialValues)))
+	}
+
+	return ArrayType{
+		Underlying: expectedUnderlyingType,
+		Capacity:   uint(capacity),
+	}
+}

@@ -98,7 +98,9 @@ type FunctionExpr struct {
 func (n FunctionExpr) expr() {}
 
 type ArrayLiteral struct {
-	Contents []Expr
+	UnderlyingType Type
+	Capacity       int // -1 represents none a inferable size
+	Contents       []Expr
 }
 
 func (n ArrayLiteral) expr() {}

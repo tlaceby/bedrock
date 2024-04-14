@@ -122,21 +122,41 @@ func parse_static_member_expr(p *parser, left ast.Expr, bp binding_power) ast.Ex
 }
 
 func parse_array_literal_expr(p *parser) ast.Expr {
+	var underlyingType ast.Type
+	var capacity = -1
+	var arrayContents = make([]ast.Expr, 0)
 	p.expect(lexer.OPEN_BRACKET)
-	arrayContents := make([]ast.Expr, 0)
 
-	for p.hasTokens() && p.currentTokenKind() != lexer.CLOSE_BRACKET {
+	// Check Capacity
+	if p.currentTokenKind() != lexer.CLOSE_BRACKET {
+		capacityStr := p.expectError(lexer.NUMBER, "Expected capacity inside array literal inatantiation.").Value
+		capacityVal, err := strconv.Atoi(capacityStr)
+
+		if err != nil || capacityVal < 0 {
+			panic(fmt.Sprintf("Capacity must be a positive integer value. Recieved %s instead.", capacityStr))
+		}
+
+		capacity = capacityVal
+	}
+
+	p.expect(lexer.CLOSE_BRACKET)
+	underlyingType = parse_type(p, defalt_bp)
+
+	p.expect(lexer.OPEN_CURLY)
+	for p.hasTokens() && p.currentTokenKind() != lexer.CLOSE_CURLY {
 		arrayContents = append(arrayContents, parse_expr(p, logical))
 
-		if !p.currentToken().IsOneOfMany(lexer.EOF, lexer.CLOSE_BRACKET) {
+		if !p.currentToken().IsOneOfMany(lexer.EOF, lexer.CLOSE_CURLY) {
 			p.expect(lexer.COMMA)
 		}
 	}
 
-	p.expect(lexer.CLOSE_BRACKET)
+	p.expect(lexer.CLOSE_CURLY)
 
 	return ast.ArrayLiteral{
-		Contents: arrayContents,
+		UnderlyingType: underlyingType,
+		Capacity:       capacity,
+		Contents:       arrayContents,
 	}
 }
 

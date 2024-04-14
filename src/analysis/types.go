@@ -93,6 +93,7 @@ func (t AnyType) str() string {
 }
 
 type ArrayType struct {
+	Capacity   uint
 	Underlying Type
 }
 

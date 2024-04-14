@@ -91,6 +91,10 @@ func typecheck_expr(expr ast.Expr, env *SymbolTable) Type {
 		return tc_call_expr(e, env)
 	case ast.StructInstantiationExpr:
 		return tc_struct_instantation_expr(e, env)
+	case ast.ArrayLiteral:
+		return tc_array_literal_expr(e, env)
+	case ast.ComputedExpr:
+		return tc_computed_expr(e, env)
 	default:
 		litter.Dump(expr)
 		panic("^^^^^^ Unknown ast.Expr encountered! ^^^^^^\n")
