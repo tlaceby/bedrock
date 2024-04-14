@@ -200,10 +200,7 @@ func tc_module_stmt(s ast.ModuleStmt, env *SymbolTable) Type {
 
 func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) Type {
 	var structName = s.Name
-	var generics = s.Generics
-	var staticMethods = map[string]FnType{}
-	var methods = map[string]FnType{}
-	var properties = map[string]Type{}
+	var isGeneric = len(s.Generics) > 0
 
 	// Make sure struct is only defined inside global/module scope
 	if !env.IsGlobal && !env.IsModule {
@@ -216,20 +213,43 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 		panic(fmt.Sprintf("Cannot define struct as a type with this name (%s) already exists", structName))
 	}
 
-	structEnv := CreateSymbolTable(env, false, false, true, structName)
+	if isGeneric {
+		genericType := GenericStructType{
+			Name:                  s.Name,
+			Properties:            s.Properties,
+			InstanceMethods:       s.InstanceMethods,
+			StaticMethods:         s.StaticMethods,
+			Closure:               env,
+			Generics:              s.Generics,
+			ValidatedGenericLists: make([][]Type, 0),
+		}
 
-	structType := StructType{
+		env.DefinedTypes[structName] = genericType
+		return genericType
+	}
+
+	var structEnv = CreateSymbolTable(env, false, false, true, structName)
+	var structType = validate_struct_body(env, structEnv, structName, s.Properties, s.StaticMethods, s.InstanceMethods)
+
+	env.DefinedTypes[structName] = structType
+	return structType
+}
+
+func validate_struct_body(env *SymbolTable, structEnv *SymbolTable, structName string, Properties []ast.StructProperty, StaticMethods []ast.FunctionDeclarationStmt, InstanceMethods []ast.FunctionDeclarationStmt) StructType {
+	var staticMethods = map[string]FnType{}
+	var methods = map[string]FnType{}
+	var properties = map[string]Type{}
+	var structType = StructType{
 		StructName:    structName,
-		Generics:      generics,
 		StaticMethods: staticMethods,
 		Properties:    properties,
 		Methods:       methods,
 	}
 
-	env.DefinedTypes[structName] = structType
+	structEnv.DefinedTypes[structName] = structType
 
 	// Generate Property Types
-	for _, prop := range s.Properties {
+	for _, prop := range Properties {
 		foundType := typecheck_type(prop.Type, structEnv)
 
 		structEnv.Symbols[prop.Name] = SymbolInfo{
@@ -244,8 +264,13 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 
 	// Generate Static Method Types (NO BODY EVAL)
 	// This will just generate the type definitions for each of the static methods.
-	for _, staticNode := range s.StaticMethods {
-		returnType := typecheck_type(staticNode.ReturnType, env)
+	for _, staticNode := range StaticMethods {
+		var returnType Type = VoidType{}
+
+		if staticNode.ReturnType != nil {
+			returnType = typecheck_type(staticNode.ReturnType, env)
+		}
+
 		params := []Type{}
 
 		for _, param := range staticNode.Parameters {
@@ -260,8 +285,42 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 
 	// Generate Instance Method Types (NO BODY EVAL)
 	// This will just generate the type definitions for each of the instance methods.
-	for _, instanceNode := range s.InstanceMethods {
-		returnType := typecheck_type(instanceNode.ReturnType, env)
+	for _, instanceNode := range InstanceMethods {
+		var returnType Type = VoidType{}
+
+		if instanceNode.ReturnType != nil {
+			returnType = typecheck_type(instanceNode.ReturnType, env)
+		}
+
+		params := []Type{}
+
+		for _, param := range instanceNode.Parameters {
+			params = append(params, typecheck_type(param.Type, env))
+		}
+
+		fnType := FnType{
+			ReturnType: returnType,
+			ParamTypes: params,
+		}
+
+		methods[instanceNode.Name] = fnType
+
+		structEnv.Symbols[instanceNode.Name] = SymbolInfo{
+			Type:            fnType,
+			IsConstant:      true,
+			AssignmentCount: 1,
+		}
+	}
+
+	// Generate Instance Method Types (NO BODY EVAL)
+	// This will just generate the type definitions for each of the instance methods.
+	for _, instanceNode := range InstanceMethods {
+		var returnType Type = VoidType{}
+
+		if instanceNode.ReturnType != nil {
+			returnType = typecheck_type(instanceNode.ReturnType, env)
+		}
+
 		params := []Type{}
 
 		for _, param := range instanceNode.Parameters {
@@ -285,7 +344,8 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 	// Eval Body for static/instance methods
 	// Now that all of the methods/instace/static/member properties are known we can re run through each
 	// method/static method and make sure they return the proper types and dont access things they are not supposed to.
-	for _, instanceMethod := range s.InstanceMethods {
+
+	for _, instanceMethod := range InstanceMethods {
 		methodName := fmt.Sprintf("%s.%s", structName, instanceMethod.Name)
 		methodEnv := CreateSymbolTable(structEnv, true, false, false, methodName)
 
@@ -312,7 +372,10 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 		}
 
 		// Validate return matches what is needs to for each instance method
-		expectedReturnType := typecheck_type(instanceMethod.ReturnType, structEnv)
+		var expectedReturnType Type = VoidType{}
+		if instanceMethod.ReturnType != nil {
+			expectedReturnType = typecheck_type(instanceMethod.ReturnType, methodEnv)
+		}
 
 		for _, recievedReturnType := range methodEnv.FoundReturnTypes {
 			if !helpers.TypesMatch(expectedReturnType, recievedReturnType) {
@@ -321,10 +384,11 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 			}
 		}
 
-		methodEnv.debugTable(false)
+		// methodEnv.debugTable(false)
 	}
 
-	for _, staticMethod := range s.StaticMethods {
+	// Eval static methods to verify the integrigity of the body.
+	for _, staticMethod := range StaticMethods {
 		methodName := fmt.Sprintf("%s::%s", structName, staticMethod.Name)
 		methodEnv := CreateSymbolTable(structEnv, true, false, false, methodName)
 
@@ -360,7 +424,10 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 		}
 
 		// Validate return matches what is needs to for static method
-		expectedReturnType := typecheck_type(staticMethod.ReturnType, structEnv)
+		var expectedReturnType Type = VoidType{}
+		if staticMethod.ReturnType != nil {
+			expectedReturnType = typecheck_type(staticMethod.ReturnType, methodEnv)
+		}
 
 		for _, recievedReturnType := range methodEnv.FoundReturnTypes {
 			if !helpers.TypesMatch(expectedReturnType, recievedReturnType) {

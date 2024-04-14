@@ -73,11 +73,11 @@ func tc_binary_expr(e ast.BinaryExpr, env *SymbolTable) Type {
 }
 
 func tc_struct_instantation_expr(e ast.StructInstantiationExpr, env *SymbolTable) Type {
-	structName := e.StructName
-	initialValues := e.Objects
+	var structName = e.StructName
+	var initialValues = e.Objects
+	var structType StructType
 
-	// verify struct has been defined
-
+	// Verify the struct has been defined.
 	T, definedScope := env.findNearestTypeEnv(structName)
 
 	if definedScope == nil {
@@ -85,11 +85,39 @@ func tc_struct_instantation_expr(e ast.StructInstantiationExpr, env *SymbolTable
 	}
 
 	// Validate struct type is indeed a struct type
-	if !helpers.TypesMatchT[StructType](T) {
+	if !IsAStructType(T) {
 		panic(ErrType(fmt.Sprintf("Cannot perform struct inbstantiation on %s{} as it is not a struct.", structName)))
 	}
 
-	structType := helpers.ExpectType[StructType](T)
+	if IsNormalStructType(T) {
+		structType = helpers.ExpectType[StructType](T)
+	}
+
+	if IsGenericStructType(T) {
+		var genericStruct = helpers.ExpectType[GenericStructType](T)
+		var expectedGenericArity = len(e.Generics)
+		var recievedGenericArity = len(genericStruct.Generics)
+		var structEnv = CreateSymbolTable(genericStruct.Closure, false, false, true, genericStruct.str())
+
+		// Verify Generics Arity
+		if expectedGenericArity != recievedGenericArity {
+			panic(fmt.Sprintf("Expected arity for generic struct instantiation of %d but recieved %d instead. \nGeneric structs must have explicit generic parameters.", expectedGenericArity, recievedGenericArity))
+		}
+
+		// Install Generic Types For Respective Names
+		generics := []Type{}
+		for genericIndex, recievedGenericType := range e.Generics {
+			genericName := genericStruct.Generics[genericIndex]
+			genericType := typecheck_type(recievedGenericType, structEnv)
+
+			structEnv.DefinedTypes[genericName] = genericType
+			generics = append(generics, genericType)
+		}
+
+		genericStruct.ValidatedGenericLists = append(genericStruct.ValidatedGenericLists, generics)
+		structType = validate_struct_body(env, structEnv, genericStruct.Name, genericStruct.Properties, genericStruct.StaticMethods, genericStruct.InstanceMethods)
+		definedScope.DefinedTypes[structName] = genericStruct
+	}
 
 	// Validate each field is instantiated which is expected in the struct
 	var errors = []ErrorType{} // array of error messages to display

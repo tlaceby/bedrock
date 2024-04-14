@@ -16,3 +16,7 @@ func tc_list_type(t ast.ListType, env *SymbolTable) Type {
 func tc_fn_type(t ast.FnType, env *SymbolTable) Type {
 	panic("not IMPLIMENTED")
 }
+
+func tc_struct_generic_type(t ast.StructType, env *SymbolTable) Type {
+	panic("Unimplimented")
+}

@@ -63,11 +63,11 @@ func parse_type(p *parser, bp binding_power) ast.Type {
 
 func parse_generic_type(p *parser, left ast.Type, bp binding_power) ast.Type {
 	p.expect(lexer.LESS)
-	generics := make([]string, 0)
+	generics := make([]ast.Type, 0)
 
 	for p.hasTokens() && p.currentTokenKind() != lexer.GREATER {
-		genericName := p.expect(lexer.IDENTIFIER).Value
-		generics = append(generics, genericName)
+		genericType := parse_type(p, defalt_bp)
+		generics = append(generics, genericType)
 
 		if p.currentTokenKind() != lexer.GREATER {
 			p.expect(lexer.COMMA)

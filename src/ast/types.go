@@ -1,7 +1,7 @@
 package ast
 
 type StructType struct {
-	GenericList []string
+	GenericList []Type
 	StructName  string
 }
 

@@ -18,7 +18,6 @@ func (t ModuleType) str() string {
 
 type StructType struct {
 	StructName    string
-	Generics      []string // TODO: Remove when creating GenericStructType
 	Properties    map[string]Type
 	Methods       map[string]FnType
 	StaticMethods map[string]FnType
@@ -35,6 +34,31 @@ func (t StructType) getPropertyByName(propertyName string) Type {
 
 func (t StructType) str() string {
 	return fmt.Sprintf("%s {}", t.StructName)
+}
+
+type GenericStructType struct {
+	Generics        []string
+	Closure         *SymbolTable
+	Name            string
+	Properties      []ast.StructProperty
+	StaticMethods   []ast.FunctionDeclarationStmt
+	InstanceMethods []ast.FunctionDeclarationStmt
+
+	ValidatedGenericLists [][]Type // Contains all verified working subtypes for this generic
+}
+
+func (t GenericStructType) str() string {
+	genericList := ""
+
+	for indx, genericName := range t.Generics {
+		genericList += genericName
+
+		if indx != len(t.Generics)-1 {
+			genericList += ", "
+		}
+	}
+
+	return fmt.Sprintf("%s <%s> {}", t.Name, genericList)
 }
 
 type ErrorType struct {

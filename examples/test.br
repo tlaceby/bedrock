@@ -2,8 +2,15 @@
 
 struct Combinable<T> {
   data: T;
+
+  fn setData(data: T) {
+    self.data = data;
+  }
 }
 
-const c = Combinable<number>{
+const c1 = Combinable <number> {
   data: 120.2,
 };
+
+
+c1.data = 1;

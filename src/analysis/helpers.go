@@ -33,6 +33,17 @@ func IsAFnType(t Type) bool {
 	return false
 }
 
+func IsAStructType(t Type) bool {
+	switch t.(type) {
+	case StructType:
+		return true
+	case GenericStructType:
+		return true
+	}
+
+	return false
+}
+
 func IsNormalFnType(t Type) bool {
 	switch t.(type) {
 	case FnType:
@@ -42,9 +53,27 @@ func IsNormalFnType(t Type) bool {
 	return false
 }
 
+func IsNormalStructType(t Type) bool {
+	switch t.(type) {
+	case StructType:
+		return true
+	}
+
+	return false
+}
+
 func IsGenericFnType(t Type) bool {
 	switch t.(type) {
 	case GenericFnType:
+		return true
+	}
+
+	return false
+}
+
+func IsGenericStructType(t Type) bool {
+	switch t.(type) {
+	case GenericStructType:
 		return true
 	}
 

@@ -104,6 +104,8 @@ func typecheck_type(_type ast.Type, env *SymbolTable) Type {
 		return tc_list_type(t, env)
 	case ast.FnType:
 		return tc_fn_type(t, env)
+	case ast.StructType:
+		return tc_struct_generic_type(t, env)
 	default:
 		litter.Dump(t)
 		panic("^^^^^^ Unknown ast.Type encountered! ^^^^^^\n")
