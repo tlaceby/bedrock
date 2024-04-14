@@ -1,5 +1,12 @@
 package ast
 
+type StructType struct {
+	GenericList []string
+	StructName  string
+}
+
+func (t StructType) _type() {}
+
 type SymbolType struct {
 	Value string
 }

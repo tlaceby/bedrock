@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/tlaceby/bedrock/src/ast"
+	"github.com/tlaceby/bedrock/src/helpers"
 	"github.com/tlaceby/bedrock/src/lexer"
 )
 
@@ -32,6 +33,8 @@ func createTypeTokenLookups() {
 	type_nud(lexer.IDENTIFIER, parse_symbol_type) // T
 	type_nud(lexer.OPEN_BRACKET, parse_list_type) // []T
 	type_nud(lexer.FN, parse_fn_type)             // fn (...[]Type) -> Type
+
+	type_led(lexer.LESS, primary, parse_generic_type) // StructName<T, ..>
 }
 
 func parse_type(p *parser, bp binding_power) ast.Type {
@@ -56,6 +59,26 @@ func parse_type(p *parser, bp binding_power) ast.Type {
 	}
 
 	return left
+}
+
+func parse_generic_type(p *parser, left ast.Type, bp binding_power) ast.Type {
+	p.expect(lexer.LESS)
+	generics := make([]string, 0)
+
+	for p.hasTokens() && p.currentTokenKind() != lexer.GREATER {
+		genericName := p.expect(lexer.IDENTIFIER).Value
+		generics = append(generics, genericName)
+
+		if p.currentTokenKind() != lexer.GREATER {
+			p.expect(lexer.COMMA)
+		}
+	}
+
+	p.expect(lexer.GREATER)
+	return ast.StructType{
+		GenericList: generics,
+		StructName:  helpers.ExpectType[ast.SymbolType](left).Value,
+	}
 }
 
 func parse_symbol_type(p *parser) ast.Type {

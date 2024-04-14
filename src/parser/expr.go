@@ -217,7 +217,6 @@ func parse_struct_instantiation(p *parser, left ast.Expr, bp binding_power) ast.
 
 func parse_generic_list_instantiation(p *parser, left ast.Expr, bp binding_power) ast.Expr {
 	var genericLists = []ast.Type{}
-
 	p.expect(lexer.LESS)
 
 	for p.hasTokens() && p.currentTokenKind() != lexer.GREATER {
@@ -240,7 +239,7 @@ func parse_generic_list_instantiation(p *parser, left ast.Expr, bp binding_power
 
 	// Handle struct instantiation -> Struct <T> {}
 	if p.currentTokenKind() == lexer.OPEN_CURLY {
-		structNode := ast.ExpectExpr[ast.StructInstantiationExpr](parse_call_expr(p, left, call))
+		structNode := ast.ExpectExpr[ast.StructInstantiationExpr](parse_struct_instantiation(p, left, call))
 		structNode.Generics = genericLists
 
 		return structNode

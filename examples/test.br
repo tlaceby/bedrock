@@ -1,24 +1,9 @@
 // main.br
 
-fn combine <T> (a: T, b: T) -> T {
-  return a + b;
+struct Combinable<T> {
+  data: T;
 }
 
-struct Circle {
-  radius: number;
-
-  static fn new (r: number) -> Circle {
-    return Circle {
-      radius: r,
-    };
-  }
-
-  fn setRadius (r: number) -> Circle {
-    self.radius = r;
-  }
-}
-
-let message = combine <string>("Hello ", "world");
-message = "Hello ";
-
-const foo = message + "world";
+const c = Combinable<number>{
+  data: 120.2,
+};
