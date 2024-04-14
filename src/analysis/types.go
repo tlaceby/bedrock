@@ -65,31 +65,25 @@ func ErrType(message string) ErrorType {
 type NumType struct{}
 
 func (t NumType) str() string {
-	return "number"
+	return color.BlueString("Number")
 }
 
 type VoidType struct{}
 
 func (t VoidType) str() string {
-	return color.RedString("void")
+	return color.RedString("Void")
 }
 
 type StrType struct{}
 
 func (t StrType) str() string {
-	return "string"
+	return color.BlueString("String")
 }
 
 type BoolType struct{}
 
 func (t BoolType) str() string {
-	return color.RedString("bool")
-}
-
-type AnyType struct{}
-
-func (t AnyType) str() string {
-	return color.RedString("any")
+	return color.RedString("Bool")
 }
 
 type ArrayType struct {
@@ -147,10 +141,10 @@ func (t GenericFnType) str() string {
 }
 
 func defineGlobalDefaultTypes(table *SymbolTable) {
-	table.DefinedTypes["string"] = StrType{}
-	table.DefinedTypes["number"] = NumType{}
-	table.DefinedTypes["void"] = VoidType{}
-	table.DefinedTypes["bool"] = BoolType{}
+	table.DefinedTypes["String"] = StrType{}
+	table.DefinedTypes["Number"] = NumType{}
+	table.DefinedTypes["Void"] = VoidType{}
+	table.DefinedTypes["Bool"] = BoolType{}
 
 	table.Symbols["true"] = SymbolInfo{
 		Type:            BoolType{},

@@ -1,11 +1,17 @@
 // main.br
 
+trait Any {}
+
+unsafe {
+  type println = fn (String) -> Void;
+  type as_str = fn (Any) -> String;
+}
+
 struct Combinable<T> {
   data: T;
 
-  fn setData(data: T) -> Self {
+  fn setData(data: T) -> Void {
     self.data = data;
-    return self;
   }
 
   fn combine(other: T) -> T {
@@ -21,15 +27,15 @@ struct Combinable<T> {
 }
 
 fn main () {
-  const c1 = Combinable<number>::new(10);
-  const c2 = Combinable<string>{
+  const c1 = Combinable<Number>::new(10);
+  const c2 = Combinable<String>{
     data: "Hello ",
   };
 
   c2.combine("world");
 
-  const names = []string{"john", "doe"};
-  const numbers = []number{1, 2, 3, 4, 2, 3, 4};
+  const names = []String{"john", "doe"};
+  const numbers = []Number{1, 2, 3, 4, 2, 3, 4};
 
   const john = names[0];
   const num = numbers[2];
@@ -37,7 +43,17 @@ fn main () {
 
   let i = 1;
   while (i gt 10) {
-    println(i);
+    // println(i);
     i += 1;
   }
 }
+
+
+// TODO:
+// trait Any {}
+// unsafe {
+//   type println = fn (Any) -> Void;
+//   type as_str = fn (Any) -> String;
+// }
+// Unsafe syntax to specify a function does exist in scope.
+// Useful for module maintainers and ffi calls. Nothing else.

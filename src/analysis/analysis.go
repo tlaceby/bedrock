@@ -31,6 +31,7 @@ type SymbolTable struct {
 	IsFunction     bool // whether this table is the body of a function
 	IsStaticMethod bool // whether we are inside a static methods scope. Prevents access to instance methods/properties from inside
 	IsLoop         bool // Whether the current env is a while/for loop
+	IsUnsafe       bool // Inside a unsafe block
 
 	Parent       *SymbolTable          // Reference to parent environment
 	DefinedTypes map[string]Type       // All Alias/ Defined Types / Traits

@@ -70,6 +70,8 @@ const (
 	STRUCT
 	IMPORT
 	TRAIT
+	UNSAFE
+	TYPE
 	AS
 	FROM
 	FN
@@ -109,6 +111,8 @@ var reserved_lu map[string]TokenKind = map[string]TokenKind{
 	"trait":     TRAIT,
 	"typeof":    TYPEOF,
 	"in":        IN,
+	"type":      TYPE,
+	"unsafe":    UNSAFE,
 
 	// Operators as keywords
 	"lt":  LESS,
@@ -273,6 +277,10 @@ func TokenKindString(kind TokenKind) string {
 		return "in"
 	case INTERFACE:
 		return "interface"
+	case TYPE:
+		return "type"
+	case UNSAFE:
+		return "unsafe"
 	case RETURN:
 		return "return"
 	case CONTINUE:
