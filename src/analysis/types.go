@@ -3,6 +3,7 @@ package analysis
 import (
 	"fmt"
 
+	"github.com/fatih/color"
 	"github.com/tlaceby/bedrock/src/ast"
 )
 
@@ -13,7 +14,7 @@ type ModuleType struct {
 }
 
 func (t ModuleType) str() string {
-	return fmt.Sprintf("module %s", t.ModuleName)
+	return fmt.Sprintf("%s %s", color.RedString("module"), t.ModuleName)
 }
 
 type StructType struct {
@@ -54,7 +55,7 @@ type ErrorType struct {
 }
 
 func (t ErrorType) str() string {
-	return fmt.Sprintf("Error (%s)", t.Message)
+	return fmt.Sprintf("%s (%s)", color.RedString("Error"), t.Message)
 }
 
 func ErrType(message string) ErrorType {
@@ -70,7 +71,7 @@ func (t NumType) str() string {
 type VoidType struct{}
 
 func (t VoidType) str() string {
-	return "void"
+	return color.RedString("void")
 }
 
 type StrType struct{}
@@ -82,13 +83,13 @@ func (t StrType) str() string {
 type BoolType struct{}
 
 func (t BoolType) str() string {
-	return "bool"
+	return color.RedString("bool")
 }
 
 type AnyType struct{}
 
 func (t AnyType) str() string {
-	return "any"
+	return color.RedString("any")
 }
 
 type ArrayType struct {
@@ -116,7 +117,7 @@ func (t FnType) str() string {
 		}
 	}
 
-	return fmt.Sprintf("fn (%s) -> %s", paramsStr, t.ReturnType.str())
+	return fmt.Sprintf("%s (%s) -> %s", color.RedString("fn"), paramsStr, t.ReturnType.str())
 }
 
 type GenericFnType struct {
@@ -141,7 +142,7 @@ func (t GenericFnType) str() string {
 
 	genericStr += ">"
 
-	return fmt.Sprintf("generic.fn%s", genericStr)
+	return fmt.Sprintf("%s %s", color.RedString("fn"), genericStr)
 }
 
 func defineGlobalDefaultTypes(table *SymbolTable) {

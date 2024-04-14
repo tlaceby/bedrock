@@ -1,7 +1,9 @@
 package analysis
 
+import "github.com/fatih/color"
+
 func createGenericListStr(structName string, generics []string) string {
-	str := structName + "<"
+	str := color.MagentaString(structName) + "<"
 
 	for indx, name := range generics {
 		str += name

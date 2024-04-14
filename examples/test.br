@@ -1,5 +1,9 @@
 // main.br
 
+fn combine <T> (a: T, b: T) -> T {
+  return a + b;
+}
+
 struct Combinable<T> {
   data: T;
 
@@ -37,6 +41,4 @@ const c3 = Combinable<string> {
 c3.setData("Hello ");
 c3.combine("world");
 
-const c4 = Combinable<number>::new(c2.data);
-c4.setData(190)
-  .combine(10);
+const c4 = Combinable<number>::new(c2.data).setData(10).combine(3);

@@ -3,6 +3,7 @@ package analysis
 import (
 	"fmt"
 
+	"github.com/fatih/color"
 	"github.com/sanity-io/litter"
 	"github.com/tlaceby/bedrock/src/ast"
 	"github.com/tlaceby/bedrock/src/helpers"
@@ -64,7 +65,7 @@ func CreateSymbolTable(parent *SymbolTable, fn bool, isModule bool, isStruct boo
 
 	if table.IsGlobal {
 		defineGlobalDefaultTypes(table)
-		table.TableName = "global"
+		table.TableName = color.RedString("global")
 	}
 
 	return table
@@ -190,13 +191,20 @@ func (table *SymbolTable) debugTable(printParent bool) {
 	}
 
 	println(fmt.Sprintf("\n------------   %s   ------------ \n", table.TableName))
-	println("types:")
+	color.Blue("types:")
 	for typename, typevalue := range table.DefinedTypes {
 		println(fmt.Sprintf(" %s  -> %s", typename, typevalue.str()))
 	}
 
-	println("\nstructs:")
+	color.Blue("\nstructs:")
+	count := 0
 	for typename, typevalue := range table.DefinedTypes {
+		if count != 0 {
+			println()
+		}
+
+		count++
+
 		if helpers.TypesMatchT[StructType](typevalue) {
 			println(fmt.Sprintf(" %s ", typename))
 
@@ -216,7 +224,7 @@ func (table *SymbolTable) debugTable(printParent bool) {
 
 			if len(structVal.StaticMethods) > 0 {
 				for propertyName, staticMethod := range structVal.StaticMethods {
-					println(fmt.Sprintf("   %s : static %s", propertyName, staticMethod.str()))
+					println(fmt.Sprintf("   %s : %s %s", propertyName, color.YellowString("static"), staticMethod.str()))
 				}
 			}
 		}
@@ -227,18 +235,18 @@ func (table *SymbolTable) debugTable(printParent bool) {
 		}
 	}
 
-	println("\nsymbols:")
+	color.Blue("\nsymbols:")
 	for symbol, symbolInfo := range table.Symbols {
-		println(fmt.Sprintf(" %s: ", symbol))
+		println(fmt.Sprintf(" %s: ", color.BlueString(symbol)))
 		println(fmt.Sprintf("  type     : %s", symbolInfo.Type.str()))
 
 		if symbolInfo.IsConstant {
-			println("  const    : true")
+			println("  const    : " + color.BlueString("true"))
 		} else {
-			println("  const    : false")
+			println("  const    : " + color.BlueString("false"))
 		}
 
-		println(fmt.Sprintf("  accessed : %d", symbolInfo.AccessedCount))
-		println(fmt.Sprintf("  assigned : %d\n", symbolInfo.AssignmentCount))
+		println(fmt.Sprintf("  accessed : %s", color.BlueString("%d", symbolInfo.AccessedCount)))
+		println(fmt.Sprintf("  assigned : %s\n", color.BlueString("%d", symbolInfo.AccessedCount)))
 	}
 }
