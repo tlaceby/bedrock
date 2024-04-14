@@ -115,7 +115,7 @@ func tc_struct_instantation_expr(e ast.StructInstantiationExpr, env *SymbolTable
 		}
 		var structSignature = createGenericListStr(structName, recievedGenericsTypeStrings)
 
-		structType = validate_struct_body(env, structEnv, structSignature, genericStruct.Properties, genericStruct.StaticMethods, genericStruct.InstanceMethods)
+		structType = validate_struct_body(structEnv, structSignature, genericStruct.Properties, genericStruct.StaticMethods, genericStruct.InstanceMethods)
 		definedScope.DefinedTypes[structName] = genericStruct
 		definedScope.DefinedTypes[structSignature] = structType
 	}
@@ -195,7 +195,6 @@ func tc_static_member_expr(e ast.StaticMemberExpr, env *SymbolTable) Type {
 
 	switch member := memberType.(type) {
 	case StructType:
-
 		// Check struct.properties for propertyname
 		propertyType, propertyExists := member.StaticMethods[propertyName]
 		if propertyExists {
@@ -203,6 +202,23 @@ func tc_static_member_expr(e ast.StaticMemberExpr, env *SymbolTable) Type {
 		}
 
 		panic(fmt.Sprintf("Member %s does not contain static property %s. Attempted to access static member %s but it does not exist on object\n", memberType.str(), propertyName, propertyName))
+
+	case GenericStructType:
+		// Create a temporary ast node to validate that this generic type is valid.
+		genericType := ast.StructType{
+			GenericList: e.StructGenerics,
+			StructName:  e.StructName,
+		}
+
+		// Validate Struct Instance
+		genericStructInstance := helpers.ExpectType[StructType](tc_struct_generic_type(genericType, env))
+		propertyType, propertyExists := genericStructInstance.StaticMethods[propertyName]
+		if propertyExists {
+			return propertyType
+		}
+
+		panic(fmt.Sprintf("Member %s does not contain static property %s. Attempted to access static member %s but it does not exist on object\n", memberType.str(), propertyName, propertyName))
+
 	}
 
 	panic(fmt.Sprintf("Static member expression with %s::%s not handled\n", memberType.str(), propertyName))

@@ -67,7 +67,7 @@ func tc_struct_generic_type(t ast.StructType, env *SymbolTable) Type {
 
 	// Generate Valid Struct Instance Which is NOT Generic
 	// This can Be installed in the environment which it was defined.
-	structInstanceType := validate_struct_body(env, genericEnv, structSignature, genStruct.Properties, genStruct.StaticMethods, genStruct.InstanceMethods)
+	structInstanceType := validate_struct_body(genericEnv, structSignature, genStruct.Properties, genStruct.StaticMethods, genStruct.InstanceMethods)
 	definedEnv.DefinedTypes[structSignature] = structInstanceType
 	return structInstanceType
 }

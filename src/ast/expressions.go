@@ -60,8 +60,9 @@ type MemberExpr struct {
 func (n MemberExpr) expr() {}
 
 type StaticMemberExpr struct {
-	StructName string
-	MethodName string
+	StructName     string
+	MethodName     string
+	StructGenerics []Type
 }
 
 func (n StaticMemberExpr) expr() {}

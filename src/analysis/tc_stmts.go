@@ -228,13 +228,13 @@ func tc_struct_declaration_stmt(s ast.StructDeclarationStmt, env *SymbolTable) T
 	}
 
 	var structEnv = CreateSymbolTable(env, false, false, true, structName)
-	var structType = validate_struct_body(env, structEnv, structName, s.Properties, s.StaticMethods, s.InstanceMethods)
+	var structType = validate_struct_body(structEnv, structName, s.Properties, s.StaticMethods, s.InstanceMethods)
 
 	env.DefinedTypes[structName] = structType
 	return structType
 }
 
-func validate_struct_body(env *SymbolTable, structEnv *SymbolTable, structName string, Properties []ast.StructProperty, StaticMethods []ast.FunctionDeclarationStmt, InstanceMethods []ast.FunctionDeclarationStmt) StructType {
+func validate_struct_body(structEnv *SymbolTable, structName string, Properties []ast.StructProperty, StaticMethods []ast.FunctionDeclarationStmt, InstanceMethods []ast.FunctionDeclarationStmt) StructType {
 	var staticMethods = map[string]FnType{}
 	var methods = map[string]FnType{}
 	var properties = map[string]Type{}
@@ -246,6 +246,7 @@ func validate_struct_body(env *SymbolTable, structEnv *SymbolTable, structName s
 	}
 
 	structEnv.DefinedTypes[structName] = structType
+	structEnv.DefinedTypes["Self"] = structType
 
 	// Generate Property Types
 	for _, prop := range Properties {

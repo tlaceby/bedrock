@@ -3,20 +3,24 @@
 struct Combinable<T> {
   data: T;
 
-  fn setData(data: T) {
+  fn setData(data: T) -> Self {
     self.data = data;
+    return self;
   }
 
-  fn combine(other: T) {
+  fn combine(other: T) -> Self {
     self.data = self.data + other;
+    return self;
+  }
+
+  static fn new(init: T) -> Self {
+    return Self{
+      data: init,
+    };    
   }
 }
 
-const c1 = Combinable <number> {
-  data: 120.2,
-};
-
-
+const c1 = Combinable <number>::new(10);
 c1.data = 1;
 
 let c2: Combinable<number>;
@@ -32,3 +36,7 @@ const c3 = Combinable<string> {
 
 c3.setData("Hello ");
 c3.combine("world");
+
+const c4 = Combinable<number>::new(c2.data);
+c4.setData(190)
+  .combine(10);

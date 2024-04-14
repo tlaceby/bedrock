@@ -245,5 +245,13 @@ func parse_generic_list_instantiation(p *parser, left ast.Expr, bp binding_power
 		return structNode
 	}
 
+	// Handle Static Instance w/ Generics -> Struct <T>::staticMethod();
+	if p.currentTokenKind() == lexer.COLON_COLON {
+		staticInstantiation := ast.ExpectExpr[ast.StaticMemberExpr](parse_static_member_expr(p, left, call))
+		staticInstantiation.StructGenerics = genericLists
+
+		return staticInstantiation
+	}
+
 	panic("Unknown symbol after generics list inside parse_generic_list_instantiation()")
 }
