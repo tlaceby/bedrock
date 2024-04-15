@@ -17,7 +17,16 @@ func createGenericListStr(structName string, generics []string) string {
 }
 
 func typesSame(t Type, expected Type) bool {
-	return t.str() == expected.str()
+	if t.str() == expected.str() {
+		return true
+	}
+
+	switch other := expected.(type) {
+	case TraitType:
+		return implements(t, other)
+	}
+
+	return false
 }
 
 func CastableToBool(t Type) bool {
@@ -91,4 +100,40 @@ func IsGenericStructType(t Type) bool {
 	}
 
 	return false
+}
+
+func implements(t Type, trait TraitType) bool {
+	switch v := t.(type) {
+	case StructType:
+		for methodName, fnType := range trait.Methods {
+			method, exists := v.Methods[methodName]
+			if !exists || !isFnTypesEqual(method, fnType) {
+				return false
+			}
+		}
+		return true
+	// Add cases for other types that can implement traits
+	default:
+		return false
+	}
+}
+
+func isFnTypesEqual(fn1, fn2 FnType) bool {
+	if fn1.Variadic != fn2.Variadic || len(fn1.ParamTypes) != len(fn2.ParamTypes) {
+		return false
+	}
+
+	for i := range fn1.ParamTypes {
+		if !isTypesEqual(fn1.ParamTypes[i], fn2.ParamTypes[i]) {
+			return false
+		}
+	}
+
+	return isTypesEqual(fn1.ReturnType, fn2.ReturnType)
+}
+
+func isTypesEqual(t1, t2 Type) bool {
+	// Implement type equality check based on your type system
+	// You can compare the string representation of types for simplicity
+	return t1.str() == t2.str()
 }

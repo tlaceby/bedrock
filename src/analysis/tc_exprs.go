@@ -347,8 +347,7 @@ func tc_assignment_expr(e ast.AssignmentExpr, env *SymbolTable) Type {
 			panic(fmt.Sprintf("Cannot perform assignment on %s as it declared as constant.", varname))
 		}
 
-		// Make sure types match
-		if !typesSame(varInfo.Type, assigne) {
+		if !typesSame(value, assigne) {
 			panic(fmt.Sprintf("Invalid assignment of %s with %s = %s\n", varname, varInfo.Type.str(), value.str()))
 		}
 
@@ -408,7 +407,7 @@ func tc_array_literal_expr(e ast.ArrayLiteral, env *SymbolTable) Type {
 		valType := typecheck_expr(val, env)
 
 		if !typesSame(valType, expectedUnderlyingType) {
-			panic(fmt.Sprintf("Expected array of %s but reciveed %s inside array instatiation.", expectedUnderlyingType.str(), valType.str()))
+			panic(fmt.Sprintf("Expected array of %s but recived %s inside array instatiation.", expectedUnderlyingType.str(), valType.str()))
 		}
 
 		initialValues = append(initialValues, valType)

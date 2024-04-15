@@ -460,3 +460,20 @@ func tc_while_stmt(s ast.WhileStmt, env *SymbolTable) Type {
 	whileEnv.debugTable(false)
 	return VoidType{}
 }
+
+func tc_trait_stmt(n ast.TraitStmt, env *SymbolTable) Type {
+	var methods = map[string]FnType{}
+	var trait TraitType = TraitType{
+		TraitName: n.Name,
+		Methods:   methods,
+	}
+
+	for _, method := range n.Methods {
+		methodName := method.MethodName
+		fnType := helpers.ExpectType[FnType](tc_fn_type(method.MethodType, env))
+		methods[methodName] = fnType
+	}
+
+	env.DefinedTypes[trait.TraitName] = trait
+	return trait
+}

@@ -137,6 +137,8 @@ func typecheck_stmt(stmt ast.Stmt, env *SymbolTable) Type {
 		return tc_struct_declaration_stmt(s, env)
 	case ast.WhileStmt:
 		return tc_while_stmt(s, env)
+	case ast.TraitStmt:
+		return tc_trait_stmt(s, env)
 	default:
 		litter.Dump(stmt)
 		panic("^^^^^^ Unknown ast.Stmt encountered! ^^^^^^\n")

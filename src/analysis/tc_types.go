@@ -13,11 +13,24 @@ func tc_symbol_type(t ast.SymbolType, env *SymbolTable) Type {
 }
 
 func tc_list_type(t ast.ListType, env *SymbolTable) Type {
-	panic("not IMPLIMENTED")
+	return ArrayType{
+		Underlying: typecheck_type(t.Underlying, env),
+	}
 }
 
 func tc_fn_type(t ast.FnType, env *SymbolTable) Type {
-	panic("not IMPLIMENTED")
+	var params = []Type{}
+	var returns = typecheck_type(t.ReturnType, env)
+
+	for _, param := range t.Parameters {
+		params = append(params, typecheck_type(param, env))
+	}
+
+	return FnType{
+		Variadic:   false,
+		ParamTypes: params,
+		ReturnType: returns,
+	}
 }
 
 func tc_struct_generic_type(t ast.StructType, env *SymbolTable) Type {

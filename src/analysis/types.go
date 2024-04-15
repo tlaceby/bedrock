@@ -7,6 +7,15 @@ import (
 	"github.com/tlaceby/bedrock/src/ast"
 )
 
+type TraitType struct {
+	TraitName string
+	Methods   map[string]FnType
+}
+
+func (t TraitType) str() string {
+	return fmt.Sprintf("%s {}", color.MagentaString(t.TraitName))
+}
+
 type ModuleType struct {
 	ModuleName    string
 	PublicSymbols map[string]SymbolInfo
