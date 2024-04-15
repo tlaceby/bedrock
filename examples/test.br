@@ -25,17 +25,17 @@ struct CustomError {
 }
 
 fn main () {
-  let err1 = CustomError::new("Something went wrong");
-  let err2 = FooError{};
-
-  const errors = []Error{ err1, err2 };
+  const errors = []Error{ 
+    CustomError::new("Something went wrong"),
+    FooError{} 
+  };
   
-  let e1 = errors[0]; // Error not CustomError
-  let e2 = errors[1]; // Error not FooError
+  const e1 = errors[0];
+  const e2 = errors[1];
+  const message: String = e1.error() + e2.error();
 
-  // Comptime Helper Macros
-  let numStr = @string(45.21); // Converts Data to a String
-  let customErr = @assert(CustomError, errors[1]); // casts away a type explicitly. No conversion
+  const numStr = @string(45.21); // Converts Data to a String
+  const customErr = @assert(CustomError, errors[1]); // casts away a type explicitly. No conversion
   
   println(customErr.error());
 } 
