@@ -72,7 +72,7 @@ func createLexer(source string, filePath string) *lexer {
 			{regexp.MustCompile(`\/\/.*`), commentHandler},
 			{regexp.MustCompile(`"[^"]*"`), stringHandler},
 			{regexp.MustCompile(`[0-9]+(\.[0-9]+)?`), numberHandler},
-			{regexp.MustCompile(`[a-zA-Z_][a-zA-Z0-9_]*`), symbolHandler},
+			{regexp.MustCompile(`[a-zA-Z_@][a-zA-Z0-9_]*`), symbolHandler},
 			{regexp.MustCompile(`\[`), defaultHandler(OPEN_BRACKET, "[")},
 			{regexp.MustCompile(`\]`), defaultHandler(CLOSE_BRACKET, "]")},
 			{regexp.MustCompile(`\{`), defaultHandler(OPEN_CURLY, "{")},

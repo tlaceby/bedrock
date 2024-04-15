@@ -117,3 +117,20 @@ type StructInstantiationExpr struct {
 }
 
 func (n StructInstantiationExpr) expr() {}
+
+// Macros
+
+// @assert(Type, Expr)
+type AssertExpr struct {
+	TypeAssertion Type
+	Expr          Expr
+}
+
+func (n AssertExpr) expr() {}
+
+// @string(Expr)
+type CastStringExpr struct {
+	Expr Expr
+}
+
+func (n CastStringExpr) expr() {}

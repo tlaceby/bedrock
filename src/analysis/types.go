@@ -168,4 +168,27 @@ func defineGlobalDefaultTypes(table *SymbolTable) {
 		AssignmentCount: 1,
 		AccessedCount:   1,
 	}
+
+	// Create default builtin global methods
+	table.Symbols["println"] = SymbolInfo{
+		IsConstant: true, AssignmentCount: 1,
+		AccessedCount: 1, Type: FnType{
+			Variadic:   false,
+			ReturnType: VoidType{},
+			ParamTypes: []Type{
+				StrType{},
+			},
+		},
+	}
+
+	table.Symbols["print"] = SymbolInfo{
+		IsConstant: true, AssignmentCount: 1,
+		AccessedCount: 1, Type: FnType{
+			Variadic:   false,
+			ReturnType: VoidType{},
+			ParamTypes: []Type{
+				StrType{},
+			},
+		},
+	}
 }

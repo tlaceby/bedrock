@@ -97,6 +97,12 @@ func typecheck_expr(expr ast.Expr, env *SymbolTable) Type {
 		return tc_array_literal_expr(e, env)
 	case ast.ComputedExpr:
 		return tc_computed_expr(e, env)
+
+	// macros
+	case ast.AssertExpr:
+		return tc_assert_expr(e, env)
+	case ast.CastStringExpr:
+		return tc_cast_string_expr(e, env)
 	default:
 		litter.Dump(expr)
 		panic("^^^^^^ Unknown ast.Expr encountered! ^^^^^^\n")

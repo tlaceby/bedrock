@@ -87,6 +87,10 @@ const (
 	CONTINUE
 	STATIC
 
+	// macros
+	ASSERT_MACRO
+	STRING_MACRO
+
 	// Misc
 	NUM_TOKENS
 )
@@ -124,6 +128,10 @@ var reserved_lu map[string]TokenKind = map[string]TokenKind{
 	"eq":  EQUALS,
 	"and": AND,
 	"or":  OR,
+
+	// Reserved Macros
+	"@assert": ASSERT_MACRO,
+	"@string": STRING_MACRO,
 }
 
 type Location struct {
@@ -294,6 +302,12 @@ func TokenKindString(kind TokenKind) string {
 		return "open_generic"
 	case CLOSE_GENERIC:
 		return "close_generic"
+
+		// Macros
+	case ASSERT_MACRO:
+		return "@assert"
+	case STRING_MACRO:
+		return "@string"
 	default:
 		return fmt.Sprintf("unknown(%d)", kind)
 	}

@@ -33,8 +33,9 @@ fn main () {
   let e1 = errors[0]; // Error not CustomError
   let e2 = errors[1]; // Error not FooError
 
-  // Comptime Helper Macro
-  // let (numStr, err) = @String(45.21); // Converts to a String
-  // let customErr = @Assert(CustomError, errors[1]); // casts away a type explicitly. No conversion is done
-  // customErr.message = "This should work after the cast";
+  // Comptime Helper Macros
+  let numStr = @string(45.21); // Converts Data to a String
+  let customErr = @assert(CustomError, errors[1]); // casts away a type explicitly. No conversion
+  
+  println(customErr.error());
 } 

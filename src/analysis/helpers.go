@@ -44,6 +44,22 @@ func CastableToBool(t Type) bool {
 	}
 }
 
+func CastableToString(t Type) bool {
+	// For now everything can be cast to a string functions, structs and traits included.
+	switch t.(type) {
+	case BoolType:
+		return true
+	case NumType:
+		return true
+	case StrType:
+		return true
+	case ArrayType:
+		return true
+	default:
+		return true
+	}
+}
+
 func IsAFnType(t Type) bool {
 	switch t.(type) {
 	case FnType:
