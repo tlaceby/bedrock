@@ -163,6 +163,16 @@ func tc_member_expr(e ast.MemberExpr, env *SymbolTable) Type {
 	propertyName := e.Property
 
 	switch member := memberType.(type) {
+	case TraitType:
+		var propertyType Type
+
+		propertyType, propertyExists := member.Methods[propertyName]
+		if propertyExists {
+			return propertyType
+		}
+
+		panic(fmt.Sprintf("Member %s does not contain property %s. Attempted to access %s but it does not exist on object\n", memberType.str(), propertyName, propertyName))
+
 	case StructType:
 		var propertyType Type
 
@@ -179,6 +189,7 @@ func tc_member_expr(e ast.MemberExpr, env *SymbolTable) Type {
 		}
 
 		panic(fmt.Sprintf("Member %s does not contain property %s. Attempted to access %s but it does not exist on object\n", memberType.str(), propertyName, propertyName))
+
 	}
 
 	panic(fmt.Sprintf("Member expression with %s.%s not handled\n", memberType.str(), propertyName))

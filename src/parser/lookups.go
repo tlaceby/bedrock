@@ -114,4 +114,7 @@ func createTokenLookups() {
 	stmt(lexer.STRUCT, parse_struct_declaration_stmt)
 	stmt(lexer.RETURN, parse_return_stmt)
 	stmt(lexer.TRAIT, parse_trait_stmt)
+	stmt(lexer.MATCH, parse_match_stmt)
+	stmt(lexer.UNSAFE, parse_unsafe_stmt)
+	stmt(lexer.TYPEDEF, parse_typedef_stmt)
 }

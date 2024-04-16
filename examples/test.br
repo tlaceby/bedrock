@@ -29,6 +29,18 @@ fn main () {
     CustomError::new("Something went wrong"),
     FooError{} 
   };
+
+  const customErr = error[0];
+  match customErr {
+    case CustomError {
+      customErr.message = "Custom Error Occured";
+      println("CustomError: " + customErr.error());
+    },
+
+    case FooError {
+      println("FooError: " + customErr.error());
+    },
+  }
   
   const e1 = errors[0];
   const e2 = errors[1];

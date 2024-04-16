@@ -113,3 +113,28 @@ type ReturnStmt struct {
 }
 
 func (n ReturnStmt) stmt() {}
+
+type MatchCase struct {
+	Type  Type
+	Block []Stmt
+}
+
+type MatchStmt struct {
+	Identifier string
+	Cases      map[string]MatchCase
+}
+
+func (n MatchStmt) stmt() {}
+
+type UnsafeStmt struct {
+	Body []Stmt
+}
+
+func (n UnsafeStmt) stmt() {}
+
+type TypedefStmt struct {
+	Typename string
+	Type     Type
+}
+
+func (n TypedefStmt) stmt() {}

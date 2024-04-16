@@ -20,6 +20,7 @@ type SymbolInfo struct {
 	IsConstant      bool // Whether the symbol is defined as a constant or fn/module etc...
 	AssignmentCount int  // Number of times this symbol is assigned/reassigned
 	AccessedCount   int  // Number of times symbol is accessed/referenced
+	ClosedOver      bool // Whether this variable will be used inside a closure and needs heap allocation
 }
 
 type SymbolTable struct {

@@ -291,3 +291,32 @@ func parse_trait_stmt(p *parser) ast.Stmt {
 		Name:    traitName,
 	}
 }
+
+func parse_match_stmt(p *parser) ast.Stmt {
+	var identifierName string
+	var cases = map[string]ast.MatchCase{}
+
+	panic("Unimplimented Match Stmt parser")
+	return ast.MatchStmt{
+		Identifier: identifierName,
+		Cases:      cases,
+	}
+}
+
+func parse_unsafe_stmt(p *parser) ast.Stmt {
+	panic("Unsafe impl parser")
+	var body = []ast.Stmt{}
+	return ast.UnsafeStmt{Body: body}
+}
+
+func parse_typedef_stmt(p *parser) ast.Stmt {
+	var typeName string
+	var typeType ast.Type
+
+	panic("typedef unimplimented")
+
+	return ast.TypedefStmt{
+		Typename: typeName,
+		Type:     typeType,
+	}
+}
