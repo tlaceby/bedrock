@@ -115,13 +115,14 @@ type ReturnStmt struct {
 func (n ReturnStmt) stmt() {}
 
 type MatchCase struct {
-	Type  Type
-	Block []Stmt
+	Type       Type
+	Block      []Stmt
+	IsElseCase bool
 }
 
 type MatchStmt struct {
 	Identifier string
-	Cases      map[string]MatchCase
+	Cases      []MatchCase
 }
 
 func (n MatchStmt) stmt() {}

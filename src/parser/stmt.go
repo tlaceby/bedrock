@@ -294,9 +294,40 @@ func parse_trait_stmt(p *parser) ast.Stmt {
 
 func parse_match_stmt(p *parser) ast.Stmt {
 	var identifierName string
-	var cases = map[string]ast.MatchCase{}
+	var cases = []ast.MatchCase{}
 
-	panic("Unimplimented Match Stmt parser")
+	p.expect(lexer.MATCH)
+	identifierName = p.expect(lexer.IDENTIFIER).Value
+	p.expect(lexer.OPEN_CURLY)
+
+	for p.hasTokens() && p.currentTokenKind() != lexer.CLOSE_CURLY {
+		if p.currentTokenKind() != lexer.ELSE {
+			p.expect(lexer.CASE)
+			typeCase := parse_type(p, defalt_bp)
+			blockStmt := parse_block_stmt(p)
+
+			cases = append(cases, ast.MatchCase{
+				IsElseCase: false,
+				Type:       typeCase,
+				Block:      helpers.ExpectType[ast.BlockStmt](blockStmt).Body,
+			})
+		} else {
+			p.expect(lexer.ELSE)
+			blockStmt := parse_block_stmt(p)
+
+			cases = append(cases, ast.MatchCase{
+				IsElseCase: false,
+				Type:       nil,
+				Block:      helpers.ExpectType[ast.BlockStmt](blockStmt).Body,
+			})
+		}
+
+		if p.currentTokenKind() != lexer.CLOSE_CURLY {
+			p.expect(lexer.COMMA)
+		}
+	}
+
+	p.expect(lexer.CLOSE_CURLY)
 	return ast.MatchStmt{
 		Identifier: identifierName,
 		Cases:      cases,
@@ -304,8 +335,20 @@ func parse_match_stmt(p *parser) ast.Stmt {
 }
 
 func parse_unsafe_stmt(p *parser) ast.Stmt {
-	panic("Unsafe impl parser")
 	var body = []ast.Stmt{}
+	p.expect(lexer.UNSAFE)
+	p.expect(lexer.OPEN_CURLY)
+
+	for p.hasTokens() && p.currentTokenKind() != lexer.CLOSE_CURLY {
+		stmt := parse_stmt(p)
+		body = append(body, stmt)
+	}
+
+	if len(body) == 0 {
+		panic("Cannot have an empty unsafe{} block")
+	}
+
+	p.expect(lexer.CLOSE_CURLY)
 	return ast.UnsafeStmt{Body: body}
 }
 
@@ -313,7 +356,10 @@ func parse_typedef_stmt(p *parser) ast.Stmt {
 	var typeName string
 	var typeType ast.Type
 
-	panic("typedef unimplimented")
+	p.expect(lexer.TYPE)
+	typeName = p.expect(lexer.IDENTIFIER).Value
+	typeType = parse_type(p, defalt_bp)
+	p.expect(lexer.SEMI_COLON)
 
 	return ast.TypedefStmt{
 		Typename: typeName,

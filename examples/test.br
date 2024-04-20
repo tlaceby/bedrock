@@ -1,5 +1,10 @@
 // main.br
 
+unsafe {
+  type println fn (String) -> Void;  
+  type print   fn (String) -> Void;
+}
+
 trait Error {
   fn error () -> String;
 }

@@ -87,7 +87,7 @@ const (
 	CONTINUE
 	STATIC
 	MATCH
-	TYPEDEF
+	CASE
 
 	// macros
 	ASSERT_MACRO
@@ -120,7 +120,7 @@ var reserved_lu map[string]TokenKind = map[string]TokenKind{
 	"type":      TYPE,
 	"unsafe":    UNSAFE,
 	"match":     MATCH,
-	"typedef":   TYPEDEF,
+	"case":      CASE,
 
 	// Operators as keywords
 	"lt":  LESS,
@@ -303,8 +303,8 @@ func TokenKindString(kind TokenKind) string {
 		return "break"
 	case MATCH:
 		return "match"
-	case TYPEDEF:
-		return "typedef"
+	case CASE:
+		return "case"
 
 	case OPEN_GENERIC:
 		return "open_generic"
