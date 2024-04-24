@@ -1,27 +1,27 @@
 package ast
 
-type StructType struct {
-	GenericList []Type
+type ASTStructType struct {
+	GenericList []ASTType
 	StructName  string
 }
 
-func (t StructType) _type() {}
+func (t ASTStructType) _type() {}
 
-type SymbolType struct {
+type ASTSymbolType struct {
 	Value string
 }
 
-func (t SymbolType) _type() {}
+func (t ASTSymbolType) _type() {}
 
-type ListType struct {
-	Underlying Type
+type ASTListType struct {
+	Underlying ASTType
 }
 
-func (t ListType) _type() {}
+func (t ASTListType) _type() {}
 
-type FnType struct {
-	Parameters []Type
-	ReturnType Type
+type ASTFnType struct {
+	Parameters []ASTType
+	ReturnType ASTType
 }
 
-func (t FnType) _type() {}
+func (t ASTFnType) _type() {}

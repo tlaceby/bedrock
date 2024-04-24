@@ -10,7 +10,7 @@ type Expr interface {
 	expr()
 }
 
-type Type interface {
+type ASTType interface {
 	_type()
 }
 
@@ -22,6 +22,6 @@ func ExpectStmt[T Stmt](expr Stmt) T {
 	return helpers.ExpectType[T](expr)
 }
 
-func ExpectType[T Type](_type Type) T {
+func ExpectType[T ASTType](_type ASTType) T {
 	return helpers.ExpectType[T](_type)
 }

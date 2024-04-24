@@ -168,7 +168,7 @@ func parse_static_member_expr(p *parser, left ast.Expr, bp binding_power) ast.Ex
 }
 
 func parse_array_literal_expr(p *parser) ast.Expr {
-	var underlyingType ast.Type
+	var underlyingType ast.ASTType
 	var capacity = -1
 	var arrayContents = make([]ast.Expr, 0)
 	p.expect(lexer.OPEN_BRACKET)
@@ -282,7 +282,7 @@ func parse_struct_instantiation(p *parser, left ast.Expr, bp binding_power) ast.
 }
 
 func parse_generic_list_instantiation(p *parser, left ast.Expr, bp binding_power) ast.Expr {
-	var genericLists = []ast.Type{}
+	var genericLists = []ast.ASTType{}
 	p.expect(lexer.OPEN_GENERIC)
 
 	for p.hasTokens() && p.currentTokenKind() != lexer.CLOSE_GENERIC {

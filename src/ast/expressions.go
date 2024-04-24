@@ -62,7 +62,7 @@ func (n MemberExpr) expr() {}
 type StaticMemberExpr struct {
 	StructName     string
 	MethodName     string
-	StructGenerics []Type
+	StructGenerics []ASTType
 }
 
 func (n StaticMemberExpr) expr() {}
@@ -70,7 +70,7 @@ func (n StaticMemberExpr) expr() {}
 type CallExpr struct {
 	Method    Expr
 	Arguments []Expr
-	Generics  []Type
+	Generics  []ASTType
 }
 
 func (n CallExpr) expr() {}
@@ -92,13 +92,13 @@ func (n RangeExpr) expr() {}
 type FunctionExpr struct {
 	Parameters []Parameter
 	Body       []Stmt
-	ReturnType Type
+	ReturnType ASTType
 }
 
 func (n FunctionExpr) expr() {}
 
 type ArrayLiteral struct {
-	UnderlyingType Type
+	UnderlyingType ASTType
 	Capacity       int // -1 represents none a inferable size
 	Contents       []Expr
 }
@@ -112,7 +112,7 @@ type ObjectField struct {
 
 type StructInstantiationExpr struct {
 	StructName string
-	Generics   []Type
+	Generics   []ASTType
 	Objects    []ObjectField
 }
 
@@ -122,7 +122,7 @@ func (n StructInstantiationExpr) expr() {}
 
 // @assert(Type, Expr)
 type AssertExpr struct {
-	TypeAssertion Type
+	TypeAssertion ASTType
 	Expr          Expr
 }
 

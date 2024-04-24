@@ -8,8 +8,8 @@ import (
 	"github.com/tlaceby/bedrock/src/lexer"
 )
 
-type type_nud_handler func(p *parser) ast.Type
-type type_led_handler func(p *parser, left ast.Type, bp binding_power) ast.Type
+type type_nud_handler func(p *parser) ast.ASTType
+type type_led_handler func(p *parser, left ast.ASTType, bp binding_power) ast.ASTType
 
 type type_nud_lookup map[lexer.TokenKind]type_nud_handler
 type type_led_lookup map[lexer.TokenKind]type_led_handler
@@ -37,7 +37,7 @@ func createTypeTokenLookups() {
 	type_led(lexer.LESS, primary, parse_generic_type) // StructName<T, ..>
 }
 
-func parse_type(p *parser, bp binding_power) ast.Type {
+func parse_type(p *parser, bp binding_power) ast.ASTType {
 	tokenKind := p.currentTokenKind()
 	nud_fn, exists := type_nud_lu[tokenKind]
 
@@ -61,9 +61,9 @@ func parse_type(p *parser, bp binding_power) ast.Type {
 	return left
 }
 
-func parse_generic_type(p *parser, left ast.Type, bp binding_power) ast.Type {
+func parse_generic_type(p *parser, left ast.ASTType, bp binding_power) ast.ASTType {
 	p.expect(lexer.LESS)
-	generics := make([]ast.Type, 0)
+	generics := make([]ast.ASTType, 0)
 
 	for p.hasTokens() && p.currentTokenKind() != lexer.GREATER {
 		genericType := parse_type(p, defalt_bp)
@@ -75,31 +75,31 @@ func parse_generic_type(p *parser, left ast.Type, bp binding_power) ast.Type {
 	}
 
 	p.expect(lexer.GREATER)
-	return ast.StructType{
+	return ast.ASTStructType{
 		GenericList: generics,
-		StructName:  helpers.ExpectType[ast.SymbolType](left).Value,
+		StructName:  helpers.ExpectType[ast.ASTSymbolType](left).Value,
 	}
 }
 
-func parse_symbol_type(p *parser) ast.Type {
-	return ast.SymbolType{
+func parse_symbol_type(p *parser) ast.ASTType {
+	return ast.ASTSymbolType{
 		Value: p.advance().Value,
 	}
 }
 
-func parse_list_type(p *parser) ast.Type {
+func parse_list_type(p *parser) ast.ASTType {
 	p.advance()
 	p.expect(lexer.CLOSE_BRACKET)
 	insideType := parse_type(p, defalt_bp)
 
-	return ast.ListType{
+	return ast.ASTListType{
 		Underlying: insideType,
 	}
 }
 
-func parse_fn_type(p *parser) ast.Type {
-	var params = []ast.Type{}
-	var returns ast.Type
+func parse_fn_type(p *parser) ast.ASTType {
+	var params = []ast.ASTType{}
+	var returns ast.ASTType
 
 	p.expect(lexer.FN)
 	p.expect(lexer.OPEN_PAREN)
@@ -115,7 +115,7 @@ func parse_fn_type(p *parser) ast.Type {
 	p.expect(lexer.ARROW)
 
 	returns = parse_type(p, defalt_bp)
-	return ast.FnType{
+	return ast.ASTFnType{
 		Parameters: params,
 		ReturnType: returns,
 	}

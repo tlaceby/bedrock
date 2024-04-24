@@ -1,6 +1,7 @@
 package ast
 
 type ModuleStmt struct {
+	Scope      *Scope
 	FilePath   string
 	ModuleName string
 	Body       []Stmt
@@ -9,7 +10,8 @@ type ModuleStmt struct {
 func (s ModuleStmt) stmt() {}
 
 type BlockStmt struct {
-	Body []Stmt
+	Scope *Scope
+	Body  []Stmt
 }
 
 func (b BlockStmt) stmt() {}
@@ -18,7 +20,7 @@ type VarDeclarationStmt struct {
 	Identifier    string
 	Constant      bool
 	AssignedValue Expr
-	ExplicitType  Type
+	ExplicitType  ASTType
 }
 
 func (n VarDeclarationStmt) stmt() {}
@@ -31,15 +33,16 @@ func (n ExpressionStmt) stmt() {}
 
 type Parameter struct {
 	Name string
-	Type Type
+	Type ASTType
 }
 
 type FunctionDeclarationStmt struct {
+	Scope      *Scope
 	Parameters []Parameter
 	Generics   []string
 	Name       string
 	Body       []Stmt
-	ReturnType Type
+	ReturnType ASTType
 }
 
 func (n FunctionDeclarationStmt) stmt() {}
@@ -70,6 +73,7 @@ type ForStmt struct {
 func (n ForStmt) stmt() {}
 
 type WhileStmt struct {
+	Scope     *Scope
 	Condition Expr
 	Body      []Stmt
 }
@@ -78,7 +82,7 @@ func (n WhileStmt) stmt() {}
 
 type StructProperty struct {
 	Name string
-	Type Type
+	Type ASTType
 }
 
 type StructMethod struct {
@@ -98,7 +102,7 @@ func (n StructDeclarationStmt) stmt() {}
 
 type TraitMethod struct {
 	MethodName string
-	MethodType FnType
+	MethodType ASTFnType
 }
 
 type TraitStmt struct {
@@ -115,7 +119,8 @@ type ReturnStmt struct {
 func (n ReturnStmt) stmt() {}
 
 type MatchCase struct {
-	Type       Type
+	Scope      *Scope
+	Type       ASTType
 	Block      []Stmt
 	IsElseCase bool
 }
@@ -128,14 +133,15 @@ type MatchStmt struct {
 func (n MatchStmt) stmt() {}
 
 type UnsafeStmt struct {
-	Body []Stmt
+	Scope *Scope
+	Body  []Stmt
 }
 
 func (n UnsafeStmt) stmt() {}
 
 type TypedefStmt struct {
 	Typename string
-	Type     Type
+	Type     ASTType
 }
 
 func (n TypedefStmt) stmt() {}

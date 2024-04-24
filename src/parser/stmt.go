@@ -42,7 +42,7 @@ func parse_block_stmt(p *parser) ast.Stmt {
 }
 
 func parse_var_decl_stmt(p *parser) ast.Stmt {
-	var explicitType ast.Type
+	var explicitType ast.ASTType
 	startToken := p.advance().Kind
 	isConstant := startToken == lexer.CONST
 	symbolName := p.expectError(lexer.IDENTIFIER,
@@ -76,7 +76,7 @@ func parse_var_decl_stmt(p *parser) ast.Stmt {
 	}
 }
 
-func parse_fn_params_and_body(p *parser) ([]ast.Parameter, ast.Type, []ast.Stmt) {
+func parse_fn_params_and_body(p *parser) ([]ast.Parameter, ast.ASTType, []ast.Stmt) {
 	functionParams := make([]ast.Parameter, 0)
 
 	p.expect(lexer.OPEN_PAREN)
@@ -96,7 +96,7 @@ func parse_fn_params_and_body(p *parser) ([]ast.Parameter, ast.Type, []ast.Stmt)
 	}
 
 	p.expect(lexer.CLOSE_PAREN)
-	var returnType ast.Type
+	var returnType ast.ASTType
 
 	if p.currentTokenKind() == lexer.ARROW {
 		p.advance()
@@ -275,7 +275,7 @@ func parse_trait_stmt(p *parser) ast.Stmt {
 		methodName := p.expect(lexer.IDENTIFIER).Value
 		p.pos-- // set a new tmp token for the fn keywors
 		p.tokens[p.pos] = lexer.Token{Kind: lexer.FN}
-		methodType := ast.ExpectType[ast.FnType](parse_type(p, defalt_bp))
+		methodType := ast.ExpectType[ast.ASTFnType](parse_type(p, defalt_bp))
 
 		methods = append(methods, ast.TraitMethod{
 			MethodName: methodName,
@@ -354,7 +354,7 @@ func parse_unsafe_stmt(p *parser) ast.Stmt {
 
 func parse_typedef_stmt(p *parser) ast.Stmt {
 	var typeName string
-	var typeType ast.Type
+	var typeType ast.ASTType
 
 	p.expect(lexer.TYPE)
 	typeName = p.expect(lexer.IDENTIFIER).Value
