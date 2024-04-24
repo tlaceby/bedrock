@@ -3,5 +3,5 @@
 #include "../bedrock.h"
 
 namespace utils {
-    string space(size_t padding);
+string space(size_t padding);
 };

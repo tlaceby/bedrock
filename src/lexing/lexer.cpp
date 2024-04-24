@@ -10,7 +10,7 @@ struct Lexer {
   vector<Token> tokens;
   shared_ptr<SourceFile> file;
 
-  Lexer (string file_path) {
+  Lexer(string file_path) {
     pos = 0;
     line = 1;
     tokens = std::vector<Token>();
@@ -31,8 +31,7 @@ struct Lexer {
 };
 
 vector<Token> lexer::tokenize(string file_path) {
-  Lexer lex {file_path};
-  
-  
+  Lexer lex{file_path};
+
   return lex.tokens;
 }
