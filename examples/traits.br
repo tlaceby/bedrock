@@ -1,15 +1,61 @@
 // main.br
 
-// impl Number {
-//   fn to_string() -> String {
-//     return as_str(self);
-//   }
-// }
+unsafe {
+  type println fn (String) -> Void;  
+  type print   fn (String) -> Void;
+}
 
-// unsafe {
-//   type println = fn (String) -> Void;
-//   type as_str = fn (Any) -> String;
-// }
+trait Error {
+  fn error () -> String;
+}
+
+struct FooError {
+  fn error () -> String {
+    return "Error: Foo";
+  }
+}
+
+struct CustomError {
+  message: String;
+
+  static fn new(message: String) -> Self {
+    return Self { 
+      message: message,
+    };
+  }
+
+  fn error () -> String {
+    return self.message;
+  }
+}
+
+fn main () {
+  const errors = []Error{ 
+    CustomError::new("Something went wrong"),
+    FooError{} 
+  };
+
+  const customErr = error[0];
+  match customErr {
+    case CustomError {
+      customErr.message = "Custom Error Occured";
+      println("CustomError: " + customErr.error());
+    },
+
+    case FooError {
+      println("FooError: " + customErr.error());
+    },
+  }
+  
+  const e1 = errors[0];
+  const e2 = errors[1];
+  const message: String = e1.error() + e2.error();
+
+  const numStr = @string(45.21); // Converts Data to a String
+  const customErr = @assert(CustomError, errors[1]); // casts away a type explicitly. No conversion
+  
+  println(customErr.error());
+} 
 
 trait Error {
   fn error () -> String;
