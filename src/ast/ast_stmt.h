@@ -1,11 +1,13 @@
 #pragma once
 
 #include "ast.h"
+#include "../analysis/scope.h"
 
 namespace ast {
 
     struct ModuleStmt : public Stmt {
         bool is_entry;
+        shared_ptr<analysis::Scope> scope;
         string name;
         vector<shared_ptr<Stmt>> body;
 
@@ -20,6 +22,4 @@ namespace ast {
         ProgramStmt() { kind = PROGRAM_STMT; }
         std::string debug(size_t depth) = 0;
     };
-
-
 };
