@@ -1,0 +1,11 @@
+{
+  "files.associations": {
+    "*.br": "rust",
+    "*.zig": "zig",
+    "iosfwd": "cpp",
+    "vector": "cpp",
+    "optional": "cpp",
+    "iostream": "cpp",
+    "__config": "cpp"
+  }
+}
