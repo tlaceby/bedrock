@@ -1,9 +1,8 @@
-let x = 34.1;
-let result = x + -10;
+mod main;
 
-const a = 45.23;
-let conv1 = @String(a);
-let conv2 = @Number(conv1);
+let sum: Number;
+let pi = 3.14;
+const angle = pi * 2;
+const name = "Tyler";
 
-println(a == conv2); // true
-println(result);
+sum = pi + angle;
