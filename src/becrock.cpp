@@ -74,7 +74,14 @@ int bedrock_run(string file_path) {
     exit(1);
   }
 
-  std::cout << "tokens: " << tokens.size() << "\n";
+  if (DISPLAY_TOKENS) {
+    std::cout << "\nTokens: " << to_string(tokens.size()) << "\n";
+    for (const auto& token : tokens) {
+      token.display();
+    }
+    std::cout << std::endl;
+  }
+
   return 0;
 }
 

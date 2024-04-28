@@ -60,6 +60,8 @@
     "execution": "cpp",
     "*.gitignore": "cpp",
     "__availability": "cpp",
-    "utility": "cpp"
+    "utility": "cpp",
+    "regex": "cpp",
+    "deque": "cpp"
   }
 }

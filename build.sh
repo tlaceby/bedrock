@@ -8,6 +8,12 @@ clean() {
   make clean
 }
 
+debug() {
+  make clean
+  build
+  ./bedrock run ./examples/test.br --debug
+}
+
 run() {
   build
   ./bedrock run ./examples/test.br
@@ -17,6 +23,9 @@ run() {
 case "$1" in
   run)
     run
+    ;;
+  debug)
+    debug
     ;;
   build)
     build
