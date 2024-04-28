@@ -2,7 +2,7 @@
 
 using namespace lexer;
 
-string lexer::TokenPos::error_str() {
+string lexer::SourcePos::error_str() {
   string s = "(" + this->file->file_path + ")[";
 
   s += to_string(this->line) + ":";
@@ -12,9 +12,9 @@ string lexer::TokenPos::error_str() {
   return s;
 }
 
-string lexer::TokenPos::get_snippet(bool showUnderline, size_t linePaddings) {
+string lexer::SourcePos::get_snippet(bool showUnderline, size_t linePaddings) {
   UNUSED(showUnderline);
   UNUSED(linePaddings);
 
-  TODO("lexer::TokenPos::get_snippet() not yet implimented");
+  TODO("lexer::SourcePos::get_snippet() not yet implimented");
 }

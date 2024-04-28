@@ -45,7 +45,7 @@ enum TokenKind {
 };
 
 struct Token {
-  TokenPos pos;
+  SourcePos pos;
   TokenKind kind;
   string value;
 };

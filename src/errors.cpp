@@ -3,7 +3,7 @@
 using namespace errors;
 #include "util/colors.h"
 
-std::string errors::error_kind(ErrKind kind) {
+string errors::error_kind(ErrKind kind) {
   switch (kind) {
     case InvalidFilePath:
       return "InvalidFilePath";
@@ -23,24 +23,23 @@ std::string errors::error_kind(ErrKind kind) {
 }
 
 Err::Err(ErrKind _kind) { kind = _kind; }
-Err& Err::location(std::shared_ptr<lexer::TokenPos> _loc) {
+Err& Err::location(std::shared_ptr<lexer::SourcePos> _loc) {
   loc = _loc;
   return *this;
 }
 
-Err& Err::message(std::string _msg) {
+Err& Err::message(string _msg) {
   msg = _msg;
   return *this;
 }
 
-Err& Err::hint(std::string hint) {
+Err& Err::hint(string hint) {
   hints.push_back(hint);
   return *this;
 }
 
-std::string Err::str() {
-  // TODO: Enable colored output
-  std::string err;
+string Err::str() {
+  string err;
 
   err += bold_red("Error") + "::" + error_kind(this->kind) + "\n";
   err += bold_magenta(" .Message") + ": " + this->msg + "\n";
@@ -52,7 +51,6 @@ std::string Err::str() {
     }
   }
 
-  // TODO: Impliment Location Reporting
   // TODO: Impliment code snippet view
   if (this->loc) {
     err += " .Location: " + this->loc->error_str();

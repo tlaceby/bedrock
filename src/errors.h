@@ -9,7 +9,7 @@ struct SourceFile {
   string contents;
 };
 
-struct TokenPos {
+struct SourcePos {
   shared_ptr<SourceFile> file;
   size_t line;
   size_t start;
@@ -57,7 +57,7 @@ struct Err {
 
   /// @brief Used to update the location of the Error. Returns the instance
   /// which it mutates.
-  Err& location(std::shared_ptr<lexer::TokenPos>);
+  Err& location(std::shared_ptr<lexer::SourcePos>);
   /// @brief Sets the message for this Error. Returns the mutated instance.
   Err& message(std::string);
   /// @brief Used to update the hints[]. Appends the hint to hints. Returns the
@@ -66,7 +66,7 @@ struct Err {
 
  private:
   ErrKind kind;
-  shared_ptr<lexer::TokenPos> loc;
+  shared_ptr<lexer::SourcePos> loc;
   string msg;
   vector<string> hints;
 };
