@@ -8,6 +8,7 @@ struct Stmt;
 struct Type;
 };  // namespace ast
 
+/// @brief Contains contents for static analysis and typechecking.
 namespace analysis {
 struct Type;  // forward declare type.
 
@@ -40,4 +41,4 @@ struct Scope {
   unordered_map<string, shared_ptr<Symbol>> symbols;
   vector<shared_ptr<Type>> found_return_types;
 };
-};
+};  // namespace analysis

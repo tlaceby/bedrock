@@ -57,6 +57,7 @@
     "unordered_map": "cpp",
     "variant": "cpp",
     "algorithm": "cpp",
-    "execution": "cpp"
+    "execution": "cpp",
+    "*.gitignore": "cpp"
   }
 }

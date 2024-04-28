@@ -16,5 +16,6 @@ std::string error_kind(ParserError kind) {
 std::string parser::Error::str() { return ""; }
 
 void parser::Error::display(bool verbose) {
-  std::cout << str() << (verbose ? "" : "");
+  UNUSED(verbose);
+  std::cout << str();
 }
