@@ -8,27 +8,10 @@
 #include "../lexing/lexer.h"
 
 namespace parser {
-// Error Handling
-enum ParserError {
-  UnexpectedToken,
-  Fatal,
-};
-
-struct Error {
-  ParserError kind;
-  shared_ptr<lexer::TokenPos> location;
-  string message;
-  vector<string> suggestions;
-
-  string str();
-  void display(bool verbose);
-};
-
-string error_kind(parser::ParserError);
 
 // Parser Management
 struct ParserManager {
-  vector<parser::Error> errors;
+  vector<errors::Err> errors;
   unordered_map<string, shared_ptr<ast::ModuleStmt>> modules;
 };
 

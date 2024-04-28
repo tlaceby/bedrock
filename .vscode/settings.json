@@ -58,6 +58,8 @@
     "variant": "cpp",
     "algorithm": "cpp",
     "execution": "cpp",
-    "*.gitignore": "cpp"
+    "*.gitignore": "cpp",
+    "__availability": "cpp",
+    "utility": "cpp"
   }
 }

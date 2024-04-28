@@ -44,18 +44,6 @@ enum TokenKind {
   TRAIT,
 };
 
-struct SourceFile {
-  string file_path;
-  string contents;
-};
-
-struct TokenPos {
-  shared_ptr<SourceFile> file;
-  size_t line;
-  size_t start;
-  size_t end;
-};
-
 struct Token {
   TokenPos pos;
   TokenKind kind;
