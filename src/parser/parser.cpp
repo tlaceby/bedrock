@@ -111,6 +111,10 @@ lexer::Token Parser::expect(lexer::TokenKind expected) {
 
 void Parser::report(Err err) {
   this->manager->errors.push_back(err);
+  err.display();
+
+  // TODO: Actualy propigate errors and catch multiple
+  exit(1);
   throw err;
 }
 
