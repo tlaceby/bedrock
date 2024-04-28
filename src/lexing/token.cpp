@@ -3,7 +3,7 @@
 using namespace lexer;
 
 string lexer::SourcePos::error_str() {
-  string s = "(" + this->file->file_path + ")[";
+  string s = "(" + ul(this->file->file_path) + ")[";
 
   s += to_string(this->line) + ":";
   s += to_string(this->start) + ":";

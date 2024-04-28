@@ -1,5 +1,4 @@
 // Imports
-mod main; // the entry point must be mod main
 import("std/slices") as slices;
 import("../lib/foo.br") as foo;
 

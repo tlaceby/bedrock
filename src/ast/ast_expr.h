@@ -1,27 +1,52 @@
 #pragma once
 
+#include "../lexing/token.h"
 #include "ast.h"
 
 namespace ast {
 struct NumberExpr : public Expr {
   double value;
 
+  virtual ~NumberExpr() {}
   NumberExpr() { kind = NUMBER_EXPR; }
-  string debug(size_t depth) = 0;
+  string debug(size_t depth);
 };
 
 struct StringExpr : public Expr {
   string value;
 
+  virtual ~StringExpr() {}
   StringExpr() { kind = STRING_EXPR; }
-  string debug(size_t depth) = 0;
+  string debug(size_t depth);
 };
 
 struct SymbolExpr : public Expr {
   string symbol;
 
+  virtual ~SymbolExpr() {}
   SymbolExpr() { kind = SYMBOL_EXPR; }
-  string debug(size_t depth) = 0;
+  string debug(size_t depth);
+};
+
+// Complex Binary/Unary
+
+struct BinaryExpr : public Expr {
+  shared_ptr<Expr> left;
+  shared_ptr<Expr> right;
+  lexer::Token operation;
+
+  virtual ~BinaryExpr() {}
+  BinaryExpr() { kind = BINARY_EXPR; }
+  string debug(size_t depth);
+};
+
+struct PrefixExpr : public Expr {
+  shared_ptr<Expr> right;
+  lexer::Token operation;
+
+  virtual ~PrefixExpr() {}
+  PrefixExpr() { kind = PREFIX_EXPR; }
+  string debug(size_t depth);
 };
 
 };  // namespace ast

@@ -1,5 +1,6 @@
 #include "bedrock.h"
 #include "lexing/lexer.h"
+#include "parser/parser.h"
 #include "util/colors.h"
 
 inline bool COLORS_ENABLED = true;
@@ -64,23 +65,7 @@ int display_help() {
 }
 
 int bedrock_run(string file_path) {
-  auto [tokens, errors] = lexer::tokenize(file_path);
-
-  if (errors.size() > 0) {
-    for (auto& err : errors) {
-      err.display();
-    }
-
-    exit(1);
-  }
-
-  if (DISPLAY_TOKENS) {
-    std::cout << "\nTokens: " << to_string(tokens.size()) << "\n";
-    for (const auto& token : tokens) {
-      token.display();
-    }
-    std::cout << std::endl;
-  }
+  auto program = parser::parse(file_path);
 
   return 0;
 }

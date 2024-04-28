@@ -9,11 +9,16 @@ enum NodeKind {
   PROGRAM_STMT,  // List of all modules,
   MODULE_STMT,
   BLOCK_STMT,
+  VAR_DECL_STMT,
+  EXPR_STMT,
 
   // Expressions
   NUMBER_EXPR,
   STRING_EXPR,
   SYMBOL_EXPR,
+  BINARY_EXPR,
+  PREFIX_EXPR,
+  ASSIGN_EXPR,
 
   // Types
   SYMBOL_TYPE,

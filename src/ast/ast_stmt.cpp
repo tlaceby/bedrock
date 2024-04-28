@@ -5,10 +5,10 @@ using utils::space;
 
 // ModuleStmt
 string ModuleStmt::debug(size_t depth) {
-  string output = space(depth) + "Module." + name + "\n";
+  string output = space(depth) + magenta("Module") + "(" + name + ")\n";
 
   for (const auto& stmt : body) {
-    output += stmt->debug(depth + 1);
+    output += stmt->debug(depth + 2);
   }
 
   return output;
@@ -16,11 +16,25 @@ string ModuleStmt::debug(size_t depth) {
 
 // ProgramStmt
 string ProgramStmt::debug(size_t depth) {
-  string output = "Program\n";
+  string output = bold_white("Program\n");
 
   for (const auto& mod : modules) {
-    output += mod->debug(depth + 1);
+    output += mod->debug(depth);
   }
 
   return output;
 }
+
+// BlockStmt
+string BlockStmt::debug(size_t depth) {
+  string output = magenta("Block\n");
+
+  for (const auto& stmt : body) {
+    output += stmt->debug(depth + 2);
+  }
+
+  return output;
+}
+
+// ExprStmt
+string ExprStmt::debug(size_t depth) { return expr->debug(depth); }

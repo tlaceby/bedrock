@@ -17,6 +17,8 @@ string errors::error_kind(ErrKind kind) {
       return "UnexpectedToken";
     case Fatal:
       return "Fatal";
+    case ExpectedPrimaryExpr:
+      return "ExpectedPrimaryExpr";
     default:
       return "UnknownParserError";
   }
@@ -41,7 +43,13 @@ Err& Err::hint(string hint) {
 string Err::str() {
   string err;
 
-  err += bold_red("Error") + "::" + error_kind(this->kind) + "\n";
+  err += bold_red("Error") + "::" + bold_white(error_kind(this->kind)) + "\n";
+
+  // TODO: Impliment code snippet view
+  if (this->loc) {
+    err += bold_blue(" .Location") + ": " + this->loc->error_str() + "\n";
+  }
+
   err += bold_magenta(" .Message") + ": " + this->msg + "\n";
 
   if (this->hints.size() > 0) {
@@ -51,12 +59,7 @@ string Err::str() {
     }
   }
 
-  // TODO: Impliment code snippet view
-  if (this->loc) {
-    err += " .Location: " + this->loc->error_str();
-  }
-
-  err += "\n";
+  err += "\n\n";
   return err;
 }
 

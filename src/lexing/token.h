@@ -119,6 +119,7 @@ const unordered_map<string, TokenKind> reserved_lu = {
     {"unsafe", UNSAFE},
     {"match", MATCH},
     {"case", CASE},
+
     // Operators as keywords
     {"lt", LT},
     {"lte", LTE},
@@ -129,6 +130,7 @@ const unordered_map<string, TokenKind> reserved_lu = {
     {"eq", EQ},
     {"and", AND},
     {"or", OR},
+
     // Reserved Macros
     {"@assert", ASSERT_MACRO},
     {"@assert_or", ASSERT_OR_MACRO},
@@ -140,7 +142,7 @@ const unordered_map<string, TokenKind> reserved_lu = {
 string token_tag(TokenKind kind);
 
 struct Token {
-  lexer::SourcePos pos;
+  shared_ptr<lexer::SourcePos> pos;
   TokenKind kind;
   string value;
 
@@ -148,13 +150,13 @@ struct Token {
   Token() {}
 
   Token(lexer::SourcePos pos, TokenKind kind, string value)
-      : pos(pos), kind(kind), value(value) {}
+      : pos(make_shared<SourcePos>(pos)), kind(kind), value(value) {}
 
   Token(TokenKind kind, string value) : kind(kind), value(value) {
-    pos.file = nullptr;
-    pos.line = 0;
-    pos.start = 0;
-    pos.end = 0;
+    pos->file = nullptr;
+    pos->line = 0;
+    pos->start = 0;
+    pos->end = 0;
   }
 
   void display() const {

@@ -1,10 +1,2 @@
-mod main;
-
-let sum: Number;
-let pi = 3.14;
-const angle = pi * 2;
-const name = "Tyler";
-
-sum = pi + angle
-
-~
+"Hello world";
+!x + -10.23 * 5;

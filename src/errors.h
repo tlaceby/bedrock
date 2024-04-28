@@ -38,6 +38,7 @@ enum ErrKind {
   MissingStringTermination,  // lexing
   UnexpectedToken,           // lexing | parsing
   Fatal,                     // lexing | parsing | analysis | codegen
+  ExpectedPrimaryExpr,       // parsing
 };
 
 /// @brief Returns a string representation of the ErrKind enum which is passed

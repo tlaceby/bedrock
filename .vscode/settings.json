@@ -62,6 +62,7 @@
     "__availability": "cpp",
     "utility": "cpp",
     "regex": "cpp",
-    "deque": "cpp"
+    "deque": "cpp",
+    "functional": "cpp"
   }
 }
