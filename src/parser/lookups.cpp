@@ -42,6 +42,10 @@ void parser::setup_pratt_parser() {
   setup_type_pratt_parser();
 
   // Stmts
+  def_stmt(STRUCT, parse_struct_stmt);
+  def_stmt(LET, parse_var_decl_stmt);
+  def_stmt(CONST, parse_var_decl_stmt);
+  def_stmt(FN, parse_fn_decl_stmt);
   def_stmt(lexer::OPEN_CURLY, parse_block_stmt);
 
   // NUD HANDLERS
@@ -62,5 +66,7 @@ void parser::setup_pratt_parser() {
 }
 
 void parser::setup_type_pratt_parser() {
-  //
+  def_type_nud(lexer::IDENTIFIER, parse_symbol_type);
+  def_type_nud(lexer::OPEN_BRACKET, parse_slice_type);
+  def_type_nud(lexer::FN, parse_fn_type);
 }

@@ -40,4 +40,38 @@ struct ExprStmt : public Stmt {
   ExprStmt() { kind = EXPR_STMT; }
   std::string debug(size_t depth);
 };
+
+struct VarDeclStmt : public Stmt {
+  bool constant;
+  string varname;
+  shared_ptr<Type> type;
+  shared_ptr<Expr> value;
+
+  virtual ~VarDeclStmt() {}
+  VarDeclStmt() { kind = VAR_DECL_STMT; }
+  std::string debug(size_t depth);
+};
+
+struct FnDeclStmt : public Stmt {
+  bool variadic;  // whether the function has variable arity -> ...name: []T
+  string name;
+  vector<PropertyKey> params;
+  shared_ptr<Type> return_type;
+  shared_ptr<BlockStmt> body;
+
+  virtual ~FnDeclStmt() {}
+  FnDeclStmt() { kind = FN_DECL_STMT; }
+  std::string debug(size_t depth);
+};
+
+struct StructStmt : public Stmt {
+  string name;
+  vector<PropertyKey> properties;
+  unordered_map<string, shared_ptr<FnType>> instance_methods;
+  unordered_map<string, shared_ptr<FnType>> static_methods;
+
+  virtual ~StructStmt() {}
+  StructStmt() { kind = STRUCT_STMT; }
+  std::string debug(size_t depth);
+};
 };  // namespace ast

@@ -3,7 +3,7 @@
 #include "ast.h"
 
 namespace ast {
-struct SymbolType : public Expr {
+struct SymbolType : public Type {
   string symbol;
 
   virtual ~SymbolType() {}
@@ -11,11 +11,21 @@ struct SymbolType : public Expr {
   std::string debug(size_t depth);
 };
 
-struct SliceType : public Expr {
+struct SliceType : public Type {
   shared_ptr<Type> type;
 
   virtual ~SliceType() {}
   SliceType() { kind = SLICE_TYPE; }
+  std::string debug(size_t depth);
+};
+
+struct FnType : public Type {
+  bool variadic;  // whether the function has variable arity -> ...name: []T
+  vector<PropertyKey> params;
+  shared_ptr<Type> return_type;
+
+  virtual ~FnType() {}
+  FnType() { kind = FN_TYPE; }
   std::string debug(size_t depth);
 };
 

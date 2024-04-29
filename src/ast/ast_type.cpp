@@ -16,3 +16,9 @@ string SliceType::debug(size_t depth) {
 
   return output;
 }
+
+//  FnType
+string FnType::debug(size_t depth) {
+  string output = space(depth) + "Fn\n";
+  return output;
+}

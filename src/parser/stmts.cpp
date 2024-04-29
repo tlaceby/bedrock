@@ -38,3 +38,23 @@ shared_ptr<ast::BlockStmt> parser::parse_block_stmt(Parser& p) {
   p.expect(lexer::CLOSE_CURLY);
   return block;
 }
+
+shared_ptr<ast::StructStmt> parse_struct_stmt(Parser& p) {
+  auto stmt = make_shared<StructStmt>();
+  p.expect(STRUCT);
+  TODO("parse_struct not done");
+  return stmt;
+}
+
+shared_ptr<ast::VarDeclStmt> parse_var_decl_stmt(Parser& p) {
+  auto stmt = make_shared<VarDeclStmt>();
+  TODO("parse_decl not done");
+  return stmt;
+}
+
+shared_ptr<ast::FnDeclStmt> parse_fn_decl_stmt(Parser& p) {
+  auto stmt = make_shared<FnDeclStmt>();
+  p.expect(FN);
+  TODO("parse_fn not done");
+  return stmt;
+}
