@@ -64,6 +64,9 @@ struct FnDeclStmt : public Stmt {
   std::string debug(size_t depth);
 };
 
+// Forward declare FnType
+struct FnType;
+
 struct StructStmt : public Stmt {
   string name;
   vector<PropertyKey> properties;
