@@ -10,7 +10,7 @@ inline bool DISPLAY_AST = false;
 inline bool DISPLAY_TOKENS = false;
 inline bool DISPLAY_TYPEINFO = false;
 inline bool DISABLE_BOUND_CHECKING = false;
-inline string COMPILED_FILES_PATH = "./.builds/.dbg/";
+inline string COMPILED_FILES_PATH = ".builds/";
 
 int display_help() {
   using std::cout;
@@ -71,6 +71,8 @@ int bedrock_run(string file_path) {
   auto program = parser::parse(file_path);
   analysis::tc_program(program);
   compiler::compile_program_stmt(program.get());
+
+  system(string(COMPILED_FILES_PATH + "debug").c_str());
   return 0;
 }
 

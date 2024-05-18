@@ -30,17 +30,20 @@ string compiler::compile(shared_ptr<Stmt> stmt, shared_ptr<Scope> scope) {
 
 string compiler::compile_program_stmt(ProgramStmt* stmt) {
   string buildDir = COMPILED_FILES_PATH;
-  string buildCommand = "gcc " + buildDir + "main.c -o ./.builds/debug";
-  string entry;
+  string buildCommand = "gcc " + buildDir + "main.c -o " + buildDir + "debug";
+  string entry = "#include<stdio.h>\n#include<stdlib.h>\n\n";
   size_t modi = 0;
 
   // Make sure folder exists
-  // system(string(string("rm -rf ") + COMPILED_FILES_PATH).c_str());
+  string dbgPath = string(COMPILED_FILES_PATH + ".headers/");
+  system(string(string("rm -rf ") + COMPILED_FILES_PATH).c_str());
+  system(string(string("mkdir ") + COMPILED_FILES_PATH).c_str());
+  system(string(string("mkdir ") + dbgPath).c_str());
 
   for (const auto& mod : stmt->modules) {
     mod->name = to_string(modi);
     string headerName = "_mod" + mod->name;
-    string headerPath = headerName + ".h";
+    string headerPath = ".headers/" + headerName + ".h";
 
     compile_module_stmt(mod.get());
     entry += "#include \"" + headerPath + "\"\n";
@@ -48,7 +51,7 @@ string compiler::compile_program_stmt(ProgramStmt* stmt) {
 
   entry += "\nint main (const int argc, char** args) ";
   entry += "{ __br__main__();";
-  entry += "return 0; }\n";
+  entry += "printf(\"Hello world\\n\"); return 0;}\n";
 
   utils::write_file_contents(buildDir + "main.c", entry);
   system(buildCommand.c_str());
@@ -79,8 +82,7 @@ string compiler::compile_module_stmt(ModuleStmt* stmt) {
   h += "\n#endif//finish include header";
 
   // write header to builds folder
-  string headerPath = COMPILED_FILES_PATH + headerName + ".h";
-  std::cout << headerPath << "\n";
+  string headerPath = COMPILED_FILES_PATH + ".headers/" + headerName + ".h";
   utils::write_file_contents(headerPath, h);
   return h;
 }
