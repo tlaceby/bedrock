@@ -70,7 +70,7 @@ shared_ptr<FnType> parser::parse_fn_type(Parser& p) {
 
   if (p.current_tk_kind() == ARROW) {
     p.expect(ARROW);
-    fn->return_type = parse_type(p, DEFAULT_BP);
+    fn->returns = parse_type(p, DEFAULT_BP);
   }
 
   return fn;
@@ -81,11 +81,12 @@ pair<vector<PropertyKey>, bool> parser::parse_fn_params(Parser& p) {
   bool variadic = false;
 
   p.expect(OPEN_PAREN);
+
   while (p.has_tokens() && p.current_tk_kind() != CLOSE_PAREN) {
-    PropertyKey param;
+    auto param = PropertyKey();
 
     // Handle non variadic parameter
-    if (p.current_tk_kind() != lexer::DYN) {
+    if (p.current_tk_kind() != DYN) {
       param.name = p.expect(IDENTIFIER).value;
       p.expect(COLON);
       param.type = parse_type(p, DEFAULT_BP);
@@ -120,4 +121,21 @@ pair<vector<PropertyKey>, bool> parser::parse_fn_params(Parser& p) {
 
   p.expect(CLOSE_PAREN);
   return make_pair(params, variadic);
+}
+
+vector<shared_ptr<ast::Type>> parser::parse_generic_type_list(Parser& p) {
+  vector<shared_ptr<ast::Type>> generics;
+  p.expect(OPEN_GENERIC);
+
+  while (p.has_tokens() && p.current_tk_kind() != CLOSE_GENERIC) {
+    auto type = parse_type(p, DEFAULT_BP);
+    generics.push_back(type);
+
+    if (p.current_tk_kind() != CLOSE_GENERIC) {
+      p.expect(COMMA);
+    }
+  }
+
+  p.expect(CLOSE_GENERIC);
+  return generics;
 }

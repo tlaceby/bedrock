@@ -41,6 +41,7 @@ enum ErrKind {
   ExpectedPrimaryExpr,         // parsing
   InvalidVariadicDeclaration,  // parsing
   InvalidVariableDeclaration,  // parsing | analysis
+  InvalidStructDeclaration,    // parsing | analysis
 };
 
 /// @brief Returns a string representation of the ErrKind enum which is passed

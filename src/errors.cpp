@@ -23,6 +23,8 @@ string errors::error_kind(ErrKind kind) {
       return "InvalidVariadicDeclaration";
     case InvalidVariableDeclaration:
       return "InvalidVariableDeclaration";
+    case InvalidStructDeclaration:
+      return "InvalidStructDeclaration";
     default:
       return "UnknownParserError";
   }

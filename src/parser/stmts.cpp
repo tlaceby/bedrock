@@ -42,7 +42,92 @@ shared_ptr<ast::BlockStmt> parser::parse_block_stmt(Parser& p) {
 shared_ptr<ast::StructStmt> parser::parse_struct_stmt(Parser& p) {
   auto stmt = make_shared<StructStmt>();
   p.expect(STRUCT);
-  TODO("parse_struct not done");
+  stmt->name = p.expect(IDENTIFIER).value;
+
+  // Handle generics
+  if (p.current_tk_kind() == OPEN_GENERIC) {
+    stmt->generics = parse_generics_list(p);
+  }
+
+  p.expect(OPEN_CURLY);
+  while (p.has_tokens() && p.current_tk_kind() != CLOSE_CURLY) {
+    bool pub = false;
+    bool is_static = false;
+    string name;
+    shared_ptr<Type> type;
+
+    if (p.current_tk_kind() == PUB) {
+      pub = true;
+      p.advance();
+
+      if (p.current_tk_kind() == STATIC) {
+        auto err = Err(ErrKind::InvalidStructDeclaration);
+        err.message("Static methods/properties are already public.");
+        err.hint("Remove the pub specifier for static methods/properties.");
+        err.location(p.current_tk().pos);
+        p.report(err);
+      }
+    }
+
+    if (p.current_tk_kind() == STATIC) {
+      is_static = true;
+      p.advance();
+    }
+
+    // Handle Property Parsing
+    if (p.current_tk_kind() == IDENTIFIER) {
+      name = p.expect(IDENTIFIER).value;
+
+      // Check for duplicate name
+      if (stmt->public_status.find(name) != stmt->public_status.end()) {
+        auto err = Err(ErrKind::InvalidStructDeclaration);
+        err.message("Duplicate field inside struct declaration " + red(name));
+        err.location(p.current_tk().pos);
+        p.report(err);
+      }
+
+      p.expect(COLON);
+      type = parse_type(p, DEFAULT_BP);
+      stmt->public_status[name] = is_static || pub;
+      stmt->properties.push_back(ast::PropertyKey(pub, is_static, name, type));
+      p.expect(SEMICOLON);
+      continue;
+    }
+
+    // Parse Methods
+    p.expect(FN);
+    name = p.expect(IDENTIFIER).value;
+
+    // Check for duplicate name
+    if (stmt->public_status.find(name) != stmt->public_status.end()) {
+      auto err = Err(ErrKind::InvalidStructDeclaration);
+      err.message("Duplicate field inside struct declaration " + red(name));
+      err.location(p.current_tk().pos);
+      p.report(err);
+    }
+
+    // Handle generics
+    vector<shared_ptr<Type>> generics;
+    if (p.current_tk_kind() == OPEN_GENERIC) {
+      generics = parse_generic_type_list(p);
+    }
+
+    auto [fn_params, variadic] = parse_fn_params(p);
+    p.expect(ARROW);
+    auto returns = parse_type(p, DEFAULT_BP);
+    p.expect(SEMICOLON);
+
+    auto fnType = make_shared<FnType>(generics, fn_params, returns);
+    if (is_static) {
+      stmt->static_methods[name] = fnType;
+    } else {
+      stmt->instance_methods[name] = fnType;
+    }
+
+    stmt->public_status[name] = is_static || pub;
+  }
+
+  p.expect(CLOSE_CURLY);
   return stmt;
 }
 
@@ -127,4 +212,20 @@ shared_ptr<ast::DeferStmt> parser::parse_defer_stmt(Parser& p) {
   // Handle defer expr
   stmt->actions.push_back(parse_expr_stmt(p)->expr);
   return stmt;
+}
+
+vector<string> parser::parse_generics_list(Parser& p) {
+  auto generics = vector<string>();
+  p.expect(OPEN_GENERIC);
+
+  while (p.has_tokens() && p.current_tk_kind() != CLOSE_GENERIC) {
+    generics.push_back(p.expect(IDENTIFIER).value);
+
+    if (p.current_tk_kind() != CLOSE_GENERIC) {
+      p.expect(COMMA);
+    }
+  }
+
+  p.expect(CLOSE_GENERIC);
+  return generics;
 }

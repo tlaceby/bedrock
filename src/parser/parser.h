@@ -82,5 +82,7 @@ shared_ptr<ast::FnType> parse_fn_type(Parser&);
 
 // Shared Parsing Methods
 pair<vector<ast::PropertyKey>, bool> parse_fn_params(Parser&);
+vector<string> parse_generics_list(Parser& p);
+vector<shared_ptr<ast::Type>> parse_generic_type_list(Parser& p);
 
 };  // namespace parser

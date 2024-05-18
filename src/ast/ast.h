@@ -58,9 +58,16 @@ struct Type {
 };
 
 struct PropertyKey {
-  bool variadic;  // Only used on function declarations and fn_types
+  bool is_pub;     // used for structs only.
+  bool is_static;  // used for structs only.
+  bool variadic;   // Only used on function declarations and fn_types
   string name;
   shared_ptr<Type> type;
+
+  PropertyKey() {}
+  PropertyKey(string name, shared_ptr<Type> type) : name(name), type(type) {}
+  PropertyKey(bool pub, bool s, string name, shared_ptr<Type> type)
+      : is_pub(pub), is_static(s), name(name), type(type) {}
 };
 
 };  // namespace ast

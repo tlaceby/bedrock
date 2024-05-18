@@ -67,6 +67,7 @@
     "__memory": "cpp",
     "set": "cpp",
     "___ mod_0.h": "c",
-    "_mod0.h": "c"
+    "_mod0.h": "c",
+    "__tree": "cpp"
   }
 }

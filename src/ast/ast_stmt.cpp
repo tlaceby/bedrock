@@ -1,5 +1,7 @@
 #include "ast_stmt.h"
 
+#include "ast_type.h"
+
 using namespace ast;
 using utils::space;
 
@@ -37,10 +39,79 @@ string BlockStmt::debug(size_t depth) {
 }
 
 // StructStmt
+
+string displayProperty(size_t depth, ast::PropertyKey prop) {
+  string out = space(depth) + bold_green(prop.name) + ": \n";
+
+  out += space(depth + 1) + blue("Public") + ": ";
+  out += string((prop.is_pub || prop.is_static) ? "true" : "false") + "\n";
+
+  out += space(depth + 1);
+  out += blue("Static") + ": " + string(prop.is_static ? "true" : "false");
+
+  out += "\n" + prop.type->debug(depth + 1);
+  return out;
+}
+
 string StructStmt::debug(size_t depth) {
-  string output =
-      space(depth) + bold_magenta("Struct") + "." + this->name + "\n";
-  return output;
+  string out = space(depth) + bold_magenta("Struct");
+  out += "." + this->name;
+
+  if (this->generics.size() > 0) {
+    out += " <";
+
+    for (size_t i = 0; i < this->generics.size(); i++) {
+      out += this->generics.at(i);
+
+      if (i < this->generics.size() - 1) {
+        out += ", ";
+      }
+    }
+
+    out += ">";
+  }
+
+  out += "\n" + space(depth + 1) + blue("Pub") + ": ";
+  out += yellow(string(this->pub ? "true" : "false")) + "\n";
+
+  if (this->properties.size() > 0) {
+    out += space(depth + 1) + blue("Properties") + ": \n";
+
+    for (const auto& property : properties) {
+      out += displayProperty(depth + 2, property);
+    }
+
+    out += "\n";
+  }
+
+  if (this->instance_methods.size() > 0) {
+    out += space(depth + 1) + blue("Methods") + ": \n";
+
+    for (const auto& [propertyName, fn] : instance_methods) {
+      bool is_pub = public_status[propertyName];
+
+      out += space(depth + 2) + bold_magenta(propertyName) + ": \n";
+      out += space(depth + 3) + blue("Public") + ": ";
+      out += string((is_pub) ? "true" : "false") + "\n";
+
+      out += fn->debug(depth + 3);
+    }
+
+    out += "\n";
+  }
+
+  if (this->static_methods.size() > 0) {
+    out += space(depth + 1) + blue("StaticMethods") + ": \n";
+
+    for (const auto& [properyName, fn] : static_methods) {
+      out += space(depth + 2) + bold_magenta(properyName) + ": \n";
+      out += fn->debug(depth + 3);
+    }
+
+    out += "\n";
+  }
+
+  return out;
 }
 
 // FnDeclStmt

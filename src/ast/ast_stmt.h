@@ -70,9 +70,13 @@ struct FnType;
 
 struct StructStmt : public Stmt {
   string name;
+  vector<string> generics;
   vector<PropertyKey> properties;
+  bool pub;
   unordered_map<string, shared_ptr<FnType>> instance_methods;
   unordered_map<string, shared_ptr<FnType>> static_methods;
+  unordered_map<string, bool>
+      public_status;  // map of all keys and whether it's public.
 
   virtual ~StructStmt() {}
   StructStmt() { kind = STRUCT_STMT; }
