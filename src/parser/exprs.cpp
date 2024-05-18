@@ -69,7 +69,7 @@ shared_ptr<ast::Expr> parser::parse_primary_expr(Parser& p) {
 
     case NUMBER: {
       auto expr = make_shared<NumberExpr>();
-      expr->value = std::stod(p.expect().value);
+      expr->value = p.expect(NUMBER).value;
       return expr;
     }
 
@@ -113,5 +113,15 @@ shared_ptr<ast::Expr> parser::parse_grouping_expr(Parser& p) {
   p.expect(lexer::OPEN_PAREN);
   auto expr = parse_expr(p, DEFAULT_BP);
   p.expect(lexer::CLOSE_PAREN);
+  return expr;
+}
+
+shared_ptr<ast::AssignmentExpr> parser::parse_assignment_expr(
+    Parser& p, shared_ptr<ast::Expr> assigne, BindingPower bp) {
+  p.expect(ASSIGNMENT);
+  auto expr = make_shared<AssignmentExpr>();
+
+  expr->assigne = assigne;
+  expr->value = parse_expr(p, bp);
   return expr;
 }

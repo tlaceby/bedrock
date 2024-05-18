@@ -48,14 +48,83 @@ shared_ptr<ast::StructStmt> parser::parse_struct_stmt(Parser& p) {
 
 shared_ptr<ast::VarDeclStmt> parser::parse_var_decl_stmt(Parser& p) {
   auto stmt = make_shared<VarDeclStmt>();
-  TODO("parse_decl not done");
-  UNUSED(p);
+  stmt->constant = p.advance_as(CONST);
+  stmt->varname = p.expect(IDENTIFIER).value;
+
+  // Explicit Type
+  if (p.current_tk_kind() == COLON) {
+    p.advance();
+    stmt->type = parse_type(p, DEFAULT_BP);
+  }
+
+  // Handle explicit Value
+  if (p.current_tk_kind() != SEMICOLON) {
+    p.expect(ASSIGNMENT);
+    stmt->value = parse_expr(p, LOGICAL_BP);
+  }
+
+  // Make constant declaration has a value
+  if (stmt->constant && !stmt->value) {
+    auto err = Err(ErrKind::InvalidVariableDeclaration);
+    err.message("Must provide value when declaring a constant.");
+    err.hint("Please add a value to the constant declaration.");
+    err.hint("If you dont want to provide a default value, use let instead.");
+    err.location(p.current_tk().pos);
+    p.report(err);
+  }
+
+  // Make sure either type or value is supplied.
+  if (!stmt->constant && (!stmt->value && !stmt->type)) {
+    auto err = Err(ErrKind::InvalidVariableDeclaration);
+    err.message("Must specify a type or infer value for variable declaration.");
+    err.hint("ex: `let " + blue(stmt->varname) + ": " + green("Type") + ";`");
+    err.hint("ex: `let " + blue(stmt->varname) + " = " + green("Expr") + ";`");
+    err.location(p.current_tk().pos);
+    p.report(err);
+  }
+
+  p.expect(SEMICOLON);
   return stmt;
 }
 
 shared_ptr<ast::FnDeclStmt> parser::parse_fn_decl_stmt(Parser& p) {
   auto stmt = make_shared<FnDeclStmt>();
   p.expect(FN);
-  TODO("parse_fn not done");
+  stmt->name = p.expect(IDENTIFIER).value;
+  auto [params, _] = parse_fn_params(p);
+  stmt->params = params;
+
+  if (p.current_tk_kind() == ARROW) {
+    p.advance();
+    stmt->return_type = parse_type(p, DEFAULT_BP);
+  }
+
+  stmt->body = parse_block_stmt(p);
+  return stmt;
+}
+
+shared_ptr<ast::ImplStmt> parser::parse_impl_stmt(Parser& p) {
+  auto stmt = make_shared<ImplStmt>();
+  TODO("parse_impl not done");
+  UNUSED(p);
+  return stmt;
+}
+
+shared_ptr<ast::DeferStmt> parser::parse_defer_stmt(Parser& p) {
+  auto stmt = make_shared<DeferStmt>();
+  p.expect(DEFER);
+
+  // Handle defer block
+  if (p.advance_as(OPEN_CURLY)) {
+    while (p.has_tokens() && p.current_tk_kind() != CLOSE_CURLY) {
+      stmt->actions.push_back(parse_expr_stmt(p)->expr);
+    }
+
+    p.expect(CLOSE_CURLY);
+    return stmt;
+  }
+
+  // Handle defer expr
+  stmt->actions.push_back(parse_expr_stmt(p)->expr);
   return stmt;
 }

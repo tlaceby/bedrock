@@ -33,6 +33,8 @@ struct Parser {
   lexer::TokenKind current_tk_kind();
   lexer::Token expect();
   lexer::Token expect(lexer::TokenKind);
+  lexer::Token advance();
+  bool advance_as(lexer::TokenKind);
 
   void report(Err);
   optional<shared_ptr<ast::ModuleStmt>> get_module(string);
@@ -54,6 +56,8 @@ shared_ptr<ast::ExprStmt> parse_expr_stmt(Parser&);
 shared_ptr<ast::StructStmt> parse_struct_stmt(Parser&);
 shared_ptr<ast::VarDeclStmt> parse_var_decl_stmt(Parser&);
 shared_ptr<ast::FnDeclStmt> parse_fn_decl_stmt(Parser&);
+shared_ptr<ast::ImplStmt> parse_impl_stmt(Parser&);
+shared_ptr<ast::DeferStmt> parse_defer_stmt(Parser&);
 
 // Expression Parsing -----
 // ------------------------
@@ -62,6 +66,10 @@ shared_ptr<ast::Expr> parse_primary_expr(Parser&);
 shared_ptr<ast::BinaryExpr> parse_binary_expr(Parser&, shared_ptr<ast::Expr>,
                                               BindingPower);
 
+shared_ptr<ast::AssignmentExpr> parse_assignment_expr(Parser&,
+                                                      shared_ptr<ast::Expr>,
+                                                      BindingPower);
+
 shared_ptr<ast::Expr> parse_grouping_expr(Parser& p);
 shared_ptr<ast::PrefixExpr> parse_prefix_expr(Parser&);
 
@@ -69,7 +77,7 @@ shared_ptr<ast::PrefixExpr> parse_prefix_expr(Parser&);
 // ------------------------
 shared_ptr<ast::Type> parse_type(Parser&, BindingPower);
 shared_ptr<ast::SymbolType> parse_symbol_type(Parser&);
-shared_ptr<ast::SliceType> parse_slice_type(Parser&);
+shared_ptr<ast::PointerType> parse_pointer_type(Parser&);
 shared_ptr<ast::FnType> parse_fn_type(Parser&);
 
 // Shared Parsing Methods

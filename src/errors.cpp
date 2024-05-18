@@ -21,6 +21,8 @@ string errors::error_kind(ErrKind kind) {
       return "ExpectedPrimaryExpr";
     case InvalidVariadicDeclaration:
       return "InvalidVariadicDeclaration";
+    case InvalidVariableDeclaration:
+      return "InvalidVariableDeclaration";
     default:
       return "UnknownParserError";
   }

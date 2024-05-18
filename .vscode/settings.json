@@ -63,6 +63,9 @@
     "utility": "cpp",
     "regex": "cpp",
     "deque": "cpp",
-    "functional": "cpp"
+    "functional": "cpp",
+    "__memory": "cpp",
+    "set": "cpp",
+    "___ mod_0.h": "c"
   }
 }

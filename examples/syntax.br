@@ -1,167 +1,136 @@
 // Imports
-import("std/slices") as slices;
-import("../lib/foo.br") as foo;
+import("std/memory") as memory;
 
-// Variable Declataions & Assignemnts
-let foo: Number; // cannot be used until value is assigned
-let bar: String = "Hello world";
-
-foo = 10.2;
-
-// foo = "This would cause an error"; -> Invalid Types
-const foobar: String = @string(foo) + bar;
-const pi = 3.14;
-
-// Conversions & Casts
-const angle = pi * 2;
-const message: String = "The angle is " + @string(angle);
-
-// Polymorphism
-trait Stats {
-  fn displayStats () -> Void;
+// Generic Struct Types
+pub struct List <T> {
+  cap: usize;
+  len: usize;
+  data: *T;
 }
 
-struct Person {
-  name: String;
-  age:  Number;
+// Struct Methods
+impl List<T> {
 
-  // Methods which must be implimented before struct can be created/used.
-  fn displayStats () -> Void;
-  static fn new (name: String, age: Number) -> Self;
-}
-
-impl Person {
-  fn displayStats () -> Void {
-    println("Age: "   + @string(age));
-    println("Speed: " + @string(speed));
+  // Get the underlying data pointer
+  fn buffer() -> *T {
+    return self->data;
   }
 
-  static fn new (name: String, age: Number) -> Self {
-    return Person{
-      name, age,
+  // Cleanup memory
+  fn unmount() {
+    free(self->data);
+  }
+  
+  // Runs foreach element in array. Expects a function which will return a value to be used at that index. Mutates array.
+  fn update(updateFunc: fn(usize, T) -> T) {
+    for (let i = 0; i < self->cap; i++) {
+      self->data[i] = updateFunc(i, self->data[i]);
+    }
+  }
+  
+  fn push(elem: T) {
+    // Extend memory if at capacity
+    if self->len == self->cap {
+      self->cap *= 2;
+      realloc(self->data, self->cap);
+    }
+
+    // Add new element and increase length
+    self->data[self->len] = elem;
+    self->len += 1;
+  }
+
+  // Iterate over each element and return a array with that mutation applied.
+  fn map (mapFunc: fn<A>(usize, T) -> A) -> List<A> {
+    const newData = alloc(A, self->cap);
+    const newList = List<A> {
+      data: newData,
+      len: self->len,
+      cap: self->cap,
     };
-  }
-}
 
-struct Animal {
-  breed: String;
-  age:   Number;
-  speed: Number;
-
-  fn displayStats () -> Void;
-}
-
-impl Animal {
-  fn displayStats () -> Void {
-    println("Breed: " + breed);
-    println("Age: "   + @string(age));
-    println("Speed: " + @string(speed));
-  }
-}
-
-let thingsWithStats: []Stats{
-  Person::new("Tyler L", 24),
-  Animal{
-    breed: "Dog",
-    age: 10,
-    speed: 4.3,
-  }
-};
-
-for value in thingsWithStats {
-  value.displayStats();
-
-  // How to access the underlying type.
-  match value {
-    .Person {
-      println("It'a a Person{}");
-    },
-    .Animal {
-      println("It's a Animal{}");
+    for (let i = 0; i < self->len; i++) {
+      newData[i] = mapFunc(i, self->data[i]);
     }
+
+    return newList;
+  }
+
+  fn length() -> usize {  return self->len; }
+  fn capacity() -> usize { return self->cap; }
+
+  // Operator Overloading
+  // List<T> = List<T>
+  override = (otherList: Self) -> Self {
+    const fromDataPtr = otherList.buffer();
+    const newDataPtr = alloc(T, otherList.capacity());
+    const newList = Self{
+      data: newDataPtr,
+      len: otherList.length(),
+      cap: otherList.capacity()
+    };
+
+    memory::copy(newDataPtr, fromDataPtr);
   }
 }
 
-// Functions
-
-fn add (x: Number, y: Number) -> Number {
-  return x + y;
-}
-
-// Variadic function. Expects atleast 2 arguments
-fn min (a: Number, b: Number, dyn args: []Number) -> Number {
-  let minFound: Number = a;
-
-  if b < a {
-    minFound = b;
+fn main() {
+  if bedrock::argc != 2 {
+    printf("Invalid cli usage. Expected 2 arguments but recieved %d instead.\n", bedrock::argc);
+    exit(1);
   }
 
-  for el in args {
-    if el < minFound {
-      minFound = el;
-    }
+  // bedrock works with many c functions natively.=
+  // Working with primitive c-strings
+  const name: *char = "John Doe\0";
+  c::printf("Name: %s Length: %d\n", name, c::strlen(name));
+
+  name[2] = "s";
+  name[3] = "h";
+  c::printf("Name: %s\n", name); // Josh Doe
+
+  // Using dynamic String
+  const name2 = strings::new("Jane Doe");
+  c::printf("Name2: %s Len: %d\n", name2.chars(), name2.length());
+  name2.set("Tyler L"); // updates underlying data
+  name2.capacity(100); // Now string can hold 100 characters
+  name2.setChar(99, 'H'); // the last character is now an H.
+  
+  // Memory Allocations
+  const BUFFER_SIZE = 64;
+  let message = alloc(*char, BUFFER_SIZE);
+  let numbers = alloc(i32, BUFFER_SIZE);
+
+  // Cleaning up memory when scope exits
+  defer {
+    free(numbers);
+    free(message);
   }
 
-  return minFound;
-}
+  realloc(numbers, BUFFER_SIZE * 2, fn () {
+    panic("Could not reallocate memory.");
+  });
 
-add(10, 20); // 30;
-min(1, -25); // -25
-min(1, 2, 3, 4, 5, 0); // 0
-
-// Slices
-
-let numbers: []Number = []Number{ 1, 2, 3, 4 };
-numbers = slices::append(numbers, 10); // slices are fixed in size. No resizing without build in methods
-numbers[4] = 5;
-
-println(@string(numbers)); // [1, 2, 3, 4, 5]
-
-// Constant size slice. No resizing
-const BUFFER_SIZE = 1024;
-const buffer = [BUFFER_SIZE]Number{};
-
-slices::fill(buffer, 1);
-
-if slices::every(buffer, 1) {
-  println("Every value is a 1");
-} else {
-  panic("Something went wrong. Slice should have all 1's");
-}
-
-// Will set each element in the buffer to it's index [0, 1, ... 1023]
-slices::map(buffer, fn (indx: Number, _: Number) -> Number {
-  return indx;
-});
-
-// Errors (IN-PROGRESS)
-// todo: Figure out Native Support for Option/Result types
-
-
-// Assert will panic if the size is not met
-@assert(len(buffer), BUFFER_SIZE);
-
-// assert_or lets you handle errors with a callback
-@assert_or(len(buffer), BUFFER_SIZE, fn () {
-  println("Buffer not the proper size");
-});
-
-
-// Unsafe Actions
-unsafe {
-  const moreThingsWithStats: []Stats{
-    Person::new("Tyler L", 24),
-    Animal{
-      breed: "Dog",
-      age: 10,
-      speed: 4.3,
-    }
+  // Dynamic Memory using our list struct created above
+  let bools = List<bool>{
+    cap: 10,
+    len: 0,
+    data: alloc(bool, 10)
   };
 
-  // You can only perform an unsafe_cast inside a unsafe scope
-  let person = @unsafe_cast(Person, moreThingsWithStats[0]);
-  let animal = @unsafe_cast(Animal, moreThingsWithStats[1]);
+  const invertedBools = bools; // use operator overload for =
+  
+  defer {
+    bools.unmount();
+    invertedBools.unmount();
+  }
 
-  person.name = "John Doe";
-  animal.speed = 1.2;
-}
+  bools.update(fn(index: usize, el: bool){
+    return index % 2 == 0; // alternate true, false, ...
+  });
+
+  // Inverse of bools array. false becomes true and true becomes false.
+  invertedBools = bools.map(fn(indx: usize, state: bool) {
+    return !state;
+  });
+};

@@ -11,11 +11,11 @@ struct SymbolType : public Type {
   std::string debug(size_t depth);
 };
 
-struct SliceType : public Type {
+struct PointerType : public Type {
   shared_ptr<Type> type;
 
-  virtual ~SliceType() {}
-  SliceType() { kind = SLICE_TYPE; }
+  virtual ~PointerType() {}
+  PointerType() { kind = POINTER_TYPE; }
   std::string debug(size_t depth);
 };
 

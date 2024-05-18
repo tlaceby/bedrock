@@ -75,6 +75,8 @@ enum TokenKind {
   UNSAFE,
   MATCH,
   CASE,
+  IMPL,
+  DEFER,
   // Operators as keywords
   LT,
   LTE,
@@ -100,6 +102,8 @@ const unordered_map<string, TokenKind> reserved_lu = {
     {"dyn", DYN},
     {"struct", STRUCT},
     {"import", IMPORT},
+    {"impl", IMPL},
+    {"defer", DEFER},
     {"as", AS},
     {"interface", INTERFACE},
     {"fn", FN},

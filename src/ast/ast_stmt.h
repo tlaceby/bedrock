@@ -26,6 +26,7 @@ struct ProgramStmt : public Stmt {
 };
 
 struct BlockStmt : public Stmt {
+  shared_ptr<analysis::Scope> scope;
   vector<shared_ptr<Stmt>> body;
 
   virtual ~BlockStmt() {}
@@ -77,4 +78,21 @@ struct StructStmt : public Stmt {
   StructStmt() { kind = STRUCT_STMT; }
   std::string debug(size_t depth);
 };
+
+struct ImplStmt : public Stmt {
+  shared_ptr<Type> type;
+
+  virtual ~ImplStmt() {}
+  ImplStmt() { kind = IMPL_STMT; }
+  std::string debug(size_t depth);
+};
+
+struct DeferStmt : public Stmt {
+  vector<shared_ptr<Expr>> actions;
+
+  virtual ~DeferStmt() {}
+  DeferStmt() { kind = DEFER_STMT; }
+  std::string debug(size_t depth);
+};
+
 };  // namespace ast

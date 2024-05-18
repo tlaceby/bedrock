@@ -5,20 +5,21 @@ using utils::space;
 
 //  SymbolType
 string SymbolType::debug(size_t depth) {
-  return space(depth) + "Symbol (" + symbol + ")\n";
+  return space(depth) + bold_yellow("Symbol") + "(" + symbol + ")\n";
 }
 
-//  SliceType
-string SliceType::debug(size_t depth) {
-  string output = space(depth) + "Slice\n";
-  output += space(depth) + "type: ";
-  output += type->debug(depth + 1);
+//  Pointer Type
+string PointerType::debug(size_t depth) {
+  string output = space(depth) + bold_yellow("Pointer") + ":\n";
+  output += space(depth + 1) + blue("Underlying") + ":\n";
+  output += type->debug(depth + 2);
 
   return output;
 }
 
 //  FnType
 string FnType::debug(size_t depth) {
-  string output = space(depth) + "Fn\n";
+  string output = space(depth) + bold_yellow("Fn") + "\n";
+
   return output;
 }

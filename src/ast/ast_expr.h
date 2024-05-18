@@ -5,7 +5,7 @@
 
 namespace ast {
 struct NumberExpr : public Expr {
-  double value;
+  string value;
 
   virtual ~NumberExpr() {}
   NumberExpr() { kind = NUMBER_EXPR; }
@@ -46,6 +46,15 @@ struct PrefixExpr : public Expr {
 
   virtual ~PrefixExpr() {}
   PrefixExpr() { kind = PREFIX_EXPR; }
+  string debug(size_t depth);
+};
+
+struct AssignmentExpr : public Expr {
+  shared_ptr<Expr> assigne;
+  shared_ptr<Expr> value;
+
+  virtual ~AssignmentExpr() {}
+  AssignmentExpr() { kind = ASSIGN_EXPR; }
   string debug(size_t depth);
 };
 

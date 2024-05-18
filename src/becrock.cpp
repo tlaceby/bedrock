@@ -1,4 +1,6 @@
+#include "analysis/analsyis.h"
 #include "bedrock.h"
+#include "compiler/gen.h"
 #include "lexing/lexer.h"
 #include "parser/parser.h"
 #include "util/colors.h"
@@ -8,6 +10,7 @@ inline bool DISPLAY_AST = false;
 inline bool DISPLAY_TOKENS = false;
 inline bool DISPLAY_TYPEINFO = false;
 inline bool DISABLE_BOUND_CHECKING = false;
+inline string COMPILED_FILES_PATH = "./.builds/.dbg/";
 
 int display_help() {
   using std::cout;
@@ -66,7 +69,8 @@ int display_help() {
 
 int bedrock_run(string file_path) {
   auto program = parser::parse(file_path);
-
+  analysis::tc_program(program);
+  compiler::compile_program_stmt(program.get());
   return 0;
 }
 

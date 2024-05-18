@@ -1,2 +1,14 @@
-"Hello world";
-!x + -10.23 * 5;
+
+fn main () {
+  let y: *char;
+  const x: i32 = 10;
+  // const y = x + 10;
+
+  // const ptr: *i32 = &x;
+  // *ptr = 10; // x stores 10 now
+
+  // defer {
+  //   x + y;
+  //   foo;
+  // }
+}

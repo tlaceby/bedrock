@@ -93,6 +93,14 @@ lexer::TokenKind Parser::current_tk_kind() { return this->current_tk().kind; }
 
 lexer::Token Parser::expect() { return this->expect(this->current_tk_kind()); }
 
+bool Parser::advance_as(lexer::TokenKind expectedKind) {
+  auto kind = current_tk_kind();
+  advance();
+  return kind == expectedKind;
+}
+
+lexer::Token Parser::advance() { return this->expect(this->current_tk_kind()); }
+
 lexer::Token Parser::expect(lexer::TokenKind expected) {
   auto tk = this->current_tk();
 

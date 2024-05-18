@@ -42,21 +42,27 @@ void parser::setup_pratt_parser() {
   setup_type_pratt_parser();
 
   // Stmts
-  def_stmt(STRUCT, parse_struct_stmt);
-  def_stmt(LET, parse_var_decl_stmt);
-  def_stmt(CONST, parse_var_decl_stmt);
-  def_stmt(FN, parse_fn_decl_stmt);
+  def_stmt(lexer::STRUCT, parse_struct_stmt);
+  def_stmt(lexer::LET, parse_var_decl_stmt);
+  def_stmt(lexer::CONST, parse_var_decl_stmt);
+  def_stmt(lexer::FN, parse_fn_decl_stmt);
   def_stmt(lexer::OPEN_CURLY, parse_block_stmt);
+  def_stmt(lexer::DEFER, parse_defer_stmt);
+  def_stmt(lexer::IMPL, parse_impl_stmt);
 
   // NUD HANDLERS
   def_nud(lexer::OPEN_PAREN, parse_grouping_expr);
   def_nud(lexer::MINUS, parse_prefix_expr);
   def_nud(lexer::NOT, parse_prefix_expr);
+  def_nud(lexer::STAR, parse_prefix_expr);
+  def_nud(lexer::AMPERSAND, parse_prefix_expr);
   def_nud(lexer::NUMBER, parse_primary_expr);
   def_nud(lexer::STRING, parse_primary_expr);
   def_nud(lexer::IDENTIFIER, parse_primary_expr);
 
   // LED HANLDERS
+  def_led(ASSIGNMENT, parse_assignment_expr, ASSIGNMENT_BP);
+
   def_led(lexer::PLUS, parse_binary_expr, ADDITIVE_BP);
   def_led(lexer::MINUS, parse_binary_expr, ADDITIVE_BP);
 
@@ -67,6 +73,6 @@ void parser::setup_pratt_parser() {
 
 void parser::setup_type_pratt_parser() {
   def_type_nud(lexer::IDENTIFIER, parse_symbol_type);
-  def_type_nud(lexer::OPEN_BRACKET, parse_slice_type);
+  def_type_nud(lexer::STAR, parse_pointer_type);
   def_type_nud(lexer::FN, parse_fn_type);
 }

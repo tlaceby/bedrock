@@ -129,6 +129,10 @@ string lexer::token_tag(TokenKind kind) {
       return "return";
     case CONTINUE:
       return "continue";
+    case DEFER:
+      return "defer";
+    case IMPL:
+      return "impl";
     case BREAK:
       return "break";
     case STATIC:

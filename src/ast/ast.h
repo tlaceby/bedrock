@@ -15,8 +15,8 @@ enum NodeKind {
   STRUCT_STMT,
   // UNSAFE_STMT,
   // WHILE_STMT,
-  // TRAIT_STMT,
-  // IMPL_STMT,
+  IMPL_STMT,
+  DEFER_STMT,
   // TYPE_STMT,
   // IF_STMT,
   // FOR_STMT,
@@ -38,7 +38,7 @@ enum NodeKind {
 
   // Types
   SYMBOL_TYPE,
-  SLICE_TYPE,
+  POINTER_TYPE,
   FN_TYPE,
 };
 

@@ -7,7 +7,7 @@ using utils::space;
 //  NumberExpr
 string NumberExpr::debug(size_t depth) {
   string str = space(depth);
-  str += blue("Number") + "(" + yellow(to_string(this->value)) + ")\n";
+  str += blue("Number") + "(" + yellow(this->value) + ")\n";
 
   return str;
 }
@@ -43,10 +43,24 @@ string BinaryExpr::debug(size_t depth) {
 
 //  PrefixExpr
 string PrefixExpr::debug(size_t depth) {
-  string str = space(depth + 1);
+  string str = space(depth);
   str += bold_blue("Prefix ") + this->operation.value + "\n";
-  str += space(depth + 2);
-  str += magenta("Right") + ":\n" + this->right->debug(depth + 3);
+  str += space(depth + 1);
+  str += magenta("Right") + ":\n" + this->right->debug(depth + 2);
+
+  return str;
+}
+
+//  AssignmentExpr
+string AssignmentExpr::debug(size_t depth) {
+  string str = space(depth);
+  str += bold_blue("AssignmentExpr") + "\n";
+
+  str += space(depth + 1);
+  str += magenta("Assigne") + ":\n" + this->assigne->debug(depth + 2);
+
+  str += space(depth + 1);
+  str += magenta("Value") + ":\n" + this->value->debug(depth + 2);
 
   return str;
 }

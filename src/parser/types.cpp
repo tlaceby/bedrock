@@ -53,10 +53,9 @@ shared_ptr<SymbolType> parser::parse_symbol_type(Parser& p) {
   return symbol;
 }
 
-shared_ptr<SliceType> parser::parse_slice_type(Parser& p) {
-  auto slice_type = make_shared<SliceType>();
-  p.expect(lexer::OPEN_BRACKET);
-  p.expect(lexer::CLOSE_BRACKET);
+shared_ptr<PointerType> parser::parse_pointer_type(Parser& p) {
+  auto slice_type = make_shared<PointerType>();
+  p.expect(STAR);
   slice_type->type = parse_type(p, DEFAULT_BP);
   return slice_type;
 }
@@ -99,19 +98,12 @@ pair<vector<PropertyKey>, bool> parser::parse_fn_params(Parser& p) {
       continue;
     }
 
+    TODO("Variadic function params");
     p.expect(DYN);
     param.name = p.expect(IDENTIFIER).value;
     param.variadic = true;
     p.expect(COLON);
     param.type = parse_type(p, DEFAULT_BP);
-
-    if (param.type->kind != SLICE_TYPE) {
-      Err err{ErrKind::InvalidVariadicDeclaration};
-      err.message("Expected []T inside variadic parameter definition");
-      err.hint("Example: dyn args: []T");
-      err.location(p.current_tk().pos);
-      p.report(err);
-    }
 
     if (p.current_tk_kind() != CLOSE_PAREN) {
       Err err{ErrKind::InvalidVariadicDeclaration};

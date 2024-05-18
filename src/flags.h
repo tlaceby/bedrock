@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 /// @brief Whether not to include colored output when printing or logging to
 /// console. This also includes whether the output by native functions will
 /// display color. Defaults to true
@@ -19,3 +21,6 @@ extern bool DISPLAY_TYPEINFO;
 
 /// @brief Instructs compiler to disable bound checking on slices & strings.
 extern bool DISABLE_BOUND_CHECKING;
+
+/// @brief Path to compiled c/header files.
+extern std::string COMPILED_FILES_PATH;

@@ -40,6 +40,7 @@ enum ErrKind {
   Fatal,                       // lexing | parsing | analysis | codegen
   ExpectedPrimaryExpr,         // parsing
   InvalidVariadicDeclaration,  // parsing
+  InvalidVariableDeclaration,  // parsing | analysis
 };
 
 /// @brief Returns a string representation of the ErrKind enum which is passed
