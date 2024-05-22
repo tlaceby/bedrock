@@ -3,8 +3,8 @@
 using namespace analysis;
 using namespace ast;
 
-shared_ptr<analysis::Type> analysis::tc(shared_ptr<ast::Type> type,
-                                        shared_ptr<analysis::Scope> env) {
+shared_ptr<analysis::Type> analysis::tc_type(shared_ptr<ast::Type> type,
+                                             shared_ptr<analysis::Scope> env) {
   switch (type->kind) {
     case SYMBOL_TYPE: {
       auto typeName = static_cast<SymbolType*>(type.get())->symbol;
@@ -18,12 +18,13 @@ shared_ptr<analysis::Type> analysis::tc(shared_ptr<ast::Type> type,
       return foundType;
     }
     case POINTER_TYPE:
-      return MK_PTR(tc(static_cast<ast::PointerType*>(type.get())->type, env));
+      return MK_PTR(
+          tc_type(static_cast<ast::PointerType*>(type.get())->type, env));
 
     default:
       type->debug(0);
-      std::cout << "^^^^^ typechecking for node Unimplimented ^^^^^^";
-      TODO("Unimplimented Typechecking for stmt");
+      std::cout << "^^^^^ typechecking for node Unimplimented ^^^^^^\n";
+      TODO("Unimplimented Typechecking for type");
       break;
   }
 }

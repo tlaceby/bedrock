@@ -55,7 +55,7 @@ shared_ptr<SymbolType> parser::parse_symbol_type(Parser& p) {
 
 shared_ptr<PointerType> parser::parse_pointer_type(Parser& p) {
   auto slice_type = make_shared<PointerType>();
-  p.expect(STAR);
+  p.expect(AMPERSAND);
   slice_type->type = parse_type(p, DEFAULT_BP);
   return slice_type;
 }

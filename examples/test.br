@@ -1,59 +1,6 @@
-
-// One of bedrocks special features is the ability to create methods for ALL types including primitive types.
-impl Number {
-  fn isEven() -> Bool {
-    return self % 2 == 0;
-  }
-
-  static fn fromStr(stringNum: String) -> Self {
-    return @num(stringNum);
-  }
-}
-
-struct Rect {
-  static count: Number;
-  width: Number;
-  height: Number;
-}
-
-impl Rect {
-  static fn new(width: Number, height: Number) -> Self {
-    Rect::count += 1;
-    return Self{ width, height };
-  }
-
-  // Allows member methods to be used as if they are 
-  fn zero() -> Void {
-    self.width = self.height = 0;
-  }
-
-  // Create a override for the @str() macro for the Rect struct.
-  override @str() -> String {
-    return @format("Width: {} Height: {}\n", @str(self->width), @str(self->height));
-  }
-
-  // Override the log method to just print the string representation.
-  override @log() -> String {
-    return @str(self);
-  }
-}
-
-// Calling external c/c++/rust code.
-extern fn c_add {
-  params: { i32, i32 };
-  returns: i32;
-  location: "./lib/mylib.dll";
-}
-
 fn main () {
-  const result = c_add(10.2, 10); // 20
-  const r1 = Rect::new(10, 7);
-  const pi = Number::fromStr("3.14");
+  let x = 0;
+  let y: &Number;
 
-  if !pi.isEven() {
-    @log("pi is not even");
-  }
-
-  r1.zero();
-  @log(r1);
+  *y = 3.14;
 }

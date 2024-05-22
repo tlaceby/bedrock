@@ -73,6 +73,6 @@ void parser::setup_pratt_parser() {
 
 void parser::setup_type_pratt_parser() {
   def_type_nud(lexer::IDENTIFIER, parse_symbol_type);
-  def_type_nud(lexer::STAR, parse_pointer_type);
+  def_type_nud(lexer::AMPERSAND, parse_pointer_type);
   def_type_nud(lexer::FN, parse_fn_type);
 }

@@ -23,35 +23,11 @@ struct Type {
   virtual string str() = 0;
 };
 
-enum NumberKind {
-  i8,
-  i32,
-  i64,
-  u8,
-  u32,
-  u64,
-  f32,
-  f64,
-};
-
-NumberKind matchPrecisionFromToken(string numstr);
-std::string ToPrecisionString(NumberKind kind);
-
 struct NumberType : public Type {
-  NumberKind precision;
-
   virtual ~NumberType() {}
-  NumberType() {
-    kind = NUMBER;
-    precision = i32;
-  }
+  NumberType() { kind = NUMBER; }
 
-  NumberType(NumberKind prec) {
-    kind = NUMBER;
-    precision = prec;
-  }
-
-  string str() override { return ToPrecisionString(precision); }
+  string str() override { return cyan("Number"); }
 };
 
 struct PointerType : public Type {
@@ -62,25 +38,25 @@ struct PointerType : public Type {
     kind = POINTER;
   }
 
-  std::string str() override { return underlying->str() + "*"; }
+  std::string str() override { return yellow("&") + underlying->str(); }
 };
 
 struct StringType : public Type {
   virtual ~StringType() {}
   StringType() { kind = STRING; }
-  string str() override { return "char*"; }
+  string str() override { return cyan("String"); }
 };
 
 struct BoolType : public Type {
   virtual ~BoolType() {}
   BoolType() { kind = BOOL; }
-  string str() override { return "bool"; }
+  string str() override { return cyan("Bool"); }
 };
 
 struct VoidType : public Type {
   virtual ~VoidType() {}
   VoidType() { kind = VOID; }
-  string str() override { return "void"; }
+  string str() override { return cyan("Void"); }
 };
 
 struct ModuleType : public Type {
@@ -131,7 +107,7 @@ shared_ptr<analysis::VoidType> MK_VOID();
 shared_ptr<analysis::BoolType> MK_BOOL();
 shared_ptr<analysis::StringType> MK_STR();
 shared_ptr<analysis::PointerType> MK_PTR(shared_ptr<Type>);
-shared_ptr<analysis::NumberType> MK_NUM(NumberKind);
+shared_ptr<analysis::NumberType> MK_NUM();
 shared_ptr<analysis::FnType> MK_FN(vector<FnParam>, shared_ptr<Type>, bool);
 
 bool types_match(shared_ptr<Type> expected, shared_ptr<Type> recieved);

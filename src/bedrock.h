@@ -4,6 +4,7 @@
 // bedrock's error handling locic for parsing, lexing and typechecking
 #include "errors.h"
 #include "flags.h"
+#include "util/colors.h"
 
 #define BEDROCK_VERSION "0.1"
 #define BEDROCK_EXTENSION ".br"

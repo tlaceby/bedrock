@@ -35,6 +35,8 @@ struct Scope {
 
   static unordered_map<string, shared_ptr<Scope>> modules;
   static shared_ptr<Scope> global;
+  static void debugAllScopes();
+  void debugScope();
 
   void defineSymbol(string name, shared_ptr<analysis::Type> type,
                     bool constant);
