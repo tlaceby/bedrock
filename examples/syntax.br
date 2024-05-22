@@ -1,136 +1,59 @@
-// Imports
-import("std/memory") as memory;
 
-// Generic Struct Types
-pub struct List <T> {
-  cap: usize;
-  len: usize;
-  data: *T;
-}
-
-// Struct Methods
-impl List<T> {
-
-  // Get the underlying data pointer
-  fn buffer() -> *T {
-    return self->data;
+// One of bedrocks special features is the ability to create methods for ALL types including primitive types.
+impl Number {
+  fn isEven() -> Bool {
+    return self % 2 == 0;
   }
 
-  // Cleanup memory
-  fn unmount() {
-    free(self->data);
-  }
-  
-  // Runs foreach element in array. Expects a function which will return a value to be used at that index. Mutates array.
-  fn update(updateFunc: fn(usize, T) -> T) {
-    for (let i = 0; i < self->cap; i++) {
-      self->data[i] = updateFunc(i, self->data[i]);
-    }
-  }
-  
-  fn push(elem: T) {
-    // Extend memory if at capacity
-    if self->len == self->cap {
-      self->cap *= 2;
-      realloc(self->data, self->cap);
-    }
-
-    // Add new element and increase length
-    self->data[self->len] = elem;
-    self->len += 1;
-  }
-
-  // Iterate over each element and return a array with that mutation applied.
-  fn map (mapFunc: fn<A>(usize, T) -> A) -> List<A> {
-    const newData = alloc(A, self->cap);
-    const newList = List<A> {
-      data: newData,
-      len: self->len,
-      cap: self->cap,
-    };
-
-    for (let i = 0; i < self->len; i++) {
-      newData[i] = mapFunc(i, self->data[i]);
-    }
-
-    return newList;
-  }
-
-  fn length() -> usize {  return self->len; }
-  fn capacity() -> usize { return self->cap; }
-
-  // Operator Overloading
-  // List<T> = List<T>
-  override = (otherList: Self) -> Self {
-    const fromDataPtr = otherList.buffer();
-    const newDataPtr = alloc(T, otherList.capacity());
-    const newList = Self{
-      data: newDataPtr,
-      len: otherList.length(),
-      cap: otherList.capacity()
-    };
-
-    memory::copy(newDataPtr, fromDataPtr);
+  static fn fromStr(stringNum: String) -> Self {
+    return @num(stringNum);
   }
 }
 
-fn main() {
-  if bedrock::argc != 2 {
-    printf("Invalid cli usage. Expected 2 arguments but recieved %d instead.\n", bedrock::argc);
-    exit(1);
+struct Rect {
+  static count: Number;
+  width: Number;
+  height: Number;
+}
+
+impl Rect {
+  static fn new(width: Number, height: Number) -> Self {
+    Rect::count += 1;
+    return Self{ width, height };
   }
 
-  // bedrock works with many c functions natively.=
-  // Working with primitive c-strings
-  const name: *char = "John Doe\0";
-  c::printf("Name: %s Length: %d\n", name, c::strlen(name));
-
-  name[2] = "s";
-  name[3] = "h";
-  c::printf("Name: %s\n", name); // Josh Doe
-
-  // Using dynamic String
-  const name2 = strings::new("Jane Doe");
-  c::printf("Name2: %s Len: %d\n", name2.chars(), name2.length());
-  name2.set("Tyler L"); // updates underlying data
-  name2.capacity(100); // Now string can hold 100 characters
-  name2.setChar(99, 'H'); // the last character is now an H.
-  
-  // Memory Allocations
-  const BUFFER_SIZE = 64;
-  let message = alloc(*char, BUFFER_SIZE);
-  let numbers = alloc(i32, BUFFER_SIZE);
-
-  // Cleaning up memory when scope exits
-  defer {
-    free(numbers);
-    free(message);
+  // Allows member methods to be used as if they are 
+  fn zero() -> Void {
+    self.width = self.height = 0;
   }
 
-  realloc(numbers, BUFFER_SIZE * 2, fn () {
-    panic("Could not reallocate memory.");
-  });
-
-  // Dynamic Memory using our list struct created above
-  let bools = List<bool>{
-    cap: 10,
-    len: 0,
-    data: alloc(bool, 10)
-  };
-
-  const invertedBools = bools; // use operator overload for =
-  
-  defer {
-    bools.unmount();
-    invertedBools.unmount();
+  // Create a override for the @str() macro for the Rect struct.
+  override @str() -> String {
+    return @format("Width: {} Height: {}\n", @str(self->width), @str(self->height));
   }
 
-  bools.update(fn(index: usize, el: bool){
-    return index % 2 == 0; // alternate true, false, ...
-  });
+  // Override the log method to just print the string representation.
+  override @log() -> String {
+    return @str(self);
+  }
+}
 
-  // Inverse of bools array. false becomes true and true becomes false.
-  invertedBools = bools.map(fn(indx: usize, state: bool) {
-    return !state;
-  });
-};
+// Calling external c/c++/rust code.
+extern fn c_add {
+  params: { i32, i32 };
+  returns: i32;
+  location: "./lib/mylib.dll";
+}
+
+fn main () {
+  const result = c_add(10.2, 10); // 20
+  const r1 = Rect::new(10, 7);
+  const pi = Number::fromStr("3.14");
+
+  if !pi.isEven() {
+    @log("pi is not even");
+  }
+
+  r1.zero();
+  @log(r1);
+}

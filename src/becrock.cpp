@@ -1,6 +1,5 @@
 #include "analysis/analsyis.h"
 #include "bedrock.h"
-#include "compiler/gen.h"
 #include "lexing/lexer.h"
 #include "parser/parser.h"
 #include "util/colors.h"
@@ -70,9 +69,7 @@ int display_help() {
 int bedrock_run(string file_path) {
   auto program = parser::parse(file_path);
   analysis::tc_program(program);
-  compiler::compile_program_stmt(program.get());
 
-  system(string(COMPILED_FILES_PATH + "debug").c_str());
   return 0;
 }
 
