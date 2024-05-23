@@ -16,6 +16,6 @@
 #define UNUSED(x) (void)(x)
 /// @brief Impliment a todo message. Will gracefuly exit the program after
 /// displaying message
-#define TODO(message)                    \
-  printf("Unimplimented %s\n", message); \
+#define TODO(message)                                                                                                  \
+  printf("Unimplimented %s\n", message);                                                                               \
   exit(1)

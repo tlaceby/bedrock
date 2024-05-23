@@ -151,10 +151,12 @@ struct Token {
   string value;
 
   // Default constructor
-  Token() {}
+  Token() {
+  }
 
   Token(lexer::SourcePos pos, TokenKind kind, string value)
-      : pos(make_shared<SourcePos>(pos)), kind(kind), value(value) {}
+      : pos(make_shared<SourcePos>(pos)), kind(kind), value(value) {
+  }
 
   Token(TokenKind kind, string value) : kind(kind), value(value) {
     pos->file = nullptr;
@@ -166,8 +168,7 @@ struct Token {
   void display() const {
     std::cout << bold_white(token_tag(this->kind)) << " (";
 
-    if (this->kind == IDENTIFIER || this->kind == NUMBER ||
-        this->kind == STRING) {
+    if (this->kind == IDENTIFIER || this->kind == NUMBER || this->kind == STRING) {
       std::cout << blue(this->value);
     }
 
@@ -175,4 +176,4 @@ struct Token {
   }
 };
 
-}  // namespace lexer
+} // namespace lexer

@@ -7,8 +7,7 @@ using namespace lexer;
 
 Err parser::bad_lu_handler_err(string hname, Token tk) {
   auto err = Err(ErrKind::UnexpectedToken);
-  err.message("Cannot parse expression at current token " +
-              bold_red(token_tag(tk.kind)));
+  err.message("Cannot parse expression at current token " + bold_red(token_tag(tk.kind)));
   err.hint("This token is not supported in the current context.");
   err.hint("Could be a parser::" + hname + "::error");
   err.location(tk.pos);
@@ -16,7 +15,7 @@ Err parser::bad_lu_handler_err(string hname, Token tk) {
   return err;
 }
 
-led_handler parser::get_led(Parser& p) {
+led_handler parser::get_led(Parser &p) {
   auto tk = p.current_tk();
   auto it = led_lu.find(tk.kind);
 
@@ -25,12 +24,12 @@ led_handler parser::get_led(Parser& p) {
   }
 
   auto err = bad_lu_handler_err("led()", tk);
-  p.expect();  // advance past char since it has no null
+  p.expect(); // advance past char since it has no null
   p.report(err);
   return nullptr;
 }
 
-nud_handler parser::get_nud(Parser& p) {
+nud_handler parser::get_nud(Parser &p) {
   auto tk = p.current_tk();
   auto it = nud_lu.find(tk.kind);
 
@@ -39,12 +38,12 @@ nud_handler parser::get_nud(Parser& p) {
   }
 
   auto err = bad_lu_handler_err("nud()", tk);
-  p.expect();  // advance past char since it has no null
+  p.expect(); // advance past char since it has no null
   p.report(err);
   return nullptr;
 }
 
-shared_ptr<ast::Expr> parser::parse_expr(Parser& p, BindingPower bp) {
+shared_ptr<ast::Expr> parser::parse_expr(Parser &p, BindingPower bp) {
   shared_ptr<Expr> left;
   nud_handler nud = get_nud(p);
 
@@ -58,42 +57,40 @@ shared_ptr<ast::Expr> parser::parse_expr(Parser& p, BindingPower bp) {
   return left;
 }
 
-shared_ptr<ast::Expr> parser::parse_primary_expr(Parser& p) {
+shared_ptr<ast::Expr> parser::parse_primary_expr(Parser &p) {
   auto tk = p.current_tk();
   switch (tk.kind) {
-    case IDENTIFIER: {
-      auto expr = make_shared<SymbolExpr>();
-      expr->symbol = p.expect().value;
-      return expr;
-    }
+  case IDENTIFIER: {
+    auto expr = make_shared<SymbolExpr>();
+    expr->symbol = p.expect().value;
+    return expr;
+  }
 
-    case NUMBER: {
-      auto expr = make_shared<NumberExpr>();
-      expr->value = p.expect(NUMBER).value;
-      return expr;
-    }
+  case NUMBER: {
+    auto expr = make_shared<NumberExpr>();
+    expr->value = p.expect(NUMBER).value;
+    return expr;
+  }
 
-    case STRING: {
-      auto expr = make_shared<StringExpr>();
-      expr->value = p.expect().value;
-      return expr;
-    }
+  case STRING: {
+    auto expr = make_shared<StringExpr>();
+    expr->value = p.expect().value;
+    return expr;
+  }
 
-    default:
-      auto err = Err(ErrKind::ExpectedPrimaryExpr);
-      err.message("Could not parse primary-expression.");
-      err.hint("The expected token should be that of [NUMBER|STRING|IDENT]");
-      err.hint("This is likely an issue with the compiler.");
-      err.location(tk.pos);
+  default:
+    auto err = Err(ErrKind::ExpectedPrimaryExpr);
+    err.message("Could not parse primary-expression.");
+    err.hint("The expected token should be that of [NUMBER|STRING|IDENT]");
+    err.hint("This is likely an issue with the compiler.");
+    err.location(tk.pos);
 
-      p.report(err);
-      return nullptr;
+    p.report(err);
+    return nullptr;
   }
 }
 
-shared_ptr<ast::BinaryExpr> parser::parse_binary_expr(Parser& p,
-                                                      shared_ptr<Expr> left,
-                                                      BindingPower bp) {
+shared_ptr<ast::BinaryExpr> parser::parse_binary_expr(Parser &p, shared_ptr<Expr> left, BindingPower bp) {
   auto binary_expr = make_shared<BinaryExpr>();
   binary_expr->operation = p.expect();
   binary_expr->left = left;
@@ -101,7 +98,7 @@ shared_ptr<ast::BinaryExpr> parser::parse_binary_expr(Parser& p,
   return binary_expr;
 }
 
-shared_ptr<ast::PrefixExpr> parser::parse_prefix_expr(Parser& p) {
+shared_ptr<ast::PrefixExpr> parser::parse_prefix_expr(Parser &p) {
   auto expr = make_shared<PrefixExpr>();
   expr->operation = p.expect();
   expr->right = parse_expr(p, BindingPower::UNARY_BP);
@@ -109,15 +106,15 @@ shared_ptr<ast::PrefixExpr> parser::parse_prefix_expr(Parser& p) {
   return expr;
 }
 
-shared_ptr<ast::Expr> parser::parse_grouping_expr(Parser& p) {
+shared_ptr<ast::Expr> parser::parse_grouping_expr(Parser &p) {
   p.expect(lexer::OPEN_PAREN);
   auto expr = parse_expr(p, DEFAULT_BP);
   p.expect(lexer::CLOSE_PAREN);
   return expr;
 }
 
-shared_ptr<ast::AssignmentExpr> parser::parse_assignment_expr(
-    Parser& p, shared_ptr<ast::Expr> assigne, BindingPower bp) {
+shared_ptr<ast::AssignmentExpr> parser::parse_assignment_expr(Parser &p, shared_ptr<ast::Expr> assigne,
+                                                              BindingPower bp) {
   p.expect(ASSIGNMENT);
   auto expr = make_shared<AssignmentExpr>();
 

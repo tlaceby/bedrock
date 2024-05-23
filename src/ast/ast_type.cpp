@@ -25,7 +25,7 @@ string ast::FnType::debug(size_t depth) {
   if (generics.size() > 0) {
     out += space(depth + 1) + blue("Generics") + ":\n";
 
-    for (const auto& generic : generics) {
+    for (const auto &generic : generics) {
       out += generic->debug(depth + 2);
     }
 
@@ -37,7 +37,7 @@ string ast::FnType::debug(size_t depth) {
     out += yellow(string(variadic ? "true" : "false")) + "\n";
     out += space(depth + 1) + blue("Parameters") + ":\n";
 
-    for (const auto& param : params) {
+    for (const auto &param : params) {
       out += param.type->debug(depth + 2);
     }
 

@@ -1,0 +1,32 @@
+BasedOnStyle: Microsoft
+
+# Indentation and alignment
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+
+# Brace wrapping
+BreakBeforeBraces: Attach
+BraceWrapping:
+  AfterClass: false
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterFunction: true
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  BeforeCatch: false
+  BeforeElse: false
+
+# Control structures
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+# Column limits
+ColumnLimit: 120
+
+# Comment formatting
+ReflowComments: true
+
+# Includes sorting
+SortIncludes: true

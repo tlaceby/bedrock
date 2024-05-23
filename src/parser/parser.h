@@ -17,7 +17,8 @@ struct ParserManager {
   vector<errors::Err> errors;
   unordered_map<string, shared_ptr<ast::ModuleStmt>> modules;
 
-  ParserManager() {}
+  ParserManager() {
+  }
 };
 
 struct Parser {
@@ -40,49 +41,47 @@ struct Parser {
   optional<shared_ptr<ast::ModuleStmt>> get_module(string);
   shared_ptr<ast::ModuleStmt> add_module(string, shared_ptr<ast::ModuleStmt>);
 
-  Parser(vector<lexer::Token>& tokens) : tokens(tokens) {}
+  Parser(vector<lexer::Token> &tokens) : tokens(tokens) {
+  }
 };
 
 // Public Methods
 shared_ptr<ast::ProgramStmt> parse(string file_path);
-shared_ptr<ast::ProgramStmt> parse(vector<lexer::Token>& tokens);
-shared_ptr<ast::ModuleStmt> parse_module(Parser&);
+shared_ptr<ast::ProgramStmt> parse(vector<lexer::Token> &tokens);
+shared_ptr<ast::ModuleStmt> parse_module(Parser &);
 
 // Stmt Parsing -----------
 // ------------------------
-shared_ptr<ast::Stmt> parse_stmt(Parser&);
-shared_ptr<ast::BlockStmt> parse_block_stmt(Parser&);
-shared_ptr<ast::ExprStmt> parse_expr_stmt(Parser&);
-shared_ptr<ast::StructStmt> parse_struct_stmt(Parser&);
-shared_ptr<ast::VarDeclStmt> parse_var_decl_stmt(Parser&);
-shared_ptr<ast::FnDeclStmt> parse_fn_decl_stmt(Parser&);
-shared_ptr<ast::ImplStmt> parse_impl_stmt(Parser&);
-shared_ptr<ast::DeferStmt> parse_defer_stmt(Parser&);
+shared_ptr<ast::Stmt> parse_stmt(Parser &);
+shared_ptr<ast::BlockStmt> parse_block_stmt(Parser &);
+shared_ptr<ast::ExprStmt> parse_expr_stmt(Parser &);
+shared_ptr<ast::StructStmt> parse_struct_stmt(Parser &);
+shared_ptr<ast::VarDeclStmt> parse_var_decl_stmt(Parser &);
+shared_ptr<ast::FnDeclStmt> parse_fn_decl_stmt(Parser &);
+shared_ptr<ast::ImplStmt> parse_impl_stmt(Parser &);
+shared_ptr<ast::DeferStmt> parse_defer_stmt(Parser &);
 
 // Expression Parsing -----
 // ------------------------
-shared_ptr<ast::Expr> parse_expr(Parser&, BindingPower);
-shared_ptr<ast::Expr> parse_primary_expr(Parser&);
-shared_ptr<ast::BinaryExpr> parse_binary_expr(Parser&, shared_ptr<ast::Expr>,
-                                              BindingPower);
+shared_ptr<ast::Expr> parse_expr(Parser &, BindingPower);
+shared_ptr<ast::Expr> parse_primary_expr(Parser &);
+shared_ptr<ast::BinaryExpr> parse_binary_expr(Parser &, shared_ptr<ast::Expr>, BindingPower);
 
-shared_ptr<ast::AssignmentExpr> parse_assignment_expr(Parser&,
-                                                      shared_ptr<ast::Expr>,
-                                                      BindingPower);
+shared_ptr<ast::AssignmentExpr> parse_assignment_expr(Parser &, shared_ptr<ast::Expr>, BindingPower);
 
-shared_ptr<ast::Expr> parse_grouping_expr(Parser& p);
-shared_ptr<ast::PrefixExpr> parse_prefix_expr(Parser&);
+shared_ptr<ast::Expr> parse_grouping_expr(Parser &p);
+shared_ptr<ast::PrefixExpr> parse_prefix_expr(Parser &);
 
 // Type Parsing -----------
 // ------------------------
-shared_ptr<ast::Type> parse_type(Parser&, BindingPower);
-shared_ptr<ast::SymbolType> parse_symbol_type(Parser&);
-shared_ptr<ast::PointerType> parse_pointer_type(Parser&);
-shared_ptr<ast::FnType> parse_fn_type(Parser&);
+shared_ptr<ast::Type> parse_type(Parser &, BindingPower);
+shared_ptr<ast::SymbolType> parse_symbol_type(Parser &);
+shared_ptr<ast::PointerType> parse_pointer_type(Parser &);
+shared_ptr<ast::FnType> parse_fn_type(Parser &);
 
 // Shared Parsing Methods
-pair<vector<ast::PropertyKey>, bool> parse_fn_params(Parser&);
-vector<string> parse_generics_list(Parser& p);
-vector<shared_ptr<ast::Type>> parse_generic_type_list(Parser& p);
+pair<vector<ast::PropertyKey>, bool> parse_fn_params(Parser &);
+vector<string> parse_generics_list(Parser &p);
+vector<shared_ptr<ast::Type>> parse_generic_type_list(Parser &p);
 
-};  // namespace parser
+}; // namespace parser

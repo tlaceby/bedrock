@@ -9,7 +9,7 @@ using utils::space;
 string ModuleStmt::debug(size_t depth) {
   string output = space(depth) + bold_magenta("Module") + "(" + name + ")\n";
 
-  for (const auto& stmt : body) {
+  for (const auto &stmt : body) {
     output += stmt->debug(depth + 2) + "\n";
   }
 
@@ -20,7 +20,7 @@ string ModuleStmt::debug(size_t depth) {
 string ProgramStmt::debug(size_t depth) {
   string output = bold_white("Program\n");
 
-  for (const auto& mod : modules) {
+  for (const auto &mod : modules) {
     output += mod->debug(depth) + "\n";
   }
 
@@ -31,7 +31,7 @@ string ProgramStmt::debug(size_t depth) {
 string BlockStmt::debug(size_t depth) {
   string output = space(depth) + bold_magenta("Block\n");
 
-  for (const auto& stmt : body) {
+  for (const auto &stmt : body) {
     output += stmt->debug(depth + 2) + "\n";
   }
 
@@ -77,7 +77,7 @@ string StructStmt::debug(size_t depth) {
   if (this->properties.size() > 0) {
     out += space(depth + 1) + blue("Properties") + ": \n";
 
-    for (const auto& property : properties) {
+    for (const auto &property : properties) {
       out += displayProperty(depth + 2, property);
     }
 
@@ -127,7 +127,7 @@ string VarDeclStmt::debug(size_t depth) {
 string DeferStmt::debug(size_t depth) {
   string output = space(depth) + bold_magenta("Defer") + "\n";
 
-  for (const auto& action : actions) {
+  for (const auto &action : actions) {
     output += action->debug(depth + 1) + "\n";
   }
 
@@ -141,4 +141,6 @@ string ImplStmt::debug(size_t depth) {
 }
 
 // ExprStmt
-string ExprStmt::debug(size_t depth) { return expr->debug(depth); }
+string ExprStmt::debug(size_t depth) {
+  return expr->debug(depth);
+}

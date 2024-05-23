@@ -14,23 +14,20 @@ inline string COMPILED_FILES_PATH = ".builds/";
 int display_help() {
   using std::cout;
 
-  cout << white("\n--------------  " + string("Bedrock | v") + BEDROCK_VERSION +
-                "  --------------\n\n");
+  cout << white("\n--------------  " + string("Bedrock | v") + BEDROCK_VERSION + "  --------------\n\n");
 
   // HELP
   cout << bold_blue("(help|info)");
   cout << yellow(" `bedrock help` | `bedrock info`\n");
-  cout << "  - "
-       << white("Displays a list of CLI commands and expected arguments.\n");
+  cout << "  - " << white("Displays a list of CLI commands and expected arguments.\n");
 
   // RUN
   cout << bold_blue("\n(run)");
   cout << yellow(" `bedrock run path/to/file.br`\n");
   cout << "  - " << white("Builds and executes the in debug mode.\n") << "  - ";
-  cout << white(
-      "[fn] The relative or absolute path to a bedrock file which will "
-      "contain "
-      "the entry point of the application.\n");
+  cout << white("[fn] The relative or absolute path to a bedrock file which will "
+                "contain "
+                "the entry point of the application.\n");
 
   cout << "\n\n";
 
@@ -41,9 +38,8 @@ int display_help() {
   // --no-bounds
   cout << bold_magenta("\n[--no-bounds]") << bold_red("  unsafe\n");
   cout << "  -"
-       << white(
-              "Disables bound checking at compile time. Often improves "
-              "performance at the cost of safety.\n");
+       << white("Disables bound checking at compile time. Often improves "
+                "performance at the cost of safety.\n");
 
   // -----------
   // DEBUG FLAGS
@@ -55,9 +51,8 @@ int display_help() {
 
   cout << bold_cyan("\n[--types]\n");
   cout << "  - "
-       << white(
-              "Prints type, scope and variable/symbol usage to stdout after "
-              "typechecking and static analysis is done.\n");
+       << white("Prints type, scope and variable/symbol usage to stdout after "
+                "typechecking and static analysis is done.\n");
 
   cout << bold_cyan("\n[--debug]\n");
   cout << "  - " << white("Prints ALL debug info to stdout.\n");
@@ -73,7 +68,7 @@ int bedrock_run(string file_path) {
   return 0;
 }
 
-pair<optional<string>, vector<string>> parse_args(int argc, const char** argv) {
+pair<optional<string>, vector<string>> parse_args(int argc, const char **argv) {
   optional<string> command;
   vector<string> args;
 
@@ -90,8 +85,8 @@ pair<optional<string>, vector<string>> parse_args(int argc, const char** argv) {
   return make_pair(command, args);
 }
 
-void set_flags(vector<string>& args) {
-  for (const auto& arg : args) {
+void set_flags(vector<string> &args) {
+  for (const auto &arg : args) {
     if (arg == "--no-color" || arg == "--no-colors") {
       COLORS_ENABLED = false;
     }
@@ -120,7 +115,7 @@ void set_flags(vector<string>& args) {
   }
 }
 
-int main(int argc, const char** argv) {
+int main(int argc, const char **argv) {
   string file_path;
 
   if (argc == 1) {

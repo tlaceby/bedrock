@@ -14,7 +14,7 @@ std::unordered_map<lexer::TokenKind, led_handler> parser::led_lu{};
 std::unordered_map<lexer::TokenKind, stmt_handler> parser::stmt_lu{};
 
 void parser::def_type_nud(TokenKind k, type_nud_handler h) {
-  type_nud_lu[k] = h;  //
+  type_nud_lu[k] = h; //
 }
 
 void parser::def_type_led(TokenKind k, type_led_handler h, BindingPower bp) {
@@ -23,7 +23,7 @@ void parser::def_type_led(TokenKind k, type_led_handler h, BindingPower bp) {
 }
 
 void parser::def_stmt(TokenKind kind, stmt_handler handler) {
-  stmt_lu[kind] = handler;  //
+  stmt_lu[kind] = handler; //
 }
 
 void parser::def_led(TokenKind kind, led_handler handler, BindingPower bp) {
@@ -32,12 +32,13 @@ void parser::def_led(TokenKind kind, led_handler handler, BindingPower bp) {
 }
 
 void parser::def_nud(TokenKind kind, nud_handler handler) {
-  nud_lu[kind] = handler;  //
+  nud_lu[kind] = handler; //
 }
 
 inline bool parser::PRATT_PARSER_SETUP = false;
 void parser::setup_pratt_parser() {
-  if (PRATT_PARSER_SETUP) return;
+  if (PRATT_PARSER_SETUP)
+    return;
   PRATT_PARSER_SETUP = true;
   setup_type_pratt_parser();
 

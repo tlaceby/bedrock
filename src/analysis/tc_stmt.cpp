@@ -37,11 +37,10 @@ shared_ptr<Scope> createGlobalScope() {
   return env;
 }
 
-shared_ptr<analysis::Type> analysis::tc_program(
-    shared_ptr<ast::ProgramStmt> stmt) {
+shared_ptr<analysis::Type> analysis::tc_program(shared_ptr<ast::ProgramStmt> stmt) {
   Scope::global = createGlobalScope();
 
-  for (const auto& module : stmt->modules) {
+  for (const auto &module : stmt->modules) {
     tc_module(module);
   }
 
@@ -49,8 +48,7 @@ shared_ptr<analysis::Type> analysis::tc_program(
   return MK_VOID();
 }
 
-shared_ptr<analysis::Type> analysis::tc_module(
-    shared_ptr<ast::ModuleStmt> stmt) {
+shared_ptr<analysis::Type> analysis::tc_module(shared_ptr<ast::ModuleStmt> stmt) {
   auto env = make_shared<Scope>();
 
   env->is_module = true;
@@ -58,7 +56,7 @@ shared_ptr<analysis::Type> analysis::tc_module(
 
   stmt->scope = env;
 
-  for (const auto& s : stmt->body) {
+  for (const auto &s : stmt->body) {
     tc_stmt(s, stmt->scope);
   }
 
@@ -66,14 +64,12 @@ shared_ptr<analysis::Type> analysis::tc_module(
   return MK_VOID();
 }
 
-shared_ptr<analysis::Type> analysis::tc_var_decl_stmt(VarDeclStmt* stmt,
-                                                      shared_ptr<Scope> env) {
+shared_ptr<analysis::Type> analysis::tc_var_decl_stmt(VarDeclStmt *stmt, shared_ptr<Scope> env) {
   auto varname = stmt->varname;
   auto vartype = stmt->type ? tc_type(stmt->type, env) : nullptr;
 
   if (env->symbolExists(varname)) {
-    printf("Variable already exists in the current scope %s\n",
-           varname.c_str());
+    printf("Variable already exists in the current scope %s\n", varname.c_str());
     exit(1);
   }
 
@@ -97,16 +93,14 @@ shared_ptr<analysis::Type> analysis::tc_var_decl_stmt(VarDeclStmt* stmt,
     return vartype;
   }
 
-  printf("Variable declation for %s expected %s but recieved %s instead.\n",
-         varname.c_str(), vartype->str().c_str(), recievedType->str().c_str());
+  printf("Variable declation for %s expected %s but recieved %s instead.\n", varname.c_str(), vartype->str().c_str(),
+         recievedType->str().c_str());
   exit(1);
 }
 
-shared_ptr<analysis::Type> analysis::tc_fn_decl_stmt(FnDeclStmt* stmt,
-                                                     shared_ptr<Scope> env) {
+shared_ptr<analysis::Type> analysis::tc_fn_decl_stmt(FnDeclStmt *stmt, shared_ptr<Scope> env) {
   auto fnname = stmt->name;
-  auto returns =
-      stmt->return_type ? tc_type(stmt->return_type, env) : MK_VOID();
+  auto returns = stmt->return_type ? tc_type(stmt->return_type, env) : MK_VOID();
   auto fnEnv = make_shared<Scope>();
   auto params = vector<FnParam>();
 
@@ -116,15 +110,15 @@ shared_ptr<analysis::Type> analysis::tc_fn_decl_stmt(FnDeclStmt* stmt,
 
   // Make sure function does not already exist
   if (env->resolveSymbol(fnname)) {
-    printf(
-        "Function %s redeclared. Cannot have multiple declarations of the same "
-        "function.",
-        fnname.c_str());
+    printf("Function %s redeclared. Cannot have multiple declarations of "
+           "the same "
+           "function.",
+           fnname.c_str());
     exit(1);
   }
 
   // Build Parameters
-  for (const auto& param : stmt->params) {
+  for (const auto &param : stmt->params) {
     auto paramType = tc_type(param.type, env);
     fnEnv->defineSymbol(param.name, paramType, true);
     params.push_back(FnParam(param.name, paramType));
@@ -142,23 +136,21 @@ shared_ptr<analysis::Type> analysis::tc_fn_decl_stmt(FnDeclStmt* stmt,
   return MK_VOID();
 }
 
-shared_ptr<analysis::Type> analysis::tc_block_stmt(BlockStmt* stmt) {
+shared_ptr<analysis::Type> analysis::tc_block_stmt(BlockStmt *stmt) {
   auto env = stmt->scope;
 
-  for (const auto& s : stmt->body) {
+  for (const auto &s : stmt->body) {
     tc_stmt(s, env);
   }
 
   return MK_VOID();
 }
 
-shared_ptr<analysis::Type> analysis::tc_expr_stmt(ExprStmt* stmt,
-                                                  shared_ptr<Scope> env) {
+shared_ptr<analysis::Type> analysis::tc_expr_stmt(ExprStmt *stmt, shared_ptr<Scope> env) {
   return tc_expr(stmt->expr, env);
 }
 
-shared_ptr<analysis::Type> analysis::tc_struct_stmt(StructStmt* stmt,
-                                                    shared_ptr<Scope> env) {
+shared_ptr<analysis::Type> analysis::tc_struct_stmt(StructStmt *stmt, shared_ptr<Scope> env) {
   auto name = stmt->name;
   auto s = MK_STRUCT(name);
 
@@ -170,7 +162,7 @@ shared_ptr<analysis::Type> analysis::tc_struct_stmt(StructStmt* stmt,
   }
 
   // Install & Validate Properties
-  for (const auto& prop : stmt->properties) {
+  for (const auto &prop : stmt->properties) {
     auto propName = prop.name;
     auto propType = tc_type(prop.type, env);
 
@@ -204,20 +196,19 @@ shared_ptr<analysis::Type> analysis::tc_struct_stmt(StructStmt* stmt,
   exit(1);
 }
 
-shared_ptr<analysis::Type> analysis::tc_stmt(shared_ptr<ast::Stmt> stmt,
-                                             shared_ptr<Scope> env) {
+shared_ptr<analysis::Type> analysis::tc_stmt(shared_ptr<ast::Stmt> stmt, shared_ptr<Scope> env) {
   switch (stmt->kind) {
-    case VAR_DECL_STMT:
-      return tc_var_decl_stmt(static_cast<VarDeclStmt*>(stmt.get()), env);
-    case FN_DECL_STMT:
-      return tc_fn_decl_stmt(static_cast<FnDeclStmt*>(stmt.get()), env);
-    case EXPR_STMT:
-      return tc_expr_stmt(static_cast<ExprStmt*>(stmt.get()), env);
-    case STRUCT_STMT:
-      return tc_struct_stmt(static_cast<StructStmt*>(stmt.get()), env);
-    default:
-      stmt->debug(0);
-      std::cout << "^^^^^ typechecking for node Unimplimented ^^^^^^\n";
-      TODO("Unimplimented Typechecking for stmt");
+  case VAR_DECL_STMT:
+    return tc_var_decl_stmt(static_cast<VarDeclStmt *>(stmt.get()), env);
+  case FN_DECL_STMT:
+    return tc_fn_decl_stmt(static_cast<FnDeclStmt *>(stmt.get()), env);
+  case EXPR_STMT:
+    return tc_expr_stmt(static_cast<ExprStmt *>(stmt.get()), env);
+  case STRUCT_STMT:
+    return tc_struct_stmt(static_cast<StructStmt *>(stmt.get()), env);
+  default:
+    stmt->debug(0);
+    std::cout << "^^^^^ typechecking for node Unimplimented ^^^^^^\n";
+    TODO("Unimplimented Typechecking for stmt");
   }
 }

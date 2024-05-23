@@ -7,24 +7,33 @@ namespace ast {
 struct NumberExpr : public Expr {
   string value;
 
-  virtual ~NumberExpr() {}
-  NumberExpr() { kind = NUMBER_EXPR; }
+  virtual ~NumberExpr() {
+  }
+  NumberExpr() {
+    kind = NUMBER_EXPR;
+  }
   string debug(size_t depth);
 };
 
 struct StringExpr : public Expr {
   string value;
 
-  virtual ~StringExpr() {}
-  StringExpr() { kind = STRING_EXPR; }
+  virtual ~StringExpr() {
+  }
+  StringExpr() {
+    kind = STRING_EXPR;
+  }
   string debug(size_t depth);
 };
 
 struct SymbolExpr : public Expr {
   string symbol;
 
-  virtual ~SymbolExpr() {}
-  SymbolExpr() { kind = SYMBOL_EXPR; }
+  virtual ~SymbolExpr() {
+  }
+  SymbolExpr() {
+    kind = SYMBOL_EXPR;
+  }
   string debug(size_t depth);
 };
 
@@ -35,8 +44,11 @@ struct BinaryExpr : public Expr {
   shared_ptr<Expr> right;
   lexer::Token operation;
 
-  virtual ~BinaryExpr() {}
-  BinaryExpr() { kind = BINARY_EXPR; }
+  virtual ~BinaryExpr() {
+  }
+  BinaryExpr() {
+    kind = BINARY_EXPR;
+  }
   string debug(size_t depth);
 };
 
@@ -44,8 +56,11 @@ struct PrefixExpr : public Expr {
   shared_ptr<Expr> right;
   lexer::Token operation;
 
-  virtual ~PrefixExpr() {}
-  PrefixExpr() { kind = PREFIX_EXPR; }
+  virtual ~PrefixExpr() {
+  }
+  PrefixExpr() {
+    kind = PREFIX_EXPR;
+  }
   string debug(size_t depth);
 };
 
@@ -53,9 +68,12 @@ struct AssignmentExpr : public Expr {
   shared_ptr<Expr> assigne;
   shared_ptr<Expr> value;
 
-  virtual ~AssignmentExpr() {}
-  AssignmentExpr() { kind = ASSIGN_EXPR; }
+  virtual ~AssignmentExpr() {
+  }
+  AssignmentExpr() {
+    kind = ASSIGN_EXPR;
+  }
   string debug(size_t depth);
 };
 
-};  // namespace ast
+}; // namespace ast

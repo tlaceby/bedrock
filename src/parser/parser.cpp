@@ -11,7 +11,7 @@ shared_ptr<ast::ProgramStmt> parser::parse(string file_path) {
   auto [tokens, errors] = lexer::tokenize(file_path);
 
   if (errors.size() > 0) {
-    for (auto& err : errors) {
+    for (auto &err : errors) {
       err.display();
     }
 
@@ -20,7 +20,7 @@ shared_ptr<ast::ProgramStmt> parser::parse(string file_path) {
 
   if (DISPLAY_TOKENS) {
     std::cout << "\nTokens: " << to_string(tokens.size()) << "\n";
-    for (const auto& token : tokens) {
+    for (const auto &token : tokens) {
       token.display();
     }
     std::cout << std::endl;
@@ -29,7 +29,7 @@ shared_ptr<ast::ProgramStmt> parser::parse(string file_path) {
   return parser::parse(tokens);
 }
 
-shared_ptr<ast::ProgramStmt> parser::parse(vector<lexer::Token>& tokens) {
+shared_ptr<ast::ProgramStmt> parser::parse(vector<lexer::Token> &tokens) {
   Parser parser{tokens};
   parser.pos = 0;
   parser.file = tokens.at(0).pos->file;
@@ -60,7 +60,7 @@ shared_ptr<ast::ProgramStmt> parser::parse(vector<lexer::Token>& tokens) {
   return program;
 }
 
-shared_ptr<ast::ModuleStmt> parser::parse_module(Parser& parser) {
+shared_ptr<ast::ModuleStmt> parser::parse_module(Parser &parser) {
   auto mod = make_shared<ast::ModuleStmt>();
   mod->name = parser.file->file_path;
 
@@ -81,17 +81,24 @@ shared_ptr<ast::ModuleStmt> parser::parse_module(Parser& parser) {
 // ---------------------
 
 bool Parser::has_tokens() {
-  return this->pos < this->tokens.size() &&
-         this->current_tk_kind() != lexer::END_FILE;
+  return this->pos < this->tokens.size() && this->current_tk_kind() != lexer::END_FILE;
 }
 
-lexer::Token Parser::peak() { return this->tokens.at(this->pos + 1); }
+lexer::Token Parser::peak() {
+  return this->tokens.at(this->pos + 1);
+}
 
-lexer::Token Parser::current_tk() { return this->tokens.at(this->pos); }
+lexer::Token Parser::current_tk() {
+  return this->tokens.at(this->pos);
+}
 
-lexer::TokenKind Parser::current_tk_kind() { return this->current_tk().kind; }
+lexer::TokenKind Parser::current_tk_kind() {
+  return this->current_tk().kind;
+}
 
-lexer::Token Parser::expect() { return this->expect(this->current_tk_kind()); }
+lexer::Token Parser::expect() {
+  return this->expect(this->current_tk_kind());
+}
 
 bool Parser::advance_as(lexer::TokenKind expectedKind) {
   auto kind = current_tk_kind();
@@ -99,7 +106,9 @@ bool Parser::advance_as(lexer::TokenKind expectedKind) {
   return kind == expectedKind;
 }
 
-lexer::Token Parser::advance() { return this->expect(this->current_tk_kind()); }
+lexer::Token Parser::advance() {
+  return this->expect(this->current_tk_kind());
+}
 
 lexer::Token Parser::expect(lexer::TokenKind expected) {
   auto tk = this->current_tk();
@@ -107,9 +116,8 @@ lexer::Token Parser::expect(lexer::TokenKind expected) {
   this->pos++;
   if (tk.kind != expected) {
     auto err = Err(errors::UnexpectedToken);
-    err.message("Expected to find " + bold_white(lexer::token_tag(expected)) +
-                " but recieved " + bold_white(lexer::token_tag(tk.kind)) +
-                " instead.");
+    err.message("Expected to find " + bold_white(lexer::token_tag(expected)) + " but recieved " +
+                bold_white(lexer::token_tag(tk.kind)) + " instead.");
     err.location(tk.pos);
     this->report(err);
   }
@@ -137,8 +145,7 @@ optional<shared_ptr<ast::ModuleStmt>> Parser::get_module(string mod_name) {
   return opt;
 }
 
-shared_ptr<ast::ModuleStmt> Parser::add_module(
-    string mod_name, shared_ptr<ast::ModuleStmt> mod) {
+shared_ptr<ast::ModuleStmt> Parser::add_module(string mod_name, shared_ptr<ast::ModuleStmt> mod) {
   this->manager->modules.insert_or_assign(mod_name, mod);
   return mod;
 }

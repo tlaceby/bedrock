@@ -18,8 +18,7 @@ lexer::Lexer::Lexer(string file_path) {
 
   if (!contents.has_value()) {
     errs.push_back(Err(ErrKind::InvalidFilePath)
-                       .message("Attempted but failed to read file: " +
-                                bold_white(file_path))
+                       .message("Attempted but failed to read file: " + bold_white(file_path))
                        .hint("Verify a bedrock file exists at this location."));
 
     return;
@@ -79,22 +78,21 @@ pair<vector<Token>, vector<errors::Err>> lexer::tokenize(string file_path) {
   while (!lex.at_eof() && lex.errs.size() == 0) {
     bool matched = false;
 
-    for (const auto& pattern : lex.patterns) {
+    for (const auto &pattern : lex.patterns) {
       smatch match;
       string remainder = lex.remainder();
       if (regex_search(remainder, match, pattern.re) && match.position() == 0) {
         pattern.handler(lex, pattern.re);
         matched = true;
-        break;  // Exit the loop after the first match
+        break; // Exit the loop after the first match
       }
     }
 
     if (!matched) {
       SourcePos pos{lex.file, lex.line, lex.pos, lex.pos};
-      lex.errs.push_back(Err(ErrKind::UnexpectedToken)
-                             .message(bold_white("Unrecognized token near " +
-                                                 pos.error_str()) +
-                                      "  " + lex.remainder()));
+      lex.errs.push_back(
+          Err(ErrKind::UnexpectedToken)
+              .message(bold_white("Unrecognized token near " + pos.error_str()) + "  " + lex.remainder()));
     }
   }
 
@@ -104,8 +102,8 @@ pair<vector<Token>, vector<errors::Err>> lexer::tokenize(string file_path) {
   return make_pair(lex.tokens, lex.errs);
 }
 
-regex_handler lexer::default_handler(TokenKind kind, const string& value) {
-  return [kind, value](Lexer& lex, const regex&) {
+regex_handler lexer::default_handler(TokenKind kind, const string &value) {
+  return [kind, value](Lexer &lex, const regex &) {
     SourcePos pos{lex.file, lex.line, lex.pos, 0};
     lex.advance_n(value.length());
     pos.end = lex.pos;
@@ -113,7 +111,7 @@ regex_handler lexer::default_handler(TokenKind kind, const string& value) {
   };
 }
 
-void lexer::string_handler(Lexer& lex, const regex& re) {
+void lexer::string_handler(Lexer &lex, const regex &re) {
   smatch match;
   string remainder = lex.remainder();
 
@@ -126,7 +124,7 @@ void lexer::string_handler(Lexer& lex, const regex& re) {
   }
 }
 
-void lexer::number_handler(Lexer& lex, const regex& re) {
+void lexer::number_handler(Lexer &lex, const regex &re) {
   smatch match;
   string remainder = lex.remainder();
 
@@ -138,7 +136,7 @@ void lexer::number_handler(Lexer& lex, const regex& re) {
   }
 }
 
-void lexer::symbol_handler(Lexer& lex, const regex& re) {
+void lexer::symbol_handler(Lexer &lex, const regex &re) {
   smatch match;
   string remainder = lex.remainder();
 
@@ -158,7 +156,7 @@ void lexer::symbol_handler(Lexer& lex, const regex& re) {
   }
 }
 
-void lexer::skip_handler(Lexer& lex, const regex& re) {
+void lexer::skip_handler(Lexer &lex, const regex &re) {
   smatch match;
   string remainder = lex.remainder();
   if (regex_search(remainder, match, re)) {
@@ -169,7 +167,7 @@ void lexer::skip_handler(Lexer& lex, const regex& re) {
   }
 }
 
-void lexer::comment_handler(Lexer& lex, const regex& re) {
+void lexer::comment_handler(Lexer &lex, const regex &re) {
   smatch match;
   string remainder = lex.remainder();
   if (regex_search(remainder, match, re)) {
@@ -178,7 +176,15 @@ void lexer::comment_handler(Lexer& lex, const regex& re) {
   }
 }
 
-void Lexer::advance_n(size_t n) { pos += n; }
-void Lexer::push(Token token) { tokens.push_back(token); }
-bool Lexer::at_eof() { return pos >= file->contents.length(); }
-string Lexer::remainder() { return file->contents.substr(pos); }
+void Lexer::advance_n(size_t n) {
+  pos += n;
+}
+void Lexer::push(Token token) {
+  tokens.push_back(token);
+}
+bool Lexer::at_eof() {
+  return pos >= file->contents.length();
+}
+string Lexer::remainder() {
+  return file->contents.substr(pos);
+}

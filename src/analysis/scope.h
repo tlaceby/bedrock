@@ -6,18 +6,18 @@ namespace ast {
 struct Expr;
 struct Stmt;
 struct Type;
-};  // namespace ast
+}; // namespace ast
 
 /// @brief Contains contents for static analysis and typechecking.
 namespace analysis {
-struct Type;  // forward declare type.
+struct Type; // forward declare type.
 
 struct Scope {
   shared_ptr<Scope> parent;
   string name;
 
   bool is_global;
-  bool is_entry;  // if in a module and the module has the main fn
+  bool is_entry; // if in a module and the module has the main fn
   bool is_module;
   bool is_function;
   bool is_loop;
@@ -38,8 +38,7 @@ struct Scope {
   static void debugAllScopes();
   void debugScope();
 
-  void defineSymbol(string name, shared_ptr<analysis::Type> type,
-                    bool constant);
+  void defineSymbol(string name, shared_ptr<analysis::Type> type, bool constant);
   void defineSymbol(string name, shared_ptr<analysis::Type> type);
 
   void defineType(string name, shared_ptr<analysis::Type> type);
@@ -49,6 +48,6 @@ struct Scope {
   shared_ptr<Type> resolveSymbol(string name);
   shared_ptr<Type> resolveType(string name);
 
-  Scope* get_module();
+  Scope *get_module();
 };
-};  // namespace analysis
+}; // namespace analysis

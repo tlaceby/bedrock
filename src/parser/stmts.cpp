@@ -5,7 +5,7 @@ using namespace parser;
 using namespace ast;
 using namespace lexer;
 
-shared_ptr<ast::Stmt> parser::parse_stmt(Parser& p) {
+shared_ptr<ast::Stmt> parser::parse_stmt(Parser &p) {
   auto it = stmt_lu.find(p.current_tk_kind());
 
   if (it != stmt_lu.end()) {
@@ -15,14 +15,14 @@ shared_ptr<ast::Stmt> parser::parse_stmt(Parser& p) {
   return parse_expr_stmt(p);
 }
 
-shared_ptr<ExprStmt> parser::parse_expr_stmt(Parser& p) {
+shared_ptr<ExprStmt> parser::parse_expr_stmt(Parser &p) {
   auto expr_stmt = make_shared<ExprStmt>();
   expr_stmt->expr = parse_expr(p, BindingPower::DEFAULT_BP);
   p.expect(lexer::SEMICOLON);
   return expr_stmt;
 }
 
-shared_ptr<ast::BlockStmt> parser::parse_block_stmt(Parser& p) {
+shared_ptr<ast::BlockStmt> parser::parse_block_stmt(Parser &p) {
   auto block = make_shared<BlockStmt>();
 
   p.expect(lexer::OPEN_CURLY);
@@ -39,7 +39,7 @@ shared_ptr<ast::BlockStmt> parser::parse_block_stmt(Parser& p) {
   return block;
 }
 
-shared_ptr<ast::StructStmt> parser::parse_struct_stmt(Parser& p) {
+shared_ptr<ast::StructStmt> parser::parse_struct_stmt(Parser &p) {
   auto stmt = make_shared<StructStmt>();
   p.expect(STRUCT);
   stmt->name = p.expect(IDENTIFIER).value;
@@ -104,7 +104,7 @@ shared_ptr<ast::StructStmt> parser::parse_struct_stmt(Parser& p) {
   return stmt;
 }
 
-shared_ptr<ast::VarDeclStmt> parser::parse_var_decl_stmt(Parser& p) {
+shared_ptr<ast::VarDeclStmt> parser::parse_var_decl_stmt(Parser &p) {
   auto stmt = make_shared<VarDeclStmt>();
   stmt->constant = p.advance_as(CONST);
   stmt->varname = p.expect(IDENTIFIER).value;
@@ -145,7 +145,7 @@ shared_ptr<ast::VarDeclStmt> parser::parse_var_decl_stmt(Parser& p) {
   return stmt;
 }
 
-shared_ptr<ast::FnDeclStmt> parser::parse_fn_decl_stmt(Parser& p) {
+shared_ptr<ast::FnDeclStmt> parser::parse_fn_decl_stmt(Parser &p) {
   auto stmt = make_shared<FnDeclStmt>();
   p.expect(FN);
   stmt->name = p.expect(IDENTIFIER).value;
@@ -161,14 +161,14 @@ shared_ptr<ast::FnDeclStmt> parser::parse_fn_decl_stmt(Parser& p) {
   return stmt;
 }
 
-shared_ptr<ast::ImplStmt> parser::parse_impl_stmt(Parser& p) {
+shared_ptr<ast::ImplStmt> parser::parse_impl_stmt(Parser &p) {
   auto stmt = make_shared<ImplStmt>();
   TODO("parse_impl not done");
   UNUSED(p);
   return stmt;
 }
 
-shared_ptr<ast::DeferStmt> parser::parse_defer_stmt(Parser& p) {
+shared_ptr<ast::DeferStmt> parser::parse_defer_stmt(Parser &p) {
   auto stmt = make_shared<DeferStmt>();
   p.expect(DEFER);
 
@@ -187,7 +187,7 @@ shared_ptr<ast::DeferStmt> parser::parse_defer_stmt(Parser& p) {
   return stmt;
 }
 
-vector<string> parser::parse_generics_list(Parser& p) {
+vector<string> parser::parse_generics_list(Parser &p) {
   auto generics = vector<string>();
   p.expect(OPEN_GENERIC);
 

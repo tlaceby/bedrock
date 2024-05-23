@@ -25,23 +25,23 @@ struct SourcePos {
   /// the error.
   string get_snippet(bool showUnderline, size_t linePaddings);
 };
-};  // namespace lexer
+}; // namespace lexer
 
 /// @brief Logic management for handling errors in the lexer | parser |
 /// typechecker | codegen
 namespace errors {
 
 enum ErrKind {
-  InvalidFilePath,             // lexing
-  UnexepectedEOF,              // lexing | parsing
-  MultipleFloatingPoints,      // lexing
-  MissingStringTermination,    // lexing
-  UnexpectedToken,             // lexing | parsing
-  Fatal,                       // lexing | parsing | analysis | codegen
-  ExpectedPrimaryExpr,         // parsing
-  InvalidVariadicDeclaration,  // parsing
-  InvalidVariableDeclaration,  // parsing | analysis
-  InvalidStructDeclaration,    // parsing | analysis
+  InvalidFilePath,            // lexing
+  UnexepectedEOF,             // lexing | parsing
+  MultipleFloatingPoints,     // lexing
+  MissingStringTermination,   // lexing
+  UnexpectedToken,            // lexing | parsing
+  Fatal,                      // lexing | parsing | analysis | codegen
+  ExpectedPrimaryExpr,        // parsing
+  InvalidVariadicDeclaration, // parsing
+  InvalidVariableDeclaration, // parsing | analysis
+  InvalidStructDeclaration,   // parsing | analysis
 };
 
 /// @brief Returns a string representation of the ErrKind enum which is passed
@@ -51,7 +51,7 @@ string error_kind(ErrKind);
 /// @brief Represents all Compiletime Errors which can occur. Parser, lexer,
 /// typechecking and codegen errors are all represented.
 struct Err {
- public:
+public:
   string str();
   void display();
 
@@ -61,14 +61,14 @@ struct Err {
 
   /// @brief Used to update the location of the Error. Returns the instance
   /// which it mutates.
-  Err& location(std::shared_ptr<lexer::SourcePos>);
+  Err &location(std::shared_ptr<lexer::SourcePos>);
   /// @brief Sets the message for this Error. Returns the mutated instance.
-  Err& message(std::string);
+  Err &message(std::string);
   /// @brief Used to update the hints[]. Appends the hint to hints. Returns the
   /// mutated instance.
-  Err& hint(std::string);
+  Err &hint(std::string);
 
- private:
+private:
   ErrKind kind;
   shared_ptr<lexer::SourcePos> loc;
   string msg;
@@ -76,7 +76,7 @@ struct Err {
 };
 
 Err make_error(ErrKind);
-};  // namespace errors
+}; // namespace errors
 
 using errors::Err;
 using errors::ErrKind;

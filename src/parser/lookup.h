@@ -21,15 +21,13 @@ using ast::Type;
 using std::function;
 
 // Stmts & Expressions
-typedef function<shared_ptr<Stmt>(Parser&)> stmt_handler;
-typedef function<shared_ptr<Expr>(Parser&)> nud_handler;
-typedef function<shared_ptr<Expr>(Parser&, shared_ptr<Expr>, BindingPower)>
-    led_handler;
+typedef function<shared_ptr<Stmt>(Parser &)> stmt_handler;
+typedef function<shared_ptr<Expr>(Parser &)> nud_handler;
+typedef function<shared_ptr<Expr>(Parser &, shared_ptr<Expr>, BindingPower)> led_handler;
 
 // Types
-typedef function<shared_ptr<Type>(Parser&)> type_nud_handler;
-typedef function<shared_ptr<Type>(Parser&, shared_ptr<Type>, BindingPower)>
-    type_led_handler;
+typedef function<shared_ptr<Type>(Parser &)> type_nud_handler;
+typedef function<shared_ptr<Type>(Parser &, shared_ptr<Type>, BindingPower)> type_led_handler;
 
 extern unordered_map<lexer::TokenKind, BindingPower> bp_lu;
 extern unordered_map<lexer::TokenKind, BindingPower> type_bp_lu;
@@ -51,8 +49,8 @@ void def_nud(lexer::TokenKind, nud_handler);
 
 Err bad_lu_handler_err(string, lexer::Token);
 
-type_nud_handler get_type_nud(Parser& p);
-type_led_handler get_type_led(Parser& p);
-led_handler get_led(Parser& p);
-nud_handler get_nud(Parser& p);
-};  // namespace parser
+type_nud_handler get_type_nud(Parser &p);
+type_led_handler get_type_led(Parser &p);
+led_handler get_led(Parser &p);
+nud_handler get_nud(Parser &p);
+}; // namespace parser
