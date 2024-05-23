@@ -16,6 +16,14 @@ shared_ptr<Scope> createGlobalScope() {
   env->defineType("Void", MK_VOID());
   env->defineType("String", MK_STR());
 
+  // Define program object
+  auto p = MK_STRUCT("BedrockProgram");
+  p->properties["argc"] = MK_NUM();
+  p->properties["cwd"] = MK_STR();
+
+  env->defineType("BedrockProgram", p);
+  env->defineSymbol("program", p, true);
+
   // Define Global Variables
   env->defineSymbol("true", MK_BOOL(), true);
   env->defineSymbol("false", MK_BOOL(), true);
@@ -44,15 +52,17 @@ shared_ptr<analysis::Type> analysis::tc_program(
 shared_ptr<analysis::Type> analysis::tc_module(
     shared_ptr<ast::ModuleStmt> stmt) {
   auto env = make_shared<Scope>();
-  stmt->scope = env;
 
   env->is_module = true;
   env->name = stmt->name;
+
+  stmt->scope = env;
 
   for (const auto& s : stmt->body) {
     tc_stmt(s, stmt->scope);
   }
 
+  stmt->scope->debugScope();
   return MK_VOID();
 }
 
@@ -147,6 +157,53 @@ shared_ptr<analysis::Type> analysis::tc_expr_stmt(ExprStmt* stmt,
   return tc_expr(stmt->expr, env);
 }
 
+shared_ptr<analysis::Type> analysis::tc_struct_stmt(StructStmt* stmt,
+                                                    shared_ptr<Scope> env) {
+  auto name = stmt->name;
+  auto s = MK_STRUCT(name);
+
+  // Verify name does not already exist
+  if (env->typeExists(name)) {
+    std::cout << "Cannot define struct " << name;
+    std::cout << " as a type with this name already exists\n";
+    exit(1);
+  }
+
+  // Install & Validate Properties
+  for (const auto& prop : stmt->properties) {
+    auto propName = prop.name;
+    auto propType = tc_type(prop.type, env);
+
+    // Name is already in use
+    if (s->hasField(propName)) {
+      std::cout << "Struct " << name << " ";
+      std::cout << "already has a property with ";
+      std::cout << "the name " << propName << "\n";
+      exit(1);
+    }
+
+    if (prop.is_static) {
+      s->staticProperties[propName] = propType;
+    } else {
+      s->properties[propName] = propType;
+    }
+
+    if (prop.is_pub) {
+      s->publicMembers.insert(propName);
+    }
+  }
+
+  // Add struct to current scope if inside module or global
+  if (env->is_module || env->is_global) {
+    env->defineType(name, s);
+    return s;
+  }
+
+  std::cout << "Struct " << name << " ";
+  std::cout << "cannot be declared in current scope\n";
+  exit(1);
+}
+
 shared_ptr<analysis::Type> analysis::tc_stmt(shared_ptr<ast::Stmt> stmt,
                                              shared_ptr<Scope> env) {
   switch (stmt->kind) {
@@ -156,6 +213,8 @@ shared_ptr<analysis::Type> analysis::tc_stmt(shared_ptr<ast::Stmt> stmt,
       return tc_fn_decl_stmt(static_cast<FnDeclStmt*>(stmt.get()), env);
     case EXPR_STMT:
       return tc_expr_stmt(static_cast<ExprStmt*>(stmt.get()), env);
+    case STRUCT_STMT:
+      return tc_struct_stmt(static_cast<StructStmt*>(stmt.get()), env);
     default:
       stmt->debug(0);
       std::cout << "^^^^^ typechecking for node Unimplimented ^^^^^^\n";

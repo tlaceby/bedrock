@@ -22,6 +22,10 @@ shared_ptr<analysis::NumberType> analysis::MK_NUM() {
   return make_shared<NumberType>();
 }
 
+shared_ptr<analysis::StructType> analysis::MK_STRUCT(string name) {
+  return make_shared<StructType>(name);
+}
+
 shared_ptr<analysis::FnType> analysis::MK_FN(vector<FnParam> params,
                                              shared_ptr<Type> returns,
                                              bool variadic) {
@@ -35,4 +39,32 @@ bool analysis::types_match(shared_ptr<Type> expected,
   }
 
   return expected->str() == recieved->str();  // TODO: Make lose comparison
+}
+
+analysis::VoidType* analysis::AS_VOID(shared_ptr<Type> t) {
+  return static_cast<VoidType*>(t.get());
+}
+
+analysis::BoolType* analysis::AS_BOOL(shared_ptr<Type> t) {
+  return static_cast<BoolType*>(t.get());
+}
+
+analysis::StringType* analysis::AS_STR(shared_ptr<Type> t) {
+  return static_cast<StringType*>(t.get());
+}
+
+analysis::PointerType* analysis::AS_PTR(shared_ptr<Type> t) {
+  return static_cast<PointerType*>(t.get());
+}
+
+analysis::NumberType* analysis::AS_NUM(shared_ptr<Type> t) {
+  return static_cast<NumberType*>(t.get());
+}
+
+analysis::StructType* analysis::AS_STRUCT(shared_ptr<Type> t) {
+  return static_cast<StructType*>(t.get());
+}
+
+analysis::FnType* analysis::AS_FN(shared_ptr<Type> t) {
+  return static_cast<FnType*>(t.get());
 }

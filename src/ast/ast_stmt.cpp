@@ -84,33 +84,6 @@ string StructStmt::debug(size_t depth) {
     out += "\n";
   }
 
-  if (this->instance_methods.size() > 0) {
-    out += space(depth + 1) + blue("Methods") + ": \n";
-
-    for (const auto& [propertyName, fn] : instance_methods) {
-      bool is_pub = public_status[propertyName];
-
-      out += space(depth + 2) + bold_magenta(propertyName) + ": \n";
-      out += space(depth + 3) + blue("Public") + ": ";
-      out += string((is_pub) ? "true" : "false") + "\n";
-
-      out += fn->debug(depth + 3);
-    }
-
-    out += "\n";
-  }
-
-  if (this->static_methods.size() > 0) {
-    out += space(depth + 1) + blue("StaticMethods") + ": \n";
-
-    for (const auto& [properyName, fn] : static_methods) {
-      out += space(depth + 2) + bold_magenta(properyName) + ": \n";
-      out += fn->debug(depth + 3);
-    }
-
-    out += "\n";
-  }
-
   return out;
 }
 

@@ -94,37 +94,10 @@ shared_ptr<ast::StructStmt> parser::parse_struct_stmt(Parser& p) {
       continue;
     }
 
-    // Parse Methods
-    p.expect(FN);
-    name = p.expect(IDENTIFIER).value;
-
-    // Check for duplicate name
-    if (stmt->public_status.find(name) != stmt->public_status.end()) {
-      auto err = Err(ErrKind::InvalidStructDeclaration);
-      err.message("Duplicate field inside struct declaration " + red(name));
-      err.location(p.current_tk().pos);
-      p.report(err);
-    }
-
-    // Handle generics
-    vector<shared_ptr<Type>> generics;
-    if (p.current_tk_kind() == OPEN_GENERIC) {
-      generics = parse_generic_type_list(p);
-    }
-
-    auto [fn_params, variadic] = parse_fn_params(p);
-    p.expect(ARROW);
-    auto returns = parse_type(p, DEFAULT_BP);
-    p.expect(SEMICOLON);
-
-    auto fnType = make_shared<FnType>(generics, fn_params, returns);
-    if (is_static) {
-      stmt->static_methods[name] = fnType;
-    } else {
-      stmt->instance_methods[name] = fnType;
-    }
-
-    stmt->public_status[name] = is_static || pub;
+    auto err = Err(ErrKind::InvalidStructDeclaration);
+    err.message("Unknown token inside struct declaration.");
+    err.location(p.current_tk().pos);
+    p.report(err);
   }
 
   p.expect(CLOSE_CURLY);

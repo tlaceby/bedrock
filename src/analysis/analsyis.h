@@ -26,6 +26,9 @@ shared_ptr<analysis::Type> tc_var_decl_stmt(ast::VarDeclStmt*,
 shared_ptr<analysis::Type> tc_fn_decl_stmt(ast::FnDeclStmt*,
                                            shared_ptr<analysis::Scope>);
 
+shared_ptr<analysis::Type> tc_struct_stmt(ast::StructStmt*,
+                                          shared_ptr<analysis::Scope>);
+
 shared_ptr<analysis::Type> tc_block_stmt(ast::BlockStmt*);
 shared_ptr<analysis::Type> tc_expr_stmt(ast::ExprStmt*,
                                         shared_ptr<analysis::Scope>);
