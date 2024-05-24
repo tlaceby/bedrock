@@ -7,13 +7,11 @@ using namespace ast;
 shared_ptr<Scope> Scope::global = make_shared<Scope>();
 unordered_map<string, shared_ptr<Scope>> Scope::modules;
 
-void
-analysis::Scope::debugAllScopes()
-{
+void analysis::Scope::debugAllScopes() {
   if (!DISPLAY_TYPEINFO)
     return;
 
-  for (const auto& [_, scope] : Scope::modules) {
+  for (const auto &[_, scope] : Scope::modules) {
     if (scope->is_global) {
       continue;
     }
@@ -24,9 +22,7 @@ analysis::Scope::debugAllScopes()
   Scope::global->debugScope();
 }
 
-void
-analysis::Scope::debugScope()
-{
+void analysis::Scope::debugScope() {
   size_t PADDING = 10;
   if (!DISPLAY_TYPEINFO)
     return;
@@ -41,7 +37,7 @@ analysis::Scope::debugScope()
 
   if (types.size() > 0) {
     // Count struct occurences
-    for (const auto& [name, type] : types) {
+    for (const auto &[name, type] : types) {
       if (type->kind == STRUCT) {
         structCount += 1;
       }
@@ -50,13 +46,12 @@ analysis::Scope::debugScope()
     // Display Non Struct Properties
     if (types.size() != structCount) {
       cout << yellow("types") << ":\n";
-      for (const auto& [name, type] : types) {
+      for (const auto &[name, type] : types) {
         if (type->kind == STRUCT) {
           continue;
         }
 
-        cout << "  " << white(name) << ":"
-             << space((uint)(PADDING - name.size()));
+        cout << "  " << white(name) << ":" << space((uint)(PADDING - name.size()));
         cout << type->str() << "\n";
       }
 
@@ -65,7 +60,7 @@ analysis::Scope::debugScope()
   }
 
   if (structCount > 0) {
-    for (const auto& [_, type] : types) {
+    for (const auto &[_, type] : types) {
       if (type->kind == STRUCT) {
         cout << AS_STRUCT(type)->debugScopeStr();
       }
@@ -76,9 +71,8 @@ analysis::Scope::debugScope()
 
   if (symbols.size() > 0) {
     cout << yellow("symbols") << ":\n";
-    for (const auto& [name, type] : symbols) {
-      cout << "  " << white(name) << ":"
-           << space((uint)(PADDING - name.size()));
+    for (const auto &[name, type] : symbols) {
+      cout << "  " << white(name) << ":" << space((uint)(PADDING - name.size()));
       cout << type->str() << "\n";
     }
 
@@ -89,43 +83,29 @@ analysis::Scope::debugScope()
 }
 
 // Scope Functions
-void
-analysis::Scope::defineSymbol(string name,
-                              shared_ptr<analysis::Type> type,
-                              bool constant)
-{
+void analysis::Scope::defineSymbol(string name, shared_ptr<analysis::Type> type, bool constant) {
   symbols[name] = type;
   constants[name] = constant;
 }
 
-void
-analysis::Scope::defineSymbol(string name, shared_ptr<analysis::Type> type)
-{
+void analysis::Scope::defineSymbol(string name, shared_ptr<analysis::Type> type) {
   symbols[name] = type;
   constants[name] = false;
 }
 
-void
-analysis::Scope::defineType(string name, shared_ptr<analysis::Type> type)
-{
+void analysis::Scope::defineType(string name, shared_ptr<analysis::Type> type) {
   types[name] = type;
 }
 
-bool
-analysis::Scope::symbolExists(string name)
-{
+bool analysis::Scope::symbolExists(string name) {
   return symbols.find(name) != symbols.end();
 }
 
-bool
-analysis::Scope::typeExists(string name)
-{
+bool analysis::Scope::typeExists(string name) {
   return types.find(name) != types.end();
 }
 
-shared_ptr<analysis::Type>
-analysis::Scope::resolveSymbol(string name)
-{
+shared_ptr<analysis::Type> analysis::Scope::resolveSymbol(string name) {
   if (symbolExists(name)) {
     return symbols[name];
   }
@@ -141,9 +121,7 @@ analysis::Scope::resolveSymbol(string name)
   return nullptr;
 }
 
-shared_ptr<analysis::Type>
-analysis::Scope::resolveType(string name)
-{
+shared_ptr<analysis::Type> analysis::Scope::resolveType(string name) {
   if (typeExists(name)) {
     return types[name];
   }
@@ -159,9 +137,7 @@ analysis::Scope::resolveType(string name)
   return nullptr;
 }
 
-Scope*
-analysis::Scope::get_module()
-{
+Scope *analysis::Scope::get_module() {
   if (parent == nullptr && is_module) {
     return this;
   }

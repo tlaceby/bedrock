@@ -38,80 +38,54 @@
 
 // namespace colors
 
-#define cyan(str) \
-  string(COLORS_ENABLED ? (string(CYAN) + str + string(RESET)) : str)
+#define cyan(str) string(COLORS_ENABLED ? (string(CYAN) + str + string(RESET)) : str)
 
-#define bold(str) \
-  string(COLORS_ENABLED ? (string(BOLD) + str + string(RESET)) : str)
+#define bold(str) string(COLORS_ENABLED ? (string(BOLD) + str + string(RESET)) : str)
 
-#define red(str) \
-  string(COLORS_ENABLED ? (string(RED) + str + string(RESET)) : str)
+#define red(str) string(COLORS_ENABLED ? (string(RED) + str + string(RESET)) : str)
 
-#define green(str) \
-  string(COLORS_ENABLED ? (string(GREEN) + str + string(RESET)) : str)
+#define green(str) string(COLORS_ENABLED ? (string(GREEN) + str + string(RESET)) : str)
 
-#define yellow(str) \
-  string(COLORS_ENABLED ? (string(YELLOW) + str + string(RESET)) : str)
+#define yellow(str) string(COLORS_ENABLED ? (string(YELLOW) + str + string(RESET)) : str)
 
-#define blue(str) \
-  string(COLORS_ENABLED ? (string(BLUE) + str + string(RESET)) : str)
+#define blue(str) string(COLORS_ENABLED ? (string(BLUE) + str + string(RESET)) : str)
 
-#define magenta(str) \
-  string(COLORS_ENABLED ? (string(MAGENTA) + str + string(RESET)) : str)
+#define magenta(str) string(COLORS_ENABLED ? (string(MAGENTA) + str + string(RESET)) : str)
 
-#define white(str) \
-  string(COLORS_ENABLED ? (string(WHITE) + str + string(RESET)) : str)
+#define white(str) string(COLORS_ENABLED ? (string(WHITE) + str + string(RESET)) : str)
 
-#define black(str) \
-  string(COLORS_ENABLED ? (string(BLACK) + str + string(RESET)) : str)
+#define black(str) string(COLORS_ENABLED ? (string(BLACK) + str + string(RESET)) : str)
 
-#define bold_red(str) \
-  string(COLORS_ENABLED ? (string(BOLD_RED) + str + string(RESET)) : str)
+#define bold_red(str) string(COLORS_ENABLED ? (string(BOLD_RED) + str + string(RESET)) : str)
 
-#define bold_green(str) \
-  string(COLORS_ENABLED ? (string(BOLD_GREEN) + str + string(RESET)) : str)
+#define bold_green(str) string(COLORS_ENABLED ? (string(BOLD_GREEN) + str + string(RESET)) : str)
 
-#define bold_yellow(str) \
-  string(COLORS_ENABLED ? (string(BOLD_YELLOW) + str + string(RESET)) : str)
+#define bold_yellow(str) string(COLORS_ENABLED ? (string(BOLD_YELLOW) + str + string(RESET)) : str)
 
-#define bold_blue(str) \
-  string(COLORS_ENABLED ? (string(BOLD_BLUE) + str + string(RESET)) : str)
+#define bold_blue(str) string(COLORS_ENABLED ? (string(BOLD_BLUE) + str + string(RESET)) : str)
 
-#define bold_magenta(str) \
-  string(COLORS_ENABLED ? (string(BOLD_MAGENTA) + str + string(RESET)) : str)
+#define bold_magenta(str) string(COLORS_ENABLED ? (string(BOLD_MAGENTA) + str + string(RESET)) : str)
 
-#define bold_cyan(str) \
-  string(COLORS_ENABLED ? (string(BOLD_CYAN) + str + string(RESET)) : str)
+#define bold_cyan(str) string(COLORS_ENABLED ? (string(BOLD_CYAN) + str + string(RESET)) : str)
 
-#define bold_white(str) \
-  string(COLORS_ENABLED ? (string(BOLD_WHITE) + str + string(RESET)) : str)
+#define bold_white(str) string(COLORS_ENABLED ? (string(BOLD_WHITE) + str + string(RESET)) : str)
 
-#define bold_black(str) \
-  string(COLORS_ENABLED ? (string(BOLD_BLACK) + str + string(RESET)) : str)
+#define bold_black(str) string(COLORS_ENABLED ? (string(BOLD_BLACK) + str + string(RESET)) : str)
 
-#define bg_red(str) \
-  string(COLORS_ENABLED ? (string(BG_RED) + str + string(RESET)) : str)
+#define bg_red(str) string(COLORS_ENABLED ? (string(BG_RED) + str + string(RESET)) : str)
 
-#define bg_green(str) \
-  string(COLORS_ENABLED ? (string(BG_GREEN) + str + string(RESET)) : str)
+#define bg_green(str) string(COLORS_ENABLED ? (string(BG_GREEN) + str + string(RESET)) : str)
 
-#define bg_yellow(str) \
-  string(COLORS_ENABLED ? (string(BG_YELLOW) + str + string(RESET)) : str)
+#define bg_yellow(str) string(COLORS_ENABLED ? (string(BG_YELLOW) + str + string(RESET)) : str)
 
-#define bg_blue(str) \
-  string(COLORS_ENABLED ? (string(BG_BLUE) + str + string(RESET)) : str)
+#define bg_blue(str) string(COLORS_ENABLED ? (string(BG_BLUE) + str + string(RESET)) : str)
 
-#define bg_magenta(str) \
-  string(COLORS_ENABLED ? (string(BG_MAGENTA) + str + string(RESET)) : str)
+#define bg_magenta(str) string(COLORS_ENABLED ? (string(BG_MAGENTA) + str + string(RESET)) : str)
 
-#define bg_cyan(str) \
-  string(COLORS_ENABLED ? (string(BG_CYAN) + str + string(RESET)) : str)
+#define bg_cyan(str) string(COLORS_ENABLED ? (string(BG_CYAN) + str + string(RESET)) : str)
 
-#define bg_white(str) \
-  string(COLORS_ENABLED ? (string(BG_WHITE) + str + string(RESET)) : str)
+#define bg_white(str) string(COLORS_ENABLED ? (string(BG_WHITE) + str + string(RESET)) : str)
 
-#define bg_black(str) \
-  string(COLORS_ENABLED ? (string(BG_BLACK) + str + string(RESET)) : str)
+#define bg_black(str) string(COLORS_ENABLED ? (string(BG_BLACK) + str + string(RESET)) : str)
 
-#define ul(str) \
-  string(COLORS_ENABLED ? (string(UNDERLINE) + str + string(RESET)) : str)
+#define ul(str) string(COLORS_ENABLED ? (string(UNDERLINE) + str + string(RESET)) : str)

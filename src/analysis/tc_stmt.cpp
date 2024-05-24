@@ -51,13 +51,20 @@ shared_ptr<analysis::Type> analysis::tc_program(shared_ptr<ast::ProgramStmt> stm
 shared_ptr<analysis::Type> analysis::tc_module(shared_ptr<ast::ModuleStmt> stmt) {
   auto env = make_shared<Scope>();
 
+  env->is_entry = stmt->is_entry;
   env->is_module = true;
   env->name = stmt->name;
 
   stmt->scope = env;
-
   for (const auto &s : stmt->body) {
     tc_stmt(s, stmt->scope);
+  }
+
+  // Verify main function found inside entry_module
+  bool mainFound = env->symbolExists("main") && env->resolveSymbol("main")->kind == analysis::FN;
+  if (env->is_entry && !mainFound) {
+    std::cout << "Missing fn main() inside main module\n";
+    exit(1);
   }
 
   stmt->scope->debugScope();
@@ -126,23 +133,17 @@ shared_ptr<analysis::Type> analysis::tc_fn_decl_stmt(FnDeclStmt *stmt, shared_pt
 
   auto fn = MK_FN(params, returns, false);
   env->defineSymbol(fnname, fn);
-
-  // Todo install function in env for recursive calls.
-
   stmt->body->scope = fnEnv;
   tc_block_stmt(stmt->body.get());
-
-  fnEnv->debugScope();
   return MK_VOID();
 }
 
 shared_ptr<analysis::Type> analysis::tc_block_stmt(BlockStmt *stmt) {
-  auto env = stmt->scope;
-
   for (const auto &s : stmt->body) {
-    tc_stmt(s, env);
+    tc_stmt(s, stmt->scope);
   }
 
+  stmt->scope->debugScope();
   return MK_VOID();
 }
 

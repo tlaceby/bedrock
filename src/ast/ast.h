@@ -40,6 +40,12 @@ enum NodeKind {
   SYMBOL_TYPE,
   POINTER_TYPE,
   FN_TYPE,
+
+  // Macros
+  LOG_MACRO,
+  FMT_MACRO,
+  STR_MACRO,
+  NUM_MACRO,
 };
 
 struct Expr {

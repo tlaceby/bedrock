@@ -9,6 +9,8 @@ shared_ptr<analysis::Type> analysis::tc_expr(shared_ptr<ast::Expr> expr, shared_
     return MK_NUM();
   case STRING_EXPR:
     return MK_STR();
+  case SYMBOL_EXPR:
+    return tc_symbol_expr(static_cast<SymbolExpr *>(expr.get()), env);
   case PREFIX_EXPR:
     return tc_prefix_expr(static_cast<PrefixExpr *>(expr.get()), env);
   case ASSIGN_EXPR:
@@ -16,9 +18,19 @@ shared_ptr<analysis::Type> analysis::tc_expr(shared_ptr<ast::Expr> expr, shared_
     // case BINARY_EXPR:
     //   return tc_binary_expr(static_cast<BinaryExpr*>(expr.get()), env);
 
+  // Macros
+  case LOG_MACRO:
+    return tc_log_macro(static_cast<LogMacro *>(expr.get()), env);
+  case FMT_MACRO:
+    return tc_fmt_macro(static_cast<FmtMacro *>(expr.get()), env);
+  case STR_MACRO:
+    return tc_str_macro(static_cast<StrMacro *>(expr.get()), env);
+  case NUM_MACRO:
+    return tc_num_macro(static_cast<NumMacro *>(expr.get()), env);
   default:
     expr->debug(0);
     std::cout << "^^^^^ typechecking for node Unimplimented ^^^^^^\n";
+    std::cout << "ASTKind: " << expr->kind << "\n";
     TODO("Unimplimented Typechecking for expr");
     break;
   }
@@ -28,8 +40,18 @@ shared_ptr<analysis::Type> analysis::tc_binary_expr(ast::BinaryExpr *expr, share
   //
 }
 
+shared_ptr<analysis::Type> analysis::tc_symbol_expr(ast::SymbolExpr *expr, shared_ptr<analysis::Scope> env) {
+  auto symbolType = env->resolveSymbol(expr->symbol);
+  if (symbolType) {
+    return symbolType;
+  }
+
+  std::cout << red("ReferenceError ") << cyan(expr->symbol) << " does not exist in scope\n";
+  exit(1);
+}
+
 shared_ptr<analysis::Type> analysis::tc_prefix_expr(ast::PrefixExpr *expr, shared_ptr<analysis::Scope> env) {
-  auto rhs = tc_expr(expr->right, env);
+  auto rhs = tc_expr(expr->right, env); // &Number
   auto opKind = expr->operation.kind;
 
   switch (opKind) {
@@ -43,6 +65,11 @@ shared_ptr<analysis::Type> analysis::tc_prefix_expr(ast::PrefixExpr *expr, share
   }
   case lexer::NOT: {
     return MK_BOOL();
+  }
+  case lexer::STAR: {
+    if (rhs->kind == POINTER) {
+      return AS_PTR(rhs)->underlying;
+    }
   }
   }
 

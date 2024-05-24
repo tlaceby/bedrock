@@ -80,9 +80,10 @@ shared_ptr<ast::StructStmt> parser::parse_struct_stmt(Parser &p) {
 
       // Check for duplicate name
       if (stmt->public_status.find(name) != stmt->public_status.end()) {
-        auto err = Err(ErrKind::InvalidStructDeclaration);
-        err.message("Duplicate field inside struct declaration " + red(name));
-        err.location(p.current_tk().pos);
+        auto err = Err(ErrKind::InvalidStructDeclaration)
+                       .message("Duplicate field inside struct declaration " + red(name))
+                       .location(p.current_tk().pos);
+
         p.report(err);
       }
 

@@ -13,4 +13,4 @@ enum BindingPower {
   MEMBER_BP,
   PRIMARY_BP,
 };
-};
+}; // namespace parser

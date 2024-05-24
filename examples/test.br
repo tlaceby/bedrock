@@ -1,12 +1,18 @@
 struct Rect {
-  static count: Number;
-  width: Number;
-  height: Number;
+  static width: Number;
+  pub height: Number;
 }
 
 fn main () {
-  let x = 0;
-  let y: &Number;
+  const x = 0;
+  const y = &x;
 
-  *y = 3.14;
+  const foo = *y;
+
+  // Native Traits
+  @log(x);                              // (Number|String|Bool) -> Void
+  @str(foo);                           // (Number|Bool|Void) -> String
+  @num("10");                           // (String|Bool) -> Number
+  @fmt("x has a value of {} {} {}", @str(x), @str(*y), "Hello world");  // (String, dyn []String) -> String
 }
+

@@ -87,11 +87,10 @@ enum TokenKind {
   AND,
   OR,
   // Reserved Macros
-  ASSERT_MACRO,
-  ASSERT_OR_MACRO,
   NUMBER_MACRO,
-  BOOL_MACRO,
   STRING_MACRO,
+  FMT_MACRO,
+  LOG_MACRO,
 };
 
 const unordered_map<string, TokenKind> reserved_lu = {
@@ -136,11 +135,10 @@ const unordered_map<string, TokenKind> reserved_lu = {
     {"or", OR},
 
     // Reserved Macros
-    {"@assert", ASSERT_MACRO},
-    {"@assert_or", ASSERT_OR_MACRO},
-    {"@string", STRING_MACRO},
-    {"@number", NUMBER_MACRO},
-    {"@bool", BOOL_MACRO},
+    {"@str", STRING_MACRO},
+    {"@num", NUMBER_MACRO},
+    {"@log", LOG_MACRO},
+    {"@fmt", FMT_MACRO},
 };
 
 string token_tag(TokenKind kind);

@@ -1,5 +1,6 @@
 #include "../ast/ast.h"
 #include "../ast/ast_expr.h"
+#include "../ast/ast_macro.h"
 #include "../ast/ast_stmt.h"
 #include "../ast/ast_type.h"
 #include "../bedrock.h"
@@ -26,5 +27,11 @@ shared_ptr<analysis::Type> tc_symbol_expr(ast::SymbolExpr *, shared_ptr<analysis
 shared_ptr<analysis::Type> tc_binary_expr(ast::BinaryExpr *, shared_ptr<analysis::Scope>);
 shared_ptr<analysis::Type> tc_prefix_expr(ast::PrefixExpr *, shared_ptr<analysis::Scope>);
 shared_ptr<analysis::Type> tc_assignment_expr(ast::AssignmentExpr *, shared_ptr<analysis::Scope>);
+
+// Macros & Traits
+shared_ptr<analysis::Type> tc_log_macro(ast::LogMacro *, shared_ptr<analysis::Scope>);
+shared_ptr<analysis::Type> tc_fmt_macro(ast::FmtMacro *, shared_ptr<analysis::Scope>);
+shared_ptr<analysis::Type> tc_str_macro(ast::StrMacro *, shared_ptr<analysis::Scope>);
+shared_ptr<analysis::Type> tc_num_macro(ast::NumMacro *, shared_ptr<analysis::Scope>);
 
 }; // namespace analysis

@@ -28,13 +28,13 @@ impl Rect {
   }
 
   // Create a override for the @str() macro for the Rect struct.
-  override @str() -> String {
+  trait @str() -> String {
     return @format("Width: {} Height: {}\n", @str(self->width), @str(self->height));
   }
 
   // Override the log method to just print the string representation.
-  override @log() -> String {
-    return @str(self);
+  trait @log() -> String {
+    return @log(@str(self));
   }
 }
 

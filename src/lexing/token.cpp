@@ -171,16 +171,14 @@ string lexer::token_tag(TokenKind kind) {
     return "and";
   case OR:
     return "or";
-  case ASSERT_MACRO:
-    return "@assert";
-  case ASSERT_OR_MACRO:
-    return "@assert_or";
   case NUMBER_MACRO:
-    return "@number";
-  case BOOL_MACRO:
-    return "@bool";
+    return "@num";
   case STRING_MACRO:
-    return "@string";
+    return "@str";
+  case LOG_MACRO:
+    return "@log";
+  case FMT_MACRO:
+    return "@fmt";
   default:
     return "unknown_tk " + to_string(kind);
   }

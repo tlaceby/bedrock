@@ -25,6 +25,8 @@ string errors::error_kind(ErrKind kind) {
     return "InvalidVariableDeclaration";
   case InvalidStructDeclaration:
     return "InvalidStructDeclaration";
+  case InvalidMacroUsage:
+    return "InvalidMacroUsage";
   default:
     return "UnknownParserError";
   }
@@ -33,6 +35,7 @@ string errors::error_kind(ErrKind kind) {
 Err::Err(ErrKind _kind) {
   kind = _kind;
 }
+
 Err &Err::location(std::shared_ptr<lexer::SourcePos> _loc) {
   loc = _loc;
   return *this;

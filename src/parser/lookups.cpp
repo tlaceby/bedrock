@@ -61,6 +61,12 @@ void parser::setup_pratt_parser() {
   def_nud(lexer::STRING, parse_primary_expr);
   def_nud(lexer::IDENTIFIER, parse_primary_expr);
 
+  // MACROS
+  def_nud(lexer::FMT_MACRO, parse_fmt_macro);
+  def_nud(lexer::STRING_MACRO, parse_str_macro);
+  def_nud(lexer::NUMBER_MACRO, parse_num_macro);
+  def_nud(lexer::LOG_MACRO, parse_log_macro);
+
   // LED HANLDERS
   def_led(ASSIGNMENT, parse_assignment_expr, ASSIGNMENT_BP);
 
