@@ -2,6 +2,10 @@
 
 #include "../bedrock.h"
 
+namespace ast {
+struct BlockStmt;
+};
+
 namespace analysis {
 enum TypeKind {
   NUMBER,
@@ -109,14 +113,15 @@ struct FnType : public Type {
   vector<FnParam> params;
   shared_ptr<Type> returns;
   bool variadic;
+  shared_ptr<ast::BlockStmt> body;
 
   virtual ~FnType() {
   }
   FnType() {
     kind = FN;
   }
-  FnType(vector<FnParam> params, shared_ptr<Type> returns, bool variadic)
-      : params(params), returns(returns), variadic(variadic) {
+  FnType(vector<FnParam> params, shared_ptr<Type> returns, bool variadic, shared_ptr<ast::BlockStmt> body)
+      : params(params), returns(returns), variadic(variadic), body(body) {
     kind = FN;
   }
 
@@ -236,7 +241,7 @@ shared_ptr<analysis::StringType> MK_STR();
 shared_ptr<analysis::PointerType> MK_PTR(shared_ptr<Type>);
 shared_ptr<analysis::NumberType> MK_NUM();
 shared_ptr<analysis::StructType> MK_STRUCT(string);
-shared_ptr<analysis::FnType> MK_FN(vector<FnParam>, shared_ptr<Type>, bool);
+shared_ptr<analysis::FnType> MK_FN(vector<FnParam>, shared_ptr<Type>, bool, shared_ptr<ast::BlockStmt>);
 
 analysis::VoidType *AS_VOID(shared_ptr<Type>);
 analysis::BoolType *AS_BOOL(shared_ptr<Type>);

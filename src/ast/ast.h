@@ -11,6 +11,7 @@ enum NodeKind {
   BLOCK_STMT,
   VAR_DECL_STMT,
   FN_DECL_STMT,
+  RETURN_STMT,
   // IMPORT_STMT,
   STRUCT_STMT,
   // UNSAFE_STMT,
@@ -32,7 +33,7 @@ enum NodeKind {
   ASSIGN_EXPR,
   // SLICE_EXPR,
   // INSTANTIATION_EXPR,
-  // CALL_EXPR,
+  CALL_EXPR,
   // FN_EXPR,
   // COMPUTED_EXPR,
 

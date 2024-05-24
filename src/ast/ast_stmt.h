@@ -123,4 +123,15 @@ struct DeferStmt : public Stmt {
   std::string debug(size_t depth);
 };
 
+struct ReturnStmt : public Stmt {
+  shared_ptr<Expr> rhs;
+
+  virtual ~ReturnStmt() {
+  }
+  ReturnStmt() {
+    kind = RETURN_STMT;
+  }
+  std::string debug(size_t depth);
+};
+
 }; // namespace ast

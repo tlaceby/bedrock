@@ -21,12 +21,14 @@ shared_ptr<analysis::Type> tc_fn_decl_stmt(ast::FnDeclStmt *, shared_ptr<analysi
 shared_ptr<analysis::Type> tc_struct_stmt(ast::StructStmt *, shared_ptr<analysis::Scope>);
 shared_ptr<analysis::Type> tc_block_stmt(ast::BlockStmt *);
 shared_ptr<analysis::Type> tc_expr_stmt(ast::ExprStmt *, shared_ptr<analysis::Scope>);
+shared_ptr<analysis::Type> tc_return_stmt(ast::ReturnStmt *, shared_ptr<analysis::Scope>);
 
 // Expressions
 shared_ptr<analysis::Type> tc_symbol_expr(ast::SymbolExpr *, shared_ptr<analysis::Scope>);
 shared_ptr<analysis::Type> tc_binary_expr(ast::BinaryExpr *, shared_ptr<analysis::Scope>);
 shared_ptr<analysis::Type> tc_prefix_expr(ast::PrefixExpr *, shared_ptr<analysis::Scope>);
 shared_ptr<analysis::Type> tc_assignment_expr(ast::AssignmentExpr *, shared_ptr<analysis::Scope>);
+shared_ptr<analysis::Type> tc_call_expr(ast::CallExpr *, shared_ptr<analysis::Scope>);
 
 // Macros & Traits
 shared_ptr<analysis::Type> tc_log_macro(ast::LogMacro *, shared_ptr<analysis::Scope>);

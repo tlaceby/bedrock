@@ -1,18 +1,7 @@
-struct Rect {
-  static width: Number;
-  pub height: Number;
-}
-
 fn main () {
-  const x = 0;
-  const y = &x;
+  let x = 10;
+  const name = "Tyler";
 
-  const foo = *y;
-
-  // Native Traits
-  @log(x);                              // (Number|String|Bool) -> Void
-  @str(foo);                           // (Number|Bool|Void) -> String
-  @num("10");                           // (String|Bool) -> Number
-  @fmt("x has a value of {} {} {}", @str(x), @str(*y), "Hello world");  // (String, dyn []String) -> String
+  @log(name);
 }
 

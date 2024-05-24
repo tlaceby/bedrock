@@ -61,6 +61,7 @@ struct PrefixExpr : public Expr {
   PrefixExpr() {
     kind = PREFIX_EXPR;
   }
+
   string debug(size_t depth);
 };
 
@@ -72,6 +73,18 @@ struct AssignmentExpr : public Expr {
   }
   AssignmentExpr() {
     kind = ASSIGN_EXPR;
+  }
+  string debug(size_t depth);
+};
+
+struct CallExpr : public Expr {
+  shared_ptr<Expr> calle;
+  vector<shared_ptr<Expr>> args;
+
+  virtual ~CallExpr() {
+  }
+  CallExpr() {
+    kind = CALL_EXPR;
   }
   string debug(size_t depth);
 };

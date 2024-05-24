@@ -50,6 +50,7 @@ void parser::setup_pratt_parser() {
   def_stmt(lexer::OPEN_CURLY, parse_block_stmt);
   def_stmt(lexer::DEFER, parse_defer_stmt);
   def_stmt(lexer::IMPL, parse_impl_stmt);
+  def_stmt(lexer::RETURN, parse_return_stmt);
 
   // NUD HANDLERS
   def_nud(lexer::OPEN_PAREN, parse_grouping_expr);
@@ -68,7 +69,8 @@ void parser::setup_pratt_parser() {
   def_nud(lexer::LOG_MACRO, parse_log_macro);
 
   // LED HANLDERS
-  def_led(ASSIGNMENT, parse_assignment_expr, ASSIGNMENT_BP);
+  def_led(lexer::ASSIGNMENT, parse_assignment_expr, ASSIGNMENT_BP);
+  def_led(lexer::OPEN_PAREN, parse_call_expr, CALL_BP);
 
   def_led(lexer::PLUS, parse_binary_expr, ADDITIVE_BP);
   def_led(lexer::MINUS, parse_binary_expr, ADDITIVE_BP);

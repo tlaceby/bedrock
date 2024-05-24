@@ -122,3 +122,20 @@ shared_ptr<ast::AssignmentExpr> parser::parse_assignment_expr(Parser &p, shared_
   expr->value = parse_expr(p, bp);
   return expr;
 }
+
+shared_ptr<ast::CallExpr> parser::parse_call_expr(Parser &p, shared_ptr<ast::Expr> calle, BindingPower bp) {
+  auto expr = make_shared<CallExpr>();
+  expr->calle = calle;
+  p.expect(lexer::OPEN_PAREN);
+
+  while (p.has_tokens() && p.current_tk_kind() != lexer::CLOSE_PAREN) {
+    expr->args.push_back(parse_expr(p, DEFAULT_BP));
+
+    if (p.current_tk_kind() != lexer::CLOSE_PAREN) {
+      p.expect(lexer::COMMA);
+    }
+  }
+
+  p.expect(lexer::CLOSE_PAREN);
+  return expr;
+}

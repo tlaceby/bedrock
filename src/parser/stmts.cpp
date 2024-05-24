@@ -169,6 +169,13 @@ shared_ptr<ast::ImplStmt> parser::parse_impl_stmt(Parser &p) {
   return stmt;
 }
 
+shared_ptr<ast::ReturnStmt> parser::parse_return_stmt(Parser &p) {
+  auto stmt = make_shared<ReturnStmt>();
+  p.expect(lexer::RETURN);
+  stmt->rhs = parse_expr_stmt(p)->expr;
+  return stmt;
+}
+
 shared_ptr<ast::DeferStmt> parser::parse_defer_stmt(Parser &p) {
   auto stmt = make_shared<DeferStmt>();
   p.expect(DEFER);

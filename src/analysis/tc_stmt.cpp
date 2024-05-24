@@ -131,10 +131,12 @@ shared_ptr<analysis::Type> analysis::tc_fn_decl_stmt(FnDeclStmt *stmt, shared_pt
     params.push_back(FnParam(param.name, paramType));
   }
 
-  auto fn = MK_FN(params, returns, false);
+  auto fn = MK_FN(params, returns, false, stmt->body);
   env->defineSymbol(fnname, fn);
   stmt->body->scope = fnEnv;
   tc_block_stmt(stmt->body.get());
+
+  fnEnv->debugScope();
   return MK_VOID();
 }
 
@@ -143,12 +145,17 @@ shared_ptr<analysis::Type> analysis::tc_block_stmt(BlockStmt *stmt) {
     tc_stmt(s, stmt->scope);
   }
 
-  stmt->scope->debugScope();
   return MK_VOID();
 }
 
 shared_ptr<analysis::Type> analysis::tc_expr_stmt(ExprStmt *stmt, shared_ptr<Scope> env) {
   return tc_expr(stmt->expr, env);
+}
+
+shared_ptr<analysis::Type> analysis::tc_return_stmt(ReturnStmt *stmt, shared_ptr<Scope> env) {
+  auto rhs = tc_expr(stmt->rhs, env);
+  env->registerFoundReturnType(rhs);
+  return rhs;
 }
 
 shared_ptr<analysis::Type> analysis::tc_struct_stmt(StructStmt *stmt, shared_ptr<Scope> env) {
@@ -207,9 +214,12 @@ shared_ptr<analysis::Type> analysis::tc_stmt(shared_ptr<ast::Stmt> stmt, shared_
     return tc_expr_stmt(static_cast<ExprStmt *>(stmt.get()), env);
   case STRUCT_STMT:
     return tc_struct_stmt(static_cast<StructStmt *>(stmt.get()), env);
+  case RETURN_STMT:
+    return tc_return_stmt(static_cast<ReturnStmt *>(stmt.get()), env);
   default:
     stmt->debug(0);
     std::cout << "^^^^^ typechecking for node Unimplimented ^^^^^^\n";
+    std::cout << "ASTKind: " << stmt->kind << "\n";
     TODO("Unimplimented Typechecking for stmt");
   }
 }

@@ -64,3 +64,26 @@ string AssignmentExpr::debug(size_t depth) {
 
   return str;
 }
+
+string CallExpr::debug(size_t depth) {
+  string str = space(depth);
+  str += blue("CallExpr") + "\n";
+
+  str += space(depth + 1);
+  str += magenta("Calle") + ":\n" + calle->debug(depth + 2);
+
+  if (args.size() > 0) {
+    str += space(depth + 1);
+    str += magenta("Args") + ":\n";
+
+    for (const auto &arg : args) {
+      str += arg->debug(depth + 2);
+    }
+
+    str += "\n";
+  } else {
+    str += space(depth + 1) + magenta("Args") + ": none\n";
+  }
+
+  return str;
+}

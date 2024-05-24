@@ -1,4 +1,5 @@
 #include "types.h"
+#include "../ast/ast_stmt.h"
 
 using namespace analysis;
 
@@ -31,8 +32,9 @@ shared_ptr<analysis::StructType> analysis::MK_STRUCT(string name) {
   return make_shared<StructType>(name);
 }
 
-shared_ptr<analysis::FnType> analysis::MK_FN(vector<FnParam> params, shared_ptr<Type> returns, bool variadic) {
-  return make_shared<FnType>(params, returns, variadic);
+shared_ptr<analysis::FnType> analysis::MK_FN(vector<FnParam> params, shared_ptr<Type> returns, bool variadic,
+                                             shared_ptr<ast::BlockStmt> body) {
+  return make_shared<FnType>(params, returns, variadic, body);
 }
 
 bool analysis::types_match(shared_ptr<Type> expected, shared_ptr<Type> recieved) {

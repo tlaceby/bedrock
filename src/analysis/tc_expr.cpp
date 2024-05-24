@@ -15,8 +15,10 @@ shared_ptr<analysis::Type> analysis::tc_expr(shared_ptr<ast::Expr> expr, shared_
     return tc_prefix_expr(static_cast<PrefixExpr *>(expr.get()), env);
   case ASSIGN_EXPR:
     return tc_assignment_expr(static_cast<AssignmentExpr *>(expr.get()), env);
-    // case BINARY_EXPR:
-    //   return tc_binary_expr(static_cast<BinaryExpr*>(expr.get()), env);
+  case BINARY_EXPR:
+    return tc_binary_expr(static_cast<BinaryExpr *>(expr.get()), env);
+  case CALL_EXPR:
+    return tc_call_expr(static_cast<CallExpr *>(expr.get()), env);
 
   // Macros
   case LOG_MACRO:
@@ -37,7 +39,108 @@ shared_ptr<analysis::Type> analysis::tc_expr(shared_ptr<ast::Expr> expr, shared_
 }
 
 shared_ptr<analysis::Type> analysis::tc_binary_expr(ast::BinaryExpr *expr, shared_ptr<analysis::Scope> env) {
-  //
+  auto l = tc_expr(expr->left, env);
+  auto r = tc_expr(expr->right, env);
+  auto op = expr->operation.kind;
+
+  if (!types_match(l, r)) {
+    std::cout << "Invalid binary operation of " << l->str() << " " << expr->operation.value << " " << r->str() << "\n";
+    exit(1);
+  }
+
+  // Numeric only operations - * / % < <= > >=
+  if (op == lexer::MINUS || op == lexer::STAR || op == lexer::SLASH || op == lexer::PERCENT || op == lexer::LESS ||
+      op == lexer::LESS_EQ || op == lexer::GREATER || op == lexer::GREATER_EQ) {
+    if (l->kind == NUMBER) {
+      return l;
+    }
+  }
+
+  // Handle Logical Operations && ||
+  if (op == lexer::AND || op == lexer::OR) {
+    if (l->kind == BOOL) {
+      return l;
+    }
+  }
+
+  // TODO: Overloading and Type == Type may not be valid
+  if (op == lexer::EQUALS || op == lexer::NOT_EQUALS) {
+    if (l->kind == NUMBER || l->kind == STRING || l->kind == BOOL) {
+      return MK_BOOL();
+    }
+  }
+
+  // TODO: Handle overloads
+  // Handle String + String and Number + Number
+  if (op == lexer::PLUS) {
+    if (l->kind == STRING || l->kind == NUMBER) {
+      return l;
+    }
+  }
+
+  std::cout << "Invalid binary operation of " << l->str() << " " << expr->operation.value << " " << r->str() << "\n";
+  exit(1);
+}
+
+shared_ptr<analysis::Type> analysis::tc_call_expr(ast::CallExpr *expr, shared_ptr<analysis::Scope> env) {
+  auto calle = tc_expr(expr->calle, env);
+  FnType *fn = AS_FN(calle);
+
+  if (calle->kind != analysis::FN) {
+    std::cout << "Invalid call-expression on type " << calle->str() << "\n";
+    exit(1);
+  }
+
+  // Check expected vs recieved arity
+  if (fn->variadic) {
+    std::cout << "Unhandled call expr check variadic function\n";
+    exit(1);
+  }
+
+  if (fn->params.size() != expr->args.size()) {
+    std::cout << "Function call " << fn->str() << " expected " << fn->params.size() << " arguments but recieved ";
+    std::cout << expr->args.size() << " arguments instead\n";
+    exit(1);
+  }
+
+  auto fnEnv = make_shared<Scope>();
+  fnEnv->is_function = true;
+  fnEnv->parent = env;
+  fn->body->scope = fnEnv;
+
+  // TODO: Handle variadic instantiation
+  // Install Paremeters into body of function
+  for (size_t i = 0; i < fn->params.size(); i++) {
+    auto param = fn->params[i];
+    auto argType = tc_expr(expr->args[i], fnEnv);
+
+    if (!types_match(param.type, argType)) {
+      std::cout << "Param at position " << i << " expected to be " << param.type->str();
+      std::cout << " but recieved " << argType->str() << " instead\n";
+      exit(1);
+    }
+
+    fnEnv->defineSymbol(param.name, param.type);
+  }
+
+  tc_block_stmt(fn->body.get());
+
+  // Validate Return Type
+  bool foundInvalidReturnType = false;
+  for (const auto &foundReturn : fnEnv->found_return_types) {
+    if (!types_match(fn->returns, foundReturn)) {
+      std::cout << "Mismatch return type inside function declaration. Expected a return of ";
+      std::cout << fn->returns->str() << " but recieved " << foundReturn->str() << " instead\n";
+
+      foundInvalidReturnType = true;
+    }
+  }
+
+  if (foundInvalidReturnType) {
+    exit(1);
+  }
+
+  return fn->returns;
 }
 
 shared_ptr<analysis::Type> analysis::tc_symbol_expr(ast::SymbolExpr *expr, shared_ptr<analysis::Scope> env) {

@@ -105,6 +105,20 @@ bool analysis::Scope::typeExists(string name) {
   return types.find(name) != types.end();
 }
 
+void analysis::Scope::registerFoundReturnType(shared_ptr<Type> returnType) {
+  if (this->is_function) {
+    found_return_types.push_back(returnType);
+    return;
+  }
+
+  if (parent == nullptr) {
+    std::cout << "Cannot preform return statement outside function body\n";
+    exit(1);
+  }
+
+  return parent->registerFoundReturnType(returnType);
+}
+
 shared_ptr<analysis::Type> analysis::Scope::resolveSymbol(string name) {
   if (symbolExists(name)) {
     return symbols[name];

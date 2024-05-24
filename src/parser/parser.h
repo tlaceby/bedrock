@@ -61,15 +61,15 @@ shared_ptr<ast::VarDeclStmt> parse_var_decl_stmt(Parser &);
 shared_ptr<ast::FnDeclStmt> parse_fn_decl_stmt(Parser &);
 shared_ptr<ast::ImplStmt> parse_impl_stmt(Parser &);
 shared_ptr<ast::DeferStmt> parse_defer_stmt(Parser &);
+shared_ptr<ast::ReturnStmt> parse_return_stmt(Parser &p);
 
 // Expression Parsing -----
 // ------------------------
 shared_ptr<ast::Expr> parse_expr(Parser &, BindingPower);
 shared_ptr<ast::Expr> parse_primary_expr(Parser &);
 shared_ptr<ast::BinaryExpr> parse_binary_expr(Parser &, shared_ptr<ast::Expr>, BindingPower);
-
 shared_ptr<ast::AssignmentExpr> parse_assignment_expr(Parser &, shared_ptr<ast::Expr>, BindingPower);
-
+shared_ptr<ast::CallExpr> parse_call_expr(Parser &, shared_ptr<ast::Expr>, BindingPower);
 shared_ptr<ast::Expr> parse_grouping_expr(Parser &p);
 shared_ptr<ast::PrefixExpr> parse_prefix_expr(Parser &);
 

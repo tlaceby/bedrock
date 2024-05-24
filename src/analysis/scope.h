@@ -45,6 +45,8 @@ struct Scope {
   bool symbolExists(string name);
   bool typeExists(string name);
 
+  void registerFoundReturnType(shared_ptr<Type>);
+
   shared_ptr<Type> resolveSymbol(string name);
   shared_ptr<Type> resolveType(string name);
 
