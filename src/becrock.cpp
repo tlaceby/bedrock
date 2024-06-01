@@ -1,8 +1,10 @@
 #include "analysis/analsyis.h"
 #include "bedrock.h"
+#include "compiler/compiler.h"
 #include "lexing/lexer.h"
 #include "parser/parser.h"
 #include "util/colors.h"
+#include "vm/vm.h"
 
 inline bool COLORS_ENABLED = true;
 inline bool DISPLAY_AST = false;
@@ -62,8 +64,12 @@ int display_help() {
 }
 
 int bedrock_run(string file_path) {
+  string BYTECODE_PATH = "./brprogram.brbc";
+  compiler::Compiler compiler;
+
   auto program = parser::parse(file_path);
   analysis::tc_program(program);
+  compiler.compile(program, BYTECODE_PATH);
 
   return 0;
 }
