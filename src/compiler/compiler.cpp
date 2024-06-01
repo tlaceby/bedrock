@@ -17,6 +17,7 @@ void Compiler::compile(shared_ptr<ProgramStmt> program, string outpath) {
 }
 
 void Compiler::compile_stmt(shared_ptr<Stmt> stmt, shared_ptr<analysis::Scope> env) {
+
   switch (stmt->kind) {
   case MODULE_STMT:
     return compile_module(static_cast<ModuleStmt *>(stmt.get()));
@@ -28,6 +29,8 @@ void Compiler::compile_stmt(shared_ptr<Stmt> stmt, shared_ptr<analysis::Scope> e
     return compile_fn_decl_stmt(static_cast<FnDeclStmt *>(stmt.get()), env);
   case EXPR_STMT:
     return compile_expr_stmt(static_cast<ExprStmt *>(stmt.get()), env);
+  case RETURN_STMT:
+    return compile_return_stmt(static_cast<ReturnStmt *>(stmt.get()), env);
   }
 
   std::cout << "Compile::stmt() unknown kind: " << stmt->kind << "\n";
@@ -83,15 +86,32 @@ size_t Compiler::getConstantAddr(bool b) {
 }
 
 void Compiler::debugBytecode() {
+  string instructions = "";
+
+  size_t w = 0;
+  for (const auto &instr : code) {
+    instructions += to_string(instr) + " ";
+
+    if (w == 5) {
+      instructions += "\n";
+      w = 0;
+    }
+
+    w++;
+  }
+
   using std::cout, std::hex;
+  using namespace runtime;
+  cout << "\n-----------------------------------------\n" << instructions << "\n\n";
+  using std::cout;
   using namespace runtime;
 
   // Data section
-  cout << "\n\n.data:\n";
+  cout << "\n.data:\n";
 
   for (size_t addr = 0; addr < data.size(); addr++) {
     const auto val = data[addr];
-    printf("%03zx  ", addr);
+    printf("%03lu  ", addr);
 
     switch (val.kind) {
     case Number:
@@ -108,36 +128,100 @@ void Compiler::debugBytecode() {
   cout << "\n.globals:\n";
 
   for (const auto &[varname, addr] : globals_lu) {
-    printf("%03zx  ", addr);
+    printf("%03lu  ", addr);
     std::cout << varname << "\n";
   }
 
   // Instructions
   size_t ip = 0;
-  std::cout << "\n.instructions:\n";
+  cout << "\n.instructions:\n";
 
   while (ip < code.size()) {
-    std::cout << std::hex << ip << ": ";
+    printf("%04lu  ", ip);
 
     switch (code[ip++]) {
     case op_hlt:
-      std::cout << "(hlt) halt";
+      cout << "(hlt) halt";
       break;
     case op_loadg:
-      std::cout << "(loadg) load_global " << std::hex << ip << "  #" << getGlobalFromAddr(code[ip++]);
+      cout << "(loadg) load_global " << code[ip] << "  #" << getGlobalFromAddr(code[ip++]);
+      break;
+    case op_loadl:
+      cout << "(loadl) load_local " << code[ip++];
       break;
     case op_push:
-      std::cout << "(push) push " << std::hex << code[ip] << "  #";
-      logRuntimeValue(data[code[ip++]]);
+      cout << "(push) push " << code[ip++] << " ";
+      // logRuntimeValue(data[code[ip++]]);
       break;
     case op_storeg:
-      std::cout << "(storeg) store_global " << std::hex << ip << "  #" << getGlobalFromAddr(code[ip++]);
+      cout << "(storeg) store_global " << code[ip] << "  " << getGlobalFromAddr(code[ip++]);
+      break;
+    case op_storel:
+      cout << "(storel) store_local " << code[ip++];
+      break;
+    case op_incsp:
+      cout << "(incsp) incriment_stack_pointer " << code[ip] << "\n";
+      break;
+    case op_decsp:
+      cout << "(decsp) decrement_stack_pointer " << code[ip++] << "\n";
+      break;
+    case op_jmp:
+      cout << "(jmp) jump " << code[ip++];
+      break;
+    case op_call:
+      cout << "(call) call " << code[ip++];
+      break;
+    case op_ret:
+      cout << "(ret) return " << code[ip++];
+      break;
+    case op_add:
+      cout << "(add) add";
+      break;
+    case op_sub:
+      cout << "(sub) subtract ";
+      break;
+    case op_mul:
+      cout << "(mul) multiply ";
+      break;
+    case op_div:
+      cout << "(div) divide ";
+      break;
+    case op_mod:
+      cout << "(mod) modulus ";
+      break;
+    case op_concat:
+      cout << "(concat) concat ";
       break;
     default:
-      std::cout << "(unknown) unknown operation " << code[ip - 1];
+      cout << "(unknown) unknown operation " << code[ip - 1];
       break;
     }
 
     std::cout << "\n";
   }
+
+  cout << "\n-----------------------------------------\n";
+}
+
+void Compiler::scope_enter(shared_ptr<analysis::Scope> env) {
+  depth++;
+  auto numLocals = env->local_offsets.size();
+
+  // Setup Space for Locals
+  if (numLocals > 0) {
+    emit(op_incsp);
+    emit(numLocals);
+  }
+}
+
+void Compiler::scope_exit(shared_ptr<analysis::Scope> env) {
+  auto numLocals = env->local_offsets.size();
+
+  // Setup Space for Locals
+  if (numLocals > 0) {
+    emit(op_decsp);
+    emit(numLocals);
+  }
+
+  depth--;
 }

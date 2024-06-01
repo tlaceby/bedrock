@@ -147,6 +147,10 @@ string ExprStmt::debug(size_t depth) {
 
 string ReturnStmt::debug(size_t depth) {
   string output = space(depth) + bold_magenta("Return") + "\n";
-  output += rhs->debug(depth + 1) + "\n";
+
+  if (rhs) {
+    output += rhs->debug(depth + 1) + "\n";
+  }
+
   return output;
 }

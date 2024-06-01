@@ -151,6 +151,18 @@ shared_ptr<analysis::Type> analysis::Scope::resolveType(string name) {
   return nullptr;
 }
 
+Scope *analysis::Scope::resolveSymbolScope(string name) {
+  if (symbols.find(name) != symbols.end()) {
+    return this;
+  }
+
+  if (parent) {
+    return parent->resolveSymbolScope(name);
+  }
+
+  return nullptr;
+}
+
 Scope *analysis::Scope::get_module() {
   if (parent == nullptr && is_module) {
     return this;

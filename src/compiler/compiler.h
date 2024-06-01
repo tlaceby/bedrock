@@ -17,8 +17,9 @@ namespace compiler {
 
 struct Compiler {
   size_t depth;                             // 0 means global, 1 means module, 2+ means inside a local-scope.
-  unordered_map<string, size_t> globals_lu; // Contains the offset for the globals pool for a given variable name. This
-                                            // includes the global functions and labels for modules.
+  unordered_map<string, size_t> globals_lu; // Contains the offset for the globals pool for a given variable name.
+  unordered_map<string, size_t> chunks_lu;  // Contains a mapping from fn_name to chunk_address in the ip
+
   vector<runtime::Val> data;
   vector<u_int16_t> code;
   string module_name; // Name of current module
@@ -34,6 +35,7 @@ struct Compiler {
   void compile_block_stmt(ast::BlockStmt *, shared_ptr<analysis::Scope>);
   void compile_var_decl_stmt(ast::VarDeclStmt *, shared_ptr<analysis::Scope>);
   void compile_expr_stmt(ast::ExprStmt *, shared_ptr<analysis::Scope>);
+  void compile_return_stmt(ast::ReturnStmt *, shared_ptr<analysis::Scope>);
 
   // Expressions
   void compile_number_expr(ast::NumberExpr *, shared_ptr<analysis::Scope>);
@@ -41,11 +43,14 @@ struct Compiler {
   void compile_symbol_expr(ast::SymbolExpr *, shared_ptr<analysis::Scope>);
   void compile_binary_expr(ast::BinaryExpr *, shared_ptr<analysis::Scope>);
 
+  void scope_enter(shared_ptr<analysis::Scope>);
+  void scope_exit(shared_ptr<analysis::Scope>);
+
   // Macros
   void compile_log_macro(ast::LogMacro *, shared_ptr<analysis::Scope>);
 
   size_t ip() {
-    return sizeof(u_int16_t) * code.size();
+    return code.size();
   }
 
   size_t getConstantAddr(double d);
@@ -59,7 +64,7 @@ struct Compiler {
 
   // Prepends ModuleName along with variable/fn name
   string getGlobalName(string name) {
-    return module_name + "-" + name;
+    return "(" + module_name + ") " + name;
   }
 
   string getGlobalFromAddr(size_t addr) {
@@ -70,6 +75,17 @@ struct Compiler {
     }
 
     printf("Global at address: %lu not found in getGlobalFromAddr()\n", addr);
+    exit(1);
+  }
+
+  string getChunkFromAddr(size_t addr) {
+    for (const auto &[varname, address] : chunks_lu) {
+      if (addr == address) {
+        return varname;
+      }
+    }
+
+    printf("Chunk at address: %lu not found in getChunkFromAddr()\n", addr);
     exit(1);
   }
 };

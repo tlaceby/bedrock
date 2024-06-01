@@ -31,6 +31,7 @@ struct Scope {
 
   unordered_map<string, shared_ptr<Type>> types;
   unordered_map<string, shared_ptr<Type>> symbols;
+  unordered_map<string, size_t> local_offsets;
   vector<shared_ptr<Type>> found_return_types;
 
   static unordered_map<string, shared_ptr<Scope>> modules;
@@ -50,6 +51,7 @@ struct Scope {
   shared_ptr<Type> resolveSymbol(string name);
   shared_ptr<Type> resolveType(string name);
 
+  Scope *resolveSymbolScope(string name);
   Scope *get_module();
 };
 }; // namespace analysis

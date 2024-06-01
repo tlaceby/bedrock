@@ -163,10 +163,6 @@ string lexer::token_tag(TokenKind kind) {
     return "gt";
   case GTE:
     return "gte";
-  case NE:
-    return "ne";
-  case EQ:
-    return "eq";
   case AND:
     return "and";
   case OR:

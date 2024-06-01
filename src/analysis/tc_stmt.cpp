@@ -88,6 +88,12 @@ shared_ptr<analysis::Type> analysis::tc_var_decl_stmt(VarDeclStmt *stmt, shared_
 
   auto recievedType = tc_expr(stmt->value, env);
 
+  // If local variable determine local_offset for comtime
+  if (!env->is_global && !env->is_module) {
+    size_t offset = env->local_offsets.size();
+    env->local_offsets[varname] = offset;
+  }
+
   // Infer type usage
   if (!vartype && recievedType) {
     env->defineSymbol(varname, recievedType);
@@ -136,6 +142,20 @@ shared_ptr<analysis::Type> analysis::tc_fn_decl_stmt(FnDeclStmt *stmt, shared_pt
   stmt->body->scope = fnEnv;
   tc_block_stmt(stmt->body.get());
 
+  // Check Return Types
+  bool foundError = false;
+  for (const auto &foundReturn : fnEnv->found_return_types) {
+    if (!types_match(returns, foundReturn)) {
+      std::cout << "Mismatch return types for function " << fnname << " expected " << returns->str() << " ";
+      std::cout << "but recieved " << foundReturn->str() << " instead\n";
+      foundError = true;
+    }
+  }
+
+  if (foundError) {
+    exit(1);
+  }
+
   fnEnv->debugScope();
   return MK_VOID();
 }
@@ -153,7 +173,7 @@ shared_ptr<analysis::Type> analysis::tc_expr_stmt(ExprStmt *stmt, shared_ptr<Sco
 }
 
 shared_ptr<analysis::Type> analysis::tc_return_stmt(ReturnStmt *stmt, shared_ptr<Scope> env) {
-  auto rhs = tc_expr(stmt->rhs, env);
+  auto rhs = stmt->rhs ? tc_expr(stmt->rhs, env) : MK_VOID();
   env->registerFoundReturnType(rhs);
   return rhs;
 }

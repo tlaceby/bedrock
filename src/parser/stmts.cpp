@@ -172,6 +172,12 @@ shared_ptr<ast::ImplStmt> parser::parse_impl_stmt(Parser &p) {
 shared_ptr<ast::ReturnStmt> parser::parse_return_stmt(Parser &p) {
   auto stmt = make_shared<ReturnStmt>();
   p.expect(lexer::RETURN);
+
+  if (p.current_tk_kind() == lexer::SEMICOLON) {
+    p.expect(lexer::SEMICOLON);
+    return stmt;
+  }
+
   stmt->rhs = parse_expr_stmt(p)->expr;
   return stmt;
 }

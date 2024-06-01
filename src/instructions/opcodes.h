@@ -36,6 +36,10 @@ const uint8_t op_loadl = 7;
 /// @brief Pops a value off the stack and stores at local offset from BasePointer.
 const uint8_t op_storel = 8;
 
+/// @brief Accepts a chunk_address to jump to. Will setup stack with proper return address and fp.
+const uint8_t op_call = 9;
+/// @brief Cleans up and ensures a return value is on stack if required.
+const uint8_t op_ret = 10;
 /// ------------------------------------
 // 30 - 45 Binary & Unary Operations
 /// ------------------------------------
@@ -92,7 +96,7 @@ const uint8_t op_or = 54;
 /// @brief Jumps to a instruction address
 const uint8_t op_jmp = 55;
 /// @brief Jumps to a instruction address if boolean on stack is true. Pops value off stack.
-const uint8_t op_cjmp = 55;
+const uint8_t op_cjmp = 56;
 
 /// -----------------
 // 150 - 255 Macros

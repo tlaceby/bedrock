@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include <iostream>
+#include <map>
 #include <memory>
 #include <optional>
 #include <set>
@@ -13,6 +14,7 @@
 
 using std::make_pair;
 using std::make_shared;
+using std::map;
 using std::optional;
 using std::pair;
 using std::set;

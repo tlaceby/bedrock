@@ -40,6 +40,8 @@ lexer::Lexer::Lexer(string file_path) {
       {regex(R"(\})"), default_handler(CLOSE_CURLY, "}")},
       {regex(R"(\()"), default_handler(OPEN_PAREN, "(")},
       {regex(R"(\))"), default_handler(CLOSE_PAREN, ")")},
+      {regex(R"(\=\=)"), default_handler(EQUALS, "==")},
+      {regex(R"(\!\=)"), default_handler(NOT_EQUALS, "!=")},
       {regex(R"(!)"), default_handler(NOT, "!")},
       {regex(R"(=)"), default_handler(ASSIGNMENT, "=")},
       {regex(R"(->)"), default_handler(ARROW, "->")},
