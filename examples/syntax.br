@@ -1,59 +1,74 @@
+import("std") as std;
 
-// One of bedrocks special features is the ability to create methods for ALL types including primitive types.
-impl Number {
-  fn isEven() -> Bool {
-    return self % 2 == 0;
-  }
+type numericBinaryHandler = fn (Number, Number) -> Number;
 
-  static fn fromStr(stringNum: String) -> Self {
-    return @num(stringNum);
-  }
+enum Option<T> {
+    Ok(T),
+    None
+}
+
+enum Result<T, E> {
+    Ok(T),
+    Err(E)
 }
 
 struct Rect {
-  static count: Number;
-  width: Number;
-  height: Number;
+    width: Number,
+    height: Number
 }
 
 impl Rect {
-  static fn new(width: Number, height: Number) -> Self {
-    Rect::count += 1;
-    return Self{ width, height };
-  }
+    fn area(self) -> Number {
+        return self.width * self.height;
+    }
 
-  // Allows member methods to be used as if they are 
-  fn zero() -> Void {
-    self.width = self.height = 0;
-  }
-
-  // Create a override for the @str() macro for the Rect struct.
-  trait @str() -> String {
-    return @format("Width: {} Height: {}\n", @str(self->width), @str(self->height));
-  }
-
-  // Override the log method to just print the string representation.
-  trait @log() -> String {
-    return @log(@str(self));
-  }
+    fn zero(self) -> Self {
+        self.width = self.height = 0;
+    }
 }
 
-// Calling external c/c++/rust code.
-extern fn c_add {
-  params: { i32, i32 };
-  returns: i32;
-  location: "./lib/mylib.dll";
+fn even_only(num: Number) -> Option<Number> {
+    if num % 2 == 0 {
+        return Ok(num);
+    }
+
+    return None();
 }
 
 fn main () {
-  const result = c_add(10.2, 10); // 20
-  const r1 = Rect::new(10, 7);
-  const pi = Number::fromStr("3.14");
+    let currentTime: Number = std::date::now();
+    let platform: String = process::platform();
+    let debugMode: String = process::debugMode();
 
-  if !pi.isEven() {
-    @log("pi is not even");
-  }
+    // Logging to stdout with string interpolation
+    std::debug("Time={} | Platform={} | Mode={}", currentTime, platform, debugMode);
 
-  r1.zero();
-  @log(r1);
+    // --- Working w/ Option<T> ---
+    let num = std::rand::rand_int();
+    match even_only(num) {
+        Ok(_)  -> std::debug("Number is even {}", [num]);
+        None() -> std::debug("Number is not even {}", [num]);
+    };
+
+    // Panics in event optional is empty
+    let evenNum  = even_only(num).unwrap();
+    // Using unwrap_or instead to give value in event option is empty
+    let closestEvenNum = even_only(num).unwrap_or(num + 1);
+
+   // --- Working w/ Result<T, E> ---
+    let readResult: Result<String, std::fs::FileReadErr> = std::fs::read_to_string("test.txt");
+    match readResult {
+        Ok(contents) -> std::debug(contents);
+        Err(err) -> {
+            std::debug("Error occured during file reading. {} | {}", err.tag, err.message);
+            process::exit(1);
+            // or we could panic which would achieve the same result but with more stack tracing info
+            panic("Error occured during file reading. {} | {}", err.tag, err.message);
+        } 
+    }
+
+    // Unwrap also works with Result types
+    let contents = readResult.unwrap();
+    // Or we can also set a default value
+    let contentsWithDefault = readResult.unwrap_or("Some content as default");
 }
