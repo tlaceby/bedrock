@@ -28,7 +28,7 @@ shared_ptr<Scope> createGlobalScope() {
   env->defineSymbol("false", MK_BOOL(), true);
 
   // Define Modules
-    
+
   return env;
 }
 

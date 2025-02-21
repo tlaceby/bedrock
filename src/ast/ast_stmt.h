@@ -6,10 +6,12 @@
 
 namespace ast {
 struct ModuleStmt : public Stmt {
-  bool is_entry;
+  bool is_entry; // whether the module is the main module
   shared_ptr<analysis::Scope> scope;
-  string name;
-  vector<shared_ptr<Stmt>> body;
+  string name;                   // name of the module
+  string path;                   // path to the folder which the module is residing in
+  vector<string> files;          // what bedrock files are comprised to make up this module
+  vector<shared_ptr<Stmt>> body; // can span across multiple files. is condensed down to a single vector
 
   virtual ~ModuleStmt() {
   }
@@ -75,7 +77,8 @@ struct FnDeclStmt : public Stmt {
   shared_ptr<Type> return_type;
   shared_ptr<BlockStmt> body;
 
-  virtual ~FnDeclStmt() {}
+  virtual ~FnDeclStmt() {
+  }
 
   FnDeclStmt() {
     kind = FN_DECL_STMT;

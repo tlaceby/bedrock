@@ -1,15 +1,14 @@
 #include "parser.h"
 
+#include "../util/br_strings.h"
 #include "lookup.h"
 
 using namespace parser;
 
 shared_ptr<ParserManager> Parser::manager = nullptr;
 
-shared_ptr<ast::ProgramStmt> parser::parse(string file_path) {
-  // TODO: Generalize DISPLAY_TOKENS, DISPLAY_AST CHECK
-  auto [tokens, errors] = lexer::tokenize(file_path);
-
+shared_ptr<ast::ProgramStmt> parser::parse_program(string entry_point) {
+  auto [tokens, errors] = lexer::tokenize(entry_point);
   if (errors.size() > 0) {
     for (auto &err : errors) {
       err.display();
@@ -23,33 +22,33 @@ shared_ptr<ast::ProgramStmt> parser::parse(string file_path) {
     for (const auto &token : tokens) {
       token.display();
     }
+
     std::cout << std::endl;
   }
 
-  return parser::parse(tokens);
-}
+  setup_pratt_parser();
 
-shared_ptr<ast::ProgramStmt> parser::parse(vector<lexer::Token> &tokens) {
   Parser parser{tokens};
   parser.pos = 0;
   parser.file = tokens.at(0).pos->file;
 
-  setup_pratt_parser();
-
-  if (parser.manager == nullptr) {
-    parser.manager = make_shared<ParserManager>();
-  }
-
+  parser.manager = make_shared<ParserManager>();
   auto program = make_shared<ast::ProgramStmt>();
-  auto entry_module = parse_module(parser);
-  entry_module->is_entry = true;
+  auto mod = parse_file(parser);
+  mod->is_entry = true;
+
+  if (mod->name != "main") {
+    // TODO: Replace with proper error
+    std::cout << "Entry module name is not main!\n";
+    exit(1);
+  }
 
   if (Parser::manager->errors.size() > 0) {
     exit(1);
   }
 
-  program->entry = entry_module;
-  program->modules.push_back(entry_module);
+  program->entry = mod;
+  program->modules.push_back(mod);
 
   if (DISPLAY_AST) {
     std::cout << "\n----------   AST   ----------\n\n";
@@ -58,11 +57,23 @@ shared_ptr<ast::ProgramStmt> parser::parse(vector<lexer::Token> &tokens) {
   }
 
   return program;
+  setup_pratt_parser();
 }
 
-shared_ptr<ast::ModuleStmt> parser::parse_module(Parser &parser) {
+shared_ptr<ast::ModuleStmt> parser::parse_file(Parser &parser) {
   auto mod = make_shared<ast::ModuleStmt>();
-  mod->name = parser.file->file_path;
+  mod->path = parser.file->file_path;
+
+  parser.expect(lexer::MOD);
+  string modname = parser.expect(lexer::IDENTIFIER).value;
+  parser.expect(lexer::SEMICOLON);
+
+  // Verify module name matches the parent folder name.
+  verify_file_inside_module_folder(parser.file->file_path, "main");
+
+  // Create module if it does not already exist
+
+  // Get weak reference to module if it does already exist
 
   while (parser.has_tokens()) {
     try {
@@ -74,6 +85,16 @@ shared_ptr<ast::ModuleStmt> parser::parse_module(Parser &parser) {
   }
 
   return mod;
+}
+
+bool parser::verify_file_inside_module_folder(string file_path, string mod) {
+  auto res = br::str_split(file_path, std::regex("/"));
+  
+  for (auto a : res) {
+    std::cout << a << std::endl;
+  }
+
+  return true;
 }
 
 // ---------------------
@@ -143,6 +164,12 @@ optional<shared_ptr<ast::ModuleStmt>> Parser::get_module(string mod_name) {
   }
 
   return opt;
+}
+
+shared_ptr<ast::ModuleStmt> Parser::add_module(string mod_name, string folder_path, shared_ptr<ast::ModuleStmt> mod) {
+  this->manager->modules.insert_or_assign(mod_name, mod);
+  this->manager->modules[mod_name]->path = folder_path;
+  return mod;
 }
 
 shared_ptr<ast::ModuleStmt> Parser::add_module(string mod_name, shared_ptr<ast::ModuleStmt> mod) {

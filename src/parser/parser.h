@@ -40,6 +40,7 @@ struct Parser {
 
   void report(Err);
   optional<shared_ptr<ast::ModuleStmt>> get_module(string);
+  shared_ptr<ast::ModuleStmt> add_module(string, string, shared_ptr<ast::ModuleStmt>);
   shared_ptr<ast::ModuleStmt> add_module(string, shared_ptr<ast::ModuleStmt>);
 
   Parser(vector<lexer::Token> &tokens) : tokens(tokens) {
@@ -47,9 +48,9 @@ struct Parser {
 };
 
 // Public Methods
-shared_ptr<ast::ProgramStmt> parse(string file_path);
-shared_ptr<ast::ProgramStmt> parse(vector<lexer::Token> &tokens);
-shared_ptr<ast::ModuleStmt> parse_module(Parser &);
+shared_ptr<ast::ProgramStmt> parse_program(string entry_point);
+shared_ptr<ast::ModuleStmt> parse_file(Parser &); // returns the module that this file belongs too
+bool verify_file_inside_module_folder(string, string);
 
 // Stmt Parsing -----------
 // ------------------------

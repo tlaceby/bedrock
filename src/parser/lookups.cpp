@@ -62,7 +62,6 @@ void parser::setup_pratt_parser() {
   def_nud(lexer::STRING, parse_primary_expr);
   def_nud(lexer::IDENTIFIER, parse_primary_expr);
 
-
   // LED HANLDERS
   def_led(lexer::ASSIGNMENT, parse_assignment_expr, ASSIGNMENT_BP);
   def_led(lexer::OPEN_PAREN, parse_call_expr, CALL_BP);

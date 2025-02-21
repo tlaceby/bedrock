@@ -69,6 +69,10 @@
     "___ mod_0.h": "c",
     "_mod0.h": "c",
     "__tree": "cpp",
-    "map": "cpp"
+    "map": "cpp",
+    "memory": "cpp",
+    "print": "cpp",
+    "queue": "cpp",
+    "stack": "cpp"
   }
 }

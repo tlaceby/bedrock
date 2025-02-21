@@ -1,0 +1,34 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "C: g++ build active file",
+            "type": "shell",
+            "command": "bash",
+            "args": ["./build.sh", "build"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Format C++ files",
+            "type": "shell",
+            "command": "bash",
+            "args": ["./format.sh"],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "command": "bash",
+            "args": ["./build.sh", "clean"],
+            "group": "build"
+        }
+    ]
+}

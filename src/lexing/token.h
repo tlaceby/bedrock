@@ -80,7 +80,6 @@ enum TokenKind {
 
   AND,
   OR,
-
 };
 
 const unordered_map<string, TokenKind> reserved_lu = {
@@ -110,6 +109,7 @@ const unordered_map<string, TokenKind> reserved_lu = {
     {"mut", MUT},
     {"union", UNION},
     {"override", OVERRIDE},
+    {"mod", OVERRIDE},
 
     // Operators as keywords
     {"and", AND},

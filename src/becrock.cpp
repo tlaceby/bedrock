@@ -67,7 +67,7 @@ int bedrock_run(string file_path) {
   string BYTECODE_PATH = "./brprogram.brbc";
   compiler::Compiler compiler;
 
-  auto program = parser::parse(file_path);
+  auto program = parser::parse_program(file_path);
   analysis::tc_program(program);
   compiler.compile(program, BYTECODE_PATH);
 
@@ -121,7 +121,7 @@ void set_flags(vector<string> &args) {
   }
 }
 
-int main(int argc, const char **argv) {
+int main(const int argc, const char **argv) {
   string file_path;
 
   if (argc == 1) {

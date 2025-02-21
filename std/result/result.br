@@ -1,6 +1,6 @@
-mod result;
+mod main;
 
-pub enum Result<T, E> {
+enum Result<T, E> {
     Some(T),
     Error(E),
 }

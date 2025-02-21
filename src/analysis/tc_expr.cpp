@@ -19,7 +19,7 @@ shared_ptr<analysis::Type> analysis::tc_expr(shared_ptr<ast::Expr> expr, shared_
     return tc_binary_expr(static_cast<BinaryExpr *>(expr.get()), env);
   case CALL_EXPR:
     return tc_call_expr(static_cast<CallExpr *>(expr.get()), env);
-    
+
   default:
     expr->debug(0);
     std::cout << "^^^^^ typechecking for node Unimplimented ^^^^^^\n";

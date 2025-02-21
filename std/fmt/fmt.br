@@ -1,7 +1,7 @@
 mod fmt;
 // Bedrock fmt module
 
-// EVERY base/compound in the language has impliments this trait. There is a default implimentation already.
+// EVERY base/compound type in the language has impliments this trait. There is a default implimentation already.
 // However, if a user wants to provide a custom override for their own type they can with a impl block.
 @AllowsExternalOverride
 pub trait _String<T> {
@@ -13,8 +13,8 @@ pub trait _String<T> {
 impl _String for T {
     pub fn _string(self) -> string {
         return match T {
-           case string (str) return str;
-           case number, boolean (val) return as_string(val);
+           case string (str) => str;
+           case number, boolean (val) => as_string(val);
            case None => "None";
            case Some (val)  => val._string(); // Option, Result types Some(T) variant
            case Error (err) => err._string(); // Result(E) variant

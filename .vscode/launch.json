@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Bedrock",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bedrock",
+            "args": ["run", "./examples/test.br", "--debug"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "lldb",
+            "preLaunchTask": "C: g++ build active file"
+        }
+    ]
+}
