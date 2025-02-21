@@ -1,0 +1,6 @@
+mod result;
+
+pub enum Result<T, E> {
+    Some(T),
+    Error(E),
+}

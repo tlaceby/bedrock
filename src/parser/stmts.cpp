@@ -59,19 +59,6 @@ shared_ptr<ast::StructStmt> parser::parse_struct_stmt(Parser &p) {
     if (p.current_tk_kind() == PUB) {
       pub = true;
       p.advance();
-
-      if (p.current_tk_kind() == STATIC) {
-        auto err = Err(ErrKind::InvalidStructDeclaration);
-        err.message("Static methods/properties are already public.");
-        err.hint("Remove the pub specifier for static methods/properties.");
-        err.location(p.current_tk().pos);
-        p.report(err);
-      }
-    }
-
-    if (p.current_tk_kind() == STATIC) {
-      is_static = true;
-      p.advance();
     }
 
     // Handle Property Parsing

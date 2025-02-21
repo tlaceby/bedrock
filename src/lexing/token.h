@@ -9,6 +9,7 @@ namespace lexer {
 
 enum TokenKind {
   END_FILE,
+
   IDENTIFIER,
   NUMBER,
   STRING,
@@ -60,35 +61,26 @@ enum TokenKind {
   TRAIT,
   PUB,
   DYN,
-  IMPORT,
-  INTERFACE,
   RETURN,
   CONTINUE,
   BREAK,
-  STATIC,
   WHILE,
   FOR,
-  AS,
   TYPEOF,
   IN,
   TYPE,
-  UNSAFE,
   MATCH,
   CASE,
   IMPL,
   DEFER,
-  // Operators as keywords
-  LT,
-  LTE,
-  GT,
-  GTE,
+  USE,
+  MUT,
+  UNION,
+  OVERRIDE,
+
   AND,
   OR,
-  // Reserved Macros
-  NUMBER_MACRO,
-  STRING_MACRO,
-  FMT_MACRO,
-  LOG_MACRO,
+
 };
 
 const unordered_map<string, TokenKind> reserved_lu = {
@@ -98,43 +90,30 @@ const unordered_map<string, TokenKind> reserved_lu = {
     {"mod", MOD},
     {"dyn", DYN},
     {"struct", STRUCT},
-    {"import", IMPORT},
     {"impl", IMPL},
     {"defer", DEFER},
-    {"as", AS},
-    {"interface", INTERFACE},
     {"fn", FN},
     {"if", IF},
     {"else", ELSE},
     {"return", RETURN},
     {"continue", CONTINUE},
     {"break", BREAK},
-    {"static", STATIC},
     {"while", WHILE},
     {"for", FOR},
-    {"as", AS},
     {"trait", TRAIT},
     {"typeof", TYPEOF},
     {"in", IN},
     {"type", TYPE},
-    {"unsafe", UNSAFE},
     {"match", MATCH},
     {"case", CASE},
+    {"use", USE},
+    {"mut", MUT},
+    {"union", UNION},
+    {"override", OVERRIDE},
 
     // Operators as keywords
-    {"lt", LT},
-    {"lte", LTE},
-    {"gt", GT},
-    {"gte", GTE},
-    {"not", NOT},
     {"and", AND},
     {"or", OR},
-
-    // Reserved Macros
-    {"@str", STRING_MACRO},
-    {"@num", NUMBER_MACRO},
-    {"@log", LOG_MACRO},
-    {"@fmt", FMT_MACRO},
 };
 
 string token_tag(TokenKind kind);

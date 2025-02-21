@@ -1,0 +1,8 @@
+mod option;
+// Bedrock Standard Library Implimentation of Option
+
+pub enum Option <T> {
+    Some(T),
+    None,
+}
+

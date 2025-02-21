@@ -75,8 +75,8 @@ struct FnDeclStmt : public Stmt {
   shared_ptr<Type> return_type;
   shared_ptr<BlockStmt> body;
 
-  virtual ~FnDeclStmt() {
-  }
+  virtual ~FnDeclStmt() {}
+
   FnDeclStmt() {
     kind = FN_DECL_STMT;
   }

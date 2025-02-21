@@ -80,13 +80,6 @@ shared_ptr<ast::SymbolType> parse_symbol_type(Parser &);
 shared_ptr<ast::PointerType> parse_pointer_type(Parser &);
 shared_ptr<ast::FnType> parse_fn_type(Parser &);
 
-// Macro & Trait Parsing -----
-// ------------------------
-shared_ptr<ast::LogMacro> parse_log_macro(Parser &);
-shared_ptr<ast::NumMacro> parse_num_macro(Parser &);
-shared_ptr<ast::StrMacro> parse_str_macro(Parser &);
-shared_ptr<ast::FmtMacro> parse_fmt_macro(Parser &);
-
 // Shared Parsing Methods
 pair<vector<ast::PropertyKey>, bool> parse_fn_params(Parser &);
 vector<string> parse_generics_list(Parser &p);

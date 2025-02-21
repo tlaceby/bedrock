@@ -121,10 +121,6 @@ string lexer::token_tag(TokenKind kind) {
     return "pub";
   case DYN:
     return "dyn";
-  case IMPORT:
-    return "import";
-  case INTERFACE:
-    return "interface";
   case RETURN:
     return "return";
   case CONTINUE:
@@ -135,46 +131,24 @@ string lexer::token_tag(TokenKind kind) {
     return "impl";
   case BREAK:
     return "break";
-  case STATIC:
-    return "static";
   case WHILE:
     return "while";
   case FOR:
     return "for";
-  case AS:
-    return "as";
   case TYPEOF:
     return "typeof";
   case IN:
     return "in";
   case TYPE:
     return "type";
-  case UNSAFE:
-    return "unsafe";
   case MATCH:
     return "match";
   case CASE:
     return "case";
-  case LT:
-    return "lt";
-  case LTE:
-    return "lte";
-  case GT:
-    return "gt";
-  case GTE:
-    return "gte";
   case AND:
     return "and";
   case OR:
     return "or";
-  case NUMBER_MACRO:
-    return "@num";
-  case STRING_MACRO:
-    return "@str";
-  case LOG_MACRO:
-    return "@log";
-  case FMT_MACRO:
-    return "@fmt";
   default:
     return "unknown_tk " + to_string(kind);
   }

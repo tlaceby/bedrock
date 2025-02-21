@@ -19,16 +19,7 @@ shared_ptr<analysis::Type> analysis::tc_expr(shared_ptr<ast::Expr> expr, shared_
     return tc_binary_expr(static_cast<BinaryExpr *>(expr.get()), env);
   case CALL_EXPR:
     return tc_call_expr(static_cast<CallExpr *>(expr.get()), env);
-
-  // Macros
-  case LOG_MACRO:
-    return tc_log_macro(static_cast<LogMacro *>(expr.get()), env);
-  case FMT_MACRO:
-    return tc_fmt_macro(static_cast<FmtMacro *>(expr.get()), env);
-  case STR_MACRO:
-    return tc_str_macro(static_cast<StrMacro *>(expr.get()), env);
-  case NUM_MACRO:
-    return tc_num_macro(static_cast<NumMacro *>(expr.get()), env);
+    
   default:
     expr->debug(0);
     std::cout << "^^^^^ typechecking for node Unimplimented ^^^^^^\n";

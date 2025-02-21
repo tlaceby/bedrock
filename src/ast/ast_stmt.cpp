@@ -44,10 +44,7 @@ string displayProperty(size_t depth, ast::PropertyKey prop) {
   string out = space(depth) + bold_green(prop.name) + ": \n";
 
   out += space(depth + 1) + blue("Public") + ": ";
-  out += string((prop.is_pub || prop.is_static) ? "true" : "false") + "\n";
-
-  out += space(depth + 1);
-  out += blue("Static") + ": " + string(prop.is_static ? "true" : "false");
+  out += string((prop.is_pub) ? "true" : "false") + "\n";
 
   out += "\n" + prop.type->debug(depth + 1);
   return out;

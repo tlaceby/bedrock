@@ -30,10 +30,4 @@ shared_ptr<analysis::Type> tc_prefix_expr(ast::PrefixExpr *, shared_ptr<analysis
 shared_ptr<analysis::Type> tc_assignment_expr(ast::AssignmentExpr *, shared_ptr<analysis::Scope>);
 shared_ptr<analysis::Type> tc_call_expr(ast::CallExpr *, shared_ptr<analysis::Scope>);
 
-// Macros & Traits
-shared_ptr<analysis::Type> tc_log_macro(ast::LogMacro *, shared_ptr<analysis::Scope>);
-shared_ptr<analysis::Type> tc_fmt_macro(ast::FmtMacro *, shared_ptr<analysis::Scope>);
-shared_ptr<analysis::Type> tc_str_macro(ast::StrMacro *, shared_ptr<analysis::Scope>);
-shared_ptr<analysis::Type> tc_num_macro(ast::NumMacro *, shared_ptr<analysis::Scope>);
-
 }; // namespace analysis

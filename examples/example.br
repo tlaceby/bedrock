@@ -1,0 +1,84 @@
+mod main;
+
+use std::os;                               // $BEDROCK$/lib/os/     folder
+use std::fmt;                              // $BEDROCK$/lib/fmt/    folder
+use { rand_int, rand_range } in std::rand; // selective imports
+use mylib;  // ./mylib/
+
+
+fn main () {
+  const BUFFER_SIZE = 1024;
+  let x := 10;
+  x = x + 1; // no ++ or -- pre/post incriment/decrement in the language
+
+  let x_ptr: *i32 = &x; // Just like in C, you can create a pointer/reference like this. There is no pointer arithemitic in bedrock. 
+  // Pointers are useful for passing by reference into functions when you need to mutate a value and dont want to create a copy.
+  x_ptr* = 0;
+
+  fmt.printf("x : %v\n", x); // 0
+  fmt.printf("x_ptr* : %v\n", x_ptr*); // 0
+
+  // Options and Unknown Values
+  let optional_num: Option<number> = 20; // This means a number may or may not exist in this type.
+  let another_optional_num: Option<number>; // this variable has no value unlike the one above.
+
+  match optional_num {
+    case Some (num) => fmt.printf("the number is %d\n", num); // the number is 20
+    case None => fmt.println("the value does not have a value\n");
+  }
+
+  // we could also use methods on option types. These are defined with the impl functionality inside the option module
+  if another_optional_num.has_value() {
+    fmt.println("it has a value");
+  } else {
+    println("It does not have a value");
+    another_optional_num.set_value(25);
+  }
+
+  // returns a fn () -> Option<number> here we get the optional value, and if it's not definedm we set it to 0
+  let opt_res = some_function_which_returns_a_optional_number().get_or_default(0); 
+
+  // Using Other Tagged Unions
+  const john = Human{ name: "John", age: 48 };
+
+  let thing1 Thing(jane);
+  let thing2 = Thing::Other;
+
+  const things = []Thing{ thing1, thing2 };
+  for (let thing, index in things) {
+    match thing {
+      case Other => fmt.printf("[%d] Thing!\n", i);
+      case Human (person) => {
+        fmt.printf("[%d] %s is %d year's old!\n", i, person.name, person.age);
+        person.birthday(); // usage of a method in bedrock
+      }
+    }
+  }
+}
+
+// Defining Tagged Union Types with a Complex type of Human
+pub struct Human {
+  pub name: string;
+  pub age:  number;
+}
+
+impl Human {
+  pub fn birthday(mut self) -> Self {
+    self.age += 1;
+    return self;
+  }
+}
+
+// Let's say you dont quite like how this struct is printed to the console with the fmt.printf("%v", p); method
+// You can always override trait implimentations (if the module allows it). In this case fmt._String<T> allows it. 
+// You must override ALL methods in the trait, but in this case there is only one.
+override trait fmt._String for Human {
+  pub fn _string(self) -> string {
+    return fmt.sprintf("(%s, %d)", self.name, self.age);
+  }
+}
+
+pub union Thing {
+  Human(Human),
+  Other,
+}

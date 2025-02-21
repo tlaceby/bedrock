@@ -1,0 +1,25 @@
+mod fmt;
+// Bedrock fmt module
+
+// EVERY base/compound in the language has impliments this trait. There is a default implimentation already.
+// However, if a user wants to provide a custom override for their own type they can with a impl block.
+@AllowsExternalOverride
+pub trait _String<T> {
+    pub fn _string() -> string;
+}
+
+// Generic type implimenation for ALL T's. 
+// Not very optimal, but demonstrates & allows me to test this with generic type parameter with traits and implimentation on ALL variation types. Eventually will be compiler optimized
+impl _String for T {
+    pub fn _string(self) -> string {
+        return match T {
+           case string (str) return str;
+           case number, boolean (val) return as_string(val);
+           case None => "None";
+           case Some (val)  => val._string(); // Option, Result types Some(T) variant
+           case Error (err) => err._string(); // Result(E) variant
+           case Slice (elements) => "[]";
+           _ => "Unknown type";
+        }
+    }
+}

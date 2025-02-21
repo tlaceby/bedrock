@@ -11,10 +11,9 @@ shared_ptr<Scope> createGlobalScope() {
   env->name = "global";
 
   // Define Types
-  env->defineType("Bool", MK_BOOL());
-  env->defineType("Number", MK_NUM());
-  env->defineType("Void", MK_VOID());
-  env->defineType("String", MK_STR());
+  env->defineType("bool", MK_BOOL());
+  env->defineType("number", MK_NUM());
+  env->defineType("string", MK_STR());
 
   // Define program object
   auto p = MK_STRUCT("BedrockProgram");
@@ -29,11 +28,7 @@ shared_ptr<Scope> createGlobalScope() {
   env->defineSymbol("false", MK_BOOL(), true);
 
   // Define Modules
-
-  // Define Macros
-
-  // etc...
-
+    
   return env;
 }
 
@@ -202,12 +197,7 @@ shared_ptr<analysis::Type> analysis::tc_struct_stmt(StructStmt *stmt, shared_ptr
       exit(1);
     }
 
-    if (prop.is_static) {
-      s->staticProperties[propName] = propType;
-    } else {
-      s->properties[propName] = propType;
-    }
-
+    s->properties[propName] = propType;
     if (prop.is_pub) {
       s->publicMembers.insert(propName);
     }
