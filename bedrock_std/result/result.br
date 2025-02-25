@@ -1,6 +1,0 @@
-mod main;
-
-enum Result<T, E> {
-    Some(T),
-    Error(E),
-}

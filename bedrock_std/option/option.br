@@ -1,8 +1,40 @@
 mod option;
-// Bedrock Standard Library Implimentation of Option
 
 pub enum Option <T> {
     Some(T),
     None,
 }
 
+impl Option<T> {
+    pub fn unwrap_err(self, err: string) -> T {
+        return match self {
+            case None -> runtime::panic(err),
+            case Some(t) -> t
+        };
+    }
+    
+    pub fn unwrap(self) -> T {
+        return self.unwrap_err(".unwrap called on Option with no underlying data");
+    }
+
+    pub fn get_or_insert(self, value: T) -> Self {
+        return match self {
+            case Some(t) -> t,
+            _ -> Some(value)
+        };
+    }
+
+    pub fn unwrap_or_else(self, handler: fn () -> T) -> T {
+        return match self {
+            case None -> handler(),
+            case Some(t) -> t
+        };
+    }
+
+    pub fn unwrap_or_default(self, default: T) -> T {
+        return match self {
+            case None -> default,
+            case Some(t) -> t
+        };
+    }
+}
