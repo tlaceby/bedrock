@@ -1,0 +1,21 @@
+use errors; // ./errors.br
+use std.ffi; // when doing imports, std will be known
+use std.string;
+
+struct FILE;
+extern fn fopen(path: *char, mode: *char) -> *FILE;
+extern fn fread(buffer: *void, size: usize, count: usize, stream: *FILE) -> usize;
+extern fn fclose(stream: *FILE) -> i32;
+
+pub fn read_file(path: string) -> Result<string, IOError> {
+    let file = fopen(ffi.c_str(), "rb");
+    if ffi.is_null(file) {
+      return Result::Err(IOError::FileNotFound);
+    }
+  
+    let buffer = alloc(1024);
+    let size = fread(buffer, 1, 1024, file);
+    fclose(file);
+  
+    return Ok(string::from_bytes(buffer, size));
+}

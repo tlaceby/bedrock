@@ -1,0 +1,8 @@
+extern fn printf(format: *char, dyn _) -> i32;
+pub fn println(data: string) {
+    printf("%s\n", ffi.cstr(data));
+}
+
+pub fn print(data: string) {
+    printf("%s", ffi.cstr(data));
+}

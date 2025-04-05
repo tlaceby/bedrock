@@ -1,10 +1,8 @@
-#include "analysis/analsyis.h"
-#include "bedrock.h"
-#include "compiler/compiler.h"
-#include "lexing/lexer.h"
-#include "parser/parser.h"
-#include "util/colors.h"
-#include "vm/vm.h"
+
+#include "./includes.hpp"
+#include "colors.hpp"
+#include "flags.hpp"
+#include <cstdio>
 
 inline bool COLORS_ENABLED = true;
 inline bool DISPLAY_AST = false;
@@ -12,24 +10,25 @@ inline bool DISPLAY_TOKENS = false;
 inline bool DISPLAY_TYPEINFO = false;
 inline bool DISABLE_BOUND_CHECKING = false;
 inline string COMPILED_FILES_PATH = ".builds/";
+inline string STANDARD_LIBRARY_PATH = "@std/";
 
 int display_help() {
-  using std::cout;
-
-  cout << white("\n--------------  " + string("Bedrock | v") + BEDROCK_VERSION + "  --------------\n\n");
-
+  cout << white("\n--------------  " + string("Bedrock | v") + BEDROCK_VERSION +
+                "  --------------\n\n");
   // HELP
   cout << bold_blue("(help|info)");
   cout << yellow(" `bedrock help` | `bedrock info`\n");
-  cout << "  - " << white("Displays a list of CLI commands and expected arguments.\n");
+  cout << "  - "
+       << white("Displays a list of CLI commands and expected arguments.\n");
 
   // RUN
   cout << bold_blue("\n(run)");
   cout << yellow(" `bedrock run path/to/file.br`\n");
   cout << "  - " << white("Builds and executes the in debug mode.\n") << "  - ";
-  cout << white("[fn] The relative or absolute path to a bedrock file which will "
-                "contain "
-                "the entry point of the application.\n");
+  cout << white(
+      "[fn] The relative or absolute path to a bedrock file which will "
+      "contain "
+      "the entry point of the application.\n");
 
   cout << "\n\n";
 
@@ -64,13 +63,7 @@ int display_help() {
 }
 
 int bedrock_run(string file_path) {
-  string BYTECODE_PATH = "./brprogram.brbc";
-  compiler::Compiler compiler;
-
-  auto program = parser::parse(file_path);
-  analysis::tc_program(program);
-  compiler.compile(program, BYTECODE_PATH);
-
+  printf("Hello world\n");
   return 0;
 }
 

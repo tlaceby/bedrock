@@ -1,0 +1,20 @@
+pub enum Option<T> {
+    None,
+    Some(T),
+}
+
+impl Option<T> {
+    pub fn is_some(self) -> bool {
+        match self {
+            Some(_) => true,
+            None => false,
+        }
+    }
+
+    pub fn unwrap(self) -> T {
+        match self {
+            Some(value) => value,
+            None => panic("Called unwrap on None"),
+        }
+    }
+}

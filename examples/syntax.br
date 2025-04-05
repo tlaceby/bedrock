@@ -1,59 +1,109 @@
+use std.io; // loads the std.io module
+use std.fs; // loads the std.fs module
+use test.a; // ./examples/a.br
+use foo; // loads the foo.br file in ./foo.br
 
-// One of bedrocks special features is the ability to create methods for ALL types including primitive types.
-impl Number {
-  fn isEven() -> Bool {
-    return self % 2 == 0;
+
+// Bedrock uses structural typing over `nominal typing`, so if a type walks like a duck and quacks like a duck,
+// it's a bloody duck according to the compiler. No need to use `implements` or `extends`.
+trait ICommunicate {
+  fn communicate();
+}
+
+pub struct Person {
+  name: str;
+  age: isize;
+}
+
+impl Person {
+  // static constructor
+  pub fn new(name: str, age: isize) -> Self {
+    return Self{ name, age };
   }
 
-  static fn fromStr(stringNum: String) -> Self {
-    return @num(stringNum);
+  // satisfies ICommunicate interface structurally
+  pub fn communicate(self) {
+    io.printf("Hello from %s\n:", self.name);
+  }
+
+  pub fn birthday(ref self) {
+    self.age += 1;
   }
 }
 
-struct Rect {
-  static count: Number;
-  width: Number;
-  height: Number;
+pub struct Cat {
+  name: str;
+  age: isize;
 }
 
-impl Rect {
-  static fn new(width: Number, height: Number) -> Self {
-    Rect::count += 1;
-    return Self{ width, height };
+impl Cat {
+  pub fn new(name: str, age: isize) -> Self {
+    return Self{ name, age };
   }
 
-  // Allows member methods to be used as if they are 
-  fn zero() -> Void {
-    self.width = self.height = 0;
-  }
-
-  // Create a override for the @str() macro for the Rect struct.
-  trait @str() -> String {
-    return @format("Width: {} Height: {}\n", @str(self->width), @str(self->height));
-  }
-
-  // Override the log method to just print the string representation.
-  trait @log() -> String {
-    return @log(@str(self));
+  pub fn communicate(self) {
+    io.printf("%s says meow!\n:", self.name);
   }
 }
 
-// Calling external c/c++/rust code.
-extern fn c_add {
-  params: { i32, i32 };
-  returns: i32;
-  location: "./lib/mylib.dll";
+// Example Option type (defined in std.option)
+enum Option<T> {
+  None,
+  Some(T),
 }
 
-fn main () {
-  const result = c_add(10.2, 10); // 20
-  const r1 = Rect::new(10, 7);
-  const pi = Number::fromStr("3.14");
-
-  if !pi.isEven() {
-    @log("pi is not even");
+impl Option<T> {
+  pub fn is_some(self) -> bool {
+    match self {
+      Some(_) => true,
+      None => false,
+    }
   }
 
-  r1.zero();
-  @log(r1);
+  pub fn unwrap(self) -> T {
+    match self {
+      Some(value) => value,
+      None => panic("Called unwrap on None"),
+    }
+  }
+}
+
+// C-Interop with FFI
+// tell the bedrock compiler where to look for your library, and then load it.
+
+extern "./library/mylib.so" {
+  struct c_person {
+    name: *char,
+    age: i32,
+  } as CPerson;
+
+  fn add(x: f64, y: f64) -> f64;
+}
+
+struct FILE; // creating a opaque type
+extern fn fopen(path: *char, mode: *char) -> *FILE;
+
+fn main(args: []str) {
+  c1 := Cat::new("Whiskers", 7);
+  c2 := Cat::new("Timmy", 10);
+  c3 := Cat::new("Tom", 16);
+  p1 := Person::new("Sam", 32);
+  p2 := Person::new("Jenna", 43);
+
+  speakables := []ICommunicate{};
+
+  // Loop over BOTH cat and person arrays at same time. Will continue with the largest array bounds.
+  for (cat, person) in ([]Cat{c1, c2, c3}, []Person{p1, p2}) {
+    if cat.is_some() {
+      speakables = append(speakables, cat);
+    }
+
+    if person.is_some() {
+      speakables = append(speakables, person);
+    }
+  }
+
+  for entry in speakables {
+    entry.communicate();
+  }
 }
