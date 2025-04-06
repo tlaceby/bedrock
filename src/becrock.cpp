@@ -1,8 +1,9 @@
 
 #include "./includes.hpp"
-#include "colors.hpp"
+#include "errors/lex_error.hpp"
 #include "flags.hpp"
-#include <cstdio>
+#include "lexer/lexer.hpp"
+#include "utils/colors.hpp"
 
 inline bool COLORS_ENABLED = true;
 inline bool DISPLAY_AST = false;
@@ -63,7 +64,21 @@ int display_help() {
 }
 
 int bedrock_run(string file_path) {
-  printf("Hello world\n");
+  cout << "filepath: " << file_path << endl;
+  auto lex_results = lexer::tokenize(file_path, false);
+  if (lex_results.second.size() > 0) {
+    cout << "errors: " << lex_results.second.size() << endl;
+    for (errors::LexicalError err : lex_results.second) {
+      err.display();
+    }
+
+    return 1;
+  }
+
+  for (auto tk : lex_results.first) {
+    tk.display();
+  }
+
   return 0;
 }
 

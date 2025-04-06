@@ -1,5 +1,4 @@
 #!/bin/bash
-
 build() {
   make -j10
 }

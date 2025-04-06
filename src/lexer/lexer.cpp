@@ -1,12 +1,19 @@
 #include "lexer.hpp"
+#include "../utils/colors.hpp"
+#include "../utils/fs.hpp"
 #include "token.hpp"
 
+#include <cstddef>
+#include <cstdlib>
 #include <memory>
+#include <optional>
 #include <regex>
+#include <string>
 
 using std::regex;
 using std::smatch;
 using namespace lexer;
+using namespace errors;
 
 lexer::Lexer::Lexer(std::shared_ptr<ModuleFileRef> mod) {
   pos = 0;
@@ -22,19 +29,19 @@ lexer::Lexer::Lexer(std::shared_ptr<ModuleFileRef> mod) {
       {regex(R"("[^"]*")"), string_handler},
       {regex(R"([0-9]+(\.[0-9]+)?)"), number_handler},
       {regex(R"([a-zA-Z_@][a-zA-Z0-9_]*)"), symbol_handler},
-      {regex(R"(\[)"), default_handler(OPEN_BRACKET, "[")},
-      {regex(R"(\])"), default_handler(CLOSE_BRACKET, "]")},
-      {regex(R"(\{)"), default_handler(OPEN_CURLY, "{")},
-      {regex(R"(\})"), default_handler(CLOSE_CURLY, "}")},
-      {regex(R"(\()"), default_handler(OPEN_PAREN, "(")},
-      {regex(R"(\))"), default_handler(CLOSE_PAREN, ")")},
+      {regex(R"(\[)"), default_handler(LBRACKET, "[")},
+      {regex(R"(\])"), default_handler(RBRACKET, "]")},
+      {regex(R"(\{)"), default_handler(LCURLY, "{")},
+      {regex(R"(\})"), default_handler(RCURLY, "}")},
+      {regex(R"(\()"), default_handler(LPAREN, "(")},
+      {regex(R"(\))"), default_handler(RPAREN, ")")},
       {regex(R"(\=\=)"), default_handler(EQUALS, "==")},
       {regex(R"(\!\=)"), default_handler(NOT_EQUALS, "!=")},
       {regex(R"(!)"), default_handler(NOT, "!")},
       {regex(R"(=)"), default_handler(ASSIGNMENT, "=")},
       {regex(R"(->)"), default_handler(ARROW, "->")},
-      {regex(R"(<)"), default_handler(OPEN_GENERIC, "<")},
-      {regex(R"(>)"), default_handler(CLOSE_GENERIC, ">")},
+      {regex(R"(<)"), default_handler(LESS_THAN, "<")},
+      {regex(R"(>)"), default_handler(GREATER_THAN, ">")},
       {regex(R"(\.\.)"), default_handler(DOT_DOT, "..")},
       {regex(R"(\.)"), default_handler(DOT, ".")},
       {regex(R"(;)"), default_handler(SEMICOLON, ";")},
@@ -57,11 +64,48 @@ lexer::Lexer::Lexer(std::shared_ptr<ModuleFileRef> mod) {
   };
 };
 
-pair<vector<Token>, vector<errors::Error>> lexer::tokenize(string file_path) {
-    // construct a lexer from the filepath. This will require looking up the path, checking if it is a bedrock file. Also checking if there are other known bedrock files
-    // If there are, return the ModRef for that.
-    // If there are not, then create a new one with validation.
-  Lexer lex{file_path};
+std::optional<shared_ptr<ModuleFileRef>>
+lexer::file_ref_from_relative(string relative_path) {
+  auto ref = std::make_shared<ModuleFileRef>();
+  auto opt = utils::fs::read_file(relative_path);
+
+  if (!opt.has_value()) {
+    string message = bold_white("Unable to load bedrock file. ") +
+                     "The file: " + relative_path +
+                     " could not be loaded. Please ensure the path is correct "
+                     "and has the proper read permissions";
+    LexicalError(LexicalErrorKind::InvalidFilePath, message).add_location(relative_path)->display();
+    return std::nullopt;
+  }
+
+  ref->data = opt.value();
+  ref->from_import = false;
+  return std::make_optional<shared_ptr<ModuleFileRef>>(ref);
+}
+
+std::optional<shared_ptr<ModuleFileRef>>
+lexer::file_ref_from_import(string in_code_name) {
+  auto ref = std::make_shared<ModuleFileRef>();
+  TODO("Unimplimented");
+  ref->from_import = true;
+  ref->import_name = in_code_name;
+  return ref;
+}
+
+pair<vector<Token>, vector<errors::LexicalError>>
+lexer::tokenize(string file_path, bool from_import) {
+  // construct a lexer from the filepath. This will require looking up the path,
+  // checking if it is a bedrock file. Also checking if there are other known
+  // bedrock files If there are, return the ModRef for that. If there are not,
+  // then create a new one with validation.
+  auto opt = from_import ? file_ref_from_import(file_path)
+                         : file_ref_from_relative(file_path);
+  if (!opt.has_value()) {
+    exit(1);
+    // It's safe to exit as the errors have already been displayed
+  }
+
+  Lexer lex{opt.value()};
 
   // Means loading the file produces errors.
   if (lex.errs.size() != 0) {
@@ -82,26 +126,23 @@ pair<vector<Token>, vector<errors::Error>> lexer::tokenize(string file_path) {
     }
 
     if (!matched) {
-      SourcePos pos{lex.file, lex.line, lex.pos, lex.pos};
-      lex.errs.push_back(Err(ErrKind::UnexpectedToken)
-                             .message(bold_white("Unrecognized token near " +
-                                                 pos.error_str()) +
-                                      "  " + lex.remainder()));
+      string message =
+          bold_white("Unrecognized token located while lexing file.") +
+          "The character: `" + lex.file->data[lex.pos] + "` is not reconized.\n";
+      lex.errs.push_back(
+          *LexicalError(LexicalErrorKind::UnxepextedToken, message)
+               .add_location(lex.file->absolute_path, lex.line, lex.pos));
     }
   }
 
-  SourcePos pos{lex.file, lex.line, lex.pos, lex.pos};
-  lex.push(Token{pos, TokenKind::END_FILE, "EOF"});
-
+  lex.push(Token{TokenKind::END_FILE, "EOF", lex.line, lex.pos, lex.file});
   return make_pair(lex.tokens, lex.errs);
 }
 
 regex_handler lexer::default_handler(TokenKind kind, const string &value) {
   return [kind, value](Lexer &lex, const regex &) {
-    SourcePos pos{lex.file, lex.line, lex.pos, 0};
+    lex.push(Token{kind, value, lex.line, lex.pos, lex.file});
     lex.advance_n(value.length());
-    pos.end = lex.pos;
-    lex.push(Token{pos, kind, value});
   };
 }
 
@@ -111,10 +152,8 @@ void lexer::string_handler(Lexer &lex, const regex &re) {
 
   if (regex_search(remainder, match, re)) {
     string literal = match.str().substr(1, match.str().length() - 2);
-    SourcePos pos{lex.file, lex.line, lex.pos, 0};
+    lex.push(Token{TokenKind::STRING, literal, lex.line, lex.pos, lex.file});
     lex.advance_n(match.str().length());
-    pos.end = lex.pos;
-    lex.push(Token{pos, TokenKind::STRING, literal});
   }
 }
 
@@ -123,10 +162,9 @@ void lexer::number_handler(Lexer &lex, const regex &re) {
   string remainder = lex.remainder();
 
   if (regex_search(remainder, match, re)) {
-    SourcePos pos{lex.file, lex.line, lex.pos, 0};
+    lex.push(
+        Token{TokenKind::NUMBER, match.str(), lex.line, lex.pos, lex.file});
     lex.advance_n(match.str().length());
-    pos.end = lex.pos;
-    lex.push(Token{pos, TokenKind::NUMBER, match.str()});
   }
 }
 
@@ -136,17 +174,15 @@ void lexer::symbol_handler(Lexer &lex, const regex &re) {
 
   if (regex_search(remainder, match, re)) {
     string symbol = match.str();
-    SourcePos pos{lex.file, lex.line, lex.pos, 0};
+    auto it = reserved_lu.find(symbol);
+
+    if (it != reserved_lu.end()) {
+      lex.push({it->second, symbol, lex.line, lex.pos, lex.file});
+    } else {
+      lex.push({TokenKind::IDENTIFIER, symbol, lex.line, lex.pos, lex.file});
+    }
 
     lex.advance_n(symbol.length());
-    pos.end = lex.pos;
-
-    auto it = reserved_lu.find(symbol);
-    if (it != reserved_lu.end()) {
-      lex.push(Token{pos, it->second, symbol});
-    } else {
-      lex.push(Token{pos, TokenKind::IDENTIFIER, symbol});
-    }
   }
 }
 
@@ -174,6 +210,6 @@ void Lexer::advance_n(size_t n) { pos += n; }
 
 void Lexer::push(Token token) { tokens.push_back(token); }
 
-bool Lexer::at_eof() { return pos >= file->contents.length(); }
+bool Lexer::at_eof() { return pos >= file->data.length(); }
 
-string Lexer::remainder() { return file->contents.substr(pos); }
+string Lexer::remainder() { return file->data.substr(pos); }

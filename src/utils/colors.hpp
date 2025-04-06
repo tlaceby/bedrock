@@ -1,6 +1,6 @@
 #pragma once
 
-#include "flags.hpp"
+#include "../flags.hpp"
 
 #define RESET "\033[0m"
 #define BLACK "\033[30m"
